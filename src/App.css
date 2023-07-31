@@ -1,0 +1,15 @@
+.app {
+    --color-primary: #45f3ff;
+    --color-secondary: #ff01fa;
+    --color-dark: #28292d;
+    --color-background: #23242a;
+}
+
+.app {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 100vw;
+    min-height: 100vh;
+    background-color: var(--color-background);
+}
