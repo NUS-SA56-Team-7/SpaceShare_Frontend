@@ -38,3 +38,15 @@ body {
 .bg-primary {
     background-color: var(--primary-color);
 }
+
+.transition {
+    transition-property: color, max-height;
+    transition-duration: 0.3s;
+    transition-timing-function: ease;
+}
+
+.transition-max-height {
+    transition-property: max-height;
+    transition-duration: 0.3s;
+    transition-timing-function: ease;
+}
