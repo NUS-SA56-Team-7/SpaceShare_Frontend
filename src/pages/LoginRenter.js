@@ -2,15 +2,16 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 /* CSS Imports */
-import 'styles/pages/LoginRenter.css';
-import 'styles/components/form/Form.css';
-import 'styles/components/form/FormLink.css';
-import 'styles/components/ui/FormHeader.css';
+// import 'styles/pages/LoginRenter.css';
+// import 'styles/components/form/Form.css';
+// import 'styles/components/form/FormLink.css';
+// import 'styles/components/ui/FormHeader.css';
 
 /* Utility Imports */
 import Axios from 'utils/Axios';
 
 /* Component Imports */
+import LoginLayout from 'components/layout/LoginLayout';
 import FormInputText from 'components/form/FormInputText';
 import FormInputPassword from 'components/form/FormInputPassword';
 import FormError from 'components/form/FormError';
@@ -19,6 +20,7 @@ import ButtonFilled from 'components/ui/ButtonFilled';
 /* Context Imports */
 import EmailContext from 'contexts/EmailContext';
 import AuthContext from 'contexts/AuthContext';
+import Login from './Login';
 
 // /* Firebase Imports */
 // import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
@@ -117,9 +119,67 @@ function LoginRenter() {
         }
     }, [result]);
 
+    const bgImgUrl = "https://images.unsplash.com/photo-1675449215007-def921b7c0ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1932&q=80";
+
     return (
         <main className='login'>
-            <div className='form' style={{ height: '550px' }}>
+            <LoginLayout>
+                {/* Main Content */}
+                <div className="flex min-h-full flex-1 flex-col justify-center items-center px-6 py-12 lg:px-8">
+                    <div className="flex flex-col p-6 md:sticky md:top-6 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5 w-96">
+                        <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
+                            <img
+                                className="mx-auto h-auto w-40"
+                                src="/spaceshare_logo.svg"
+                                alt="SpaceShare"
+                            />
+                            <h2 className="mt-4 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+                                Sign in to your account
+                            </h2>
+                        </div>
+                        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+                            <div className="">
+                                <FormInputText
+                                    label='Enter Username or Email Address'
+                                    autoFocus
+                                    value={data['account'] ? data['account'] : ''}
+                                    onChange={(e) => setData({ ...data, account: (e.target.value).toLowerCase() })}
+                                    onKeyPress={(e) => e.key === 'Enter' && signIn()}
+                                />
+                                <FormError nbsp>{'account' in error && error['account']}</FormError>
+                                <FormInputPassword
+                                    label='Enter Password'
+                                    onChange={(e) => setData({ ...data, password: e.target.value })}
+                                    onKeyPress={(e) => e.key === 'Enter' && signIn()}
+                                />
+                                <FormError nbsp>{'password' in error && error['password']}</FormError>
+                                <div className="forgot_password text-right text-sm mb-2">
+                                    <a
+                                        href="#"
+                                        className="txt-primary hover:txt-primary-hover"
+                                        onClick={() => navigate('/resetpassword')}>
+                                        Forgot Password?
+                                    </a>
+                                </div>
+                                <ButtonFilled
+                                    onClick={() => signIn()}>
+                                    Login
+                                </ButtonFilled>
+                            </div>
+                            <p className="mt-10 text-center text-sm text-gray-500">
+                                Don't have an account?{' '}
+                                <a
+                                    href="#"
+                                    className="font-semibold leading-6 txt-primary hover:txt-primary"
+                                    onClick={() => navigate('/register')}>
+                                    Register
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* <div className='form' style={{ height: '550px' }}>
                 <div className='form_container'>
                     <div className='form_header'>
                         <h3>Stephen Phyo's</h3>
@@ -152,9 +212,9 @@ function LoginRenter() {
                     <div className='login_form_footer'>
                         <span className='label'>Don't have an account?</span>
                         <span className='form_link' onClick={() => navigate('/register')}>Register</span>
-                    </div>
+                    </div> */}
 
-                    {/* <section className={`login_form_options ${!formOptions && 'close'}`}>
+                {/* <section className={`login_form_options ${!formOptions && 'close'}`}>
                         <div className='login_form_options_button'
                             onClick={() => setFormOptions(!formOptions)}>
                             <div className='login_form_options_button_inner'>
@@ -177,8 +237,9 @@ function LoginRenter() {
                             </div>
                         </div>
                     </section> */}
-                </div>
-            </div>
+                {/* </div>
+            </div> */}
+            </LoginLayout>
         </main>
     );
 }
