@@ -12,7 +12,7 @@ export const AuthContextProvider = (props) => {
 
     /* Context Values */
     const value = {
-        auth, setAuth
+        auth, setAuth,
     };
 
     return (

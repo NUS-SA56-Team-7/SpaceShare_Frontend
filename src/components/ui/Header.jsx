@@ -29,7 +29,7 @@ function Header() {
                                 <span className="sr-only">SpaceShare</span>
                                 <img
                                     className="h-8 w-32"
-                                    src="./spaceshare_logo.svg"
+                                    src="/spaceshare_logo.svg"
                                     alt="logo"
                                 />
                             </a>

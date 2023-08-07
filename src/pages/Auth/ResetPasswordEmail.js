@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 /* CSS Imports */
 import 'styles/pages/ResetPasswordEmail.css';
@@ -16,9 +16,11 @@ import Axios from 'utils/Axios';
 /* Component Imports */
 import FormInputText from 'components/form/FormInputText';
 import FormError from 'components/form/FormError';
+import ButtonFilled from 'components/ui/ButtonFilled';
+import ButtonOutlined from 'components/ui/ButtonOutlined';
 
 /* Context Imports */
-import EmailContext from 'contexts/EmailContext';
+import ResetPasswordContext from 'contexts/ResetPasswordContext';
 
 /* Function Imports */
 import validateEmail from 'functions/validateEmail';
@@ -28,6 +30,9 @@ function ResetPasswordEmail() {
     /* useNavigate */
     const navigate = useNavigate();
 
+    /* useParam */
+    const params = useParams();
+
     /* useState */
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');
@@ -36,7 +41,7 @@ function ResetPasswordEmail() {
     const recaptchaRef = useRef();
 
     /* useContext */
-    const { setEmail: setCtxEmail } = useContext(EmailContext);
+    const { setResetAccount, setRecaptchaToken } = useContext(ResetPasswordContext);
 
     /* Functions */
     const checkEmail = () => {
@@ -62,20 +67,24 @@ function ResetPasswordEmail() {
 
     const resetPassword = () => {
         if (checkEmail() && checkRecaptcha()) {
-            Axios.post('/accounts/resetpassword',
-                { email: email, token: recaptchaRef.current.getValue() },
+            Axios.post(`/api/auth/resetpassword/${params.user}`,
+                { email: email, recaptchaToken: recaptchaRef.current.getValue() },
                 {
                     headers: { 'Content-Type': 'application/json' }
                 })
                 .then(res => {
                     if (res.status === 200) {
-                        setCtxEmail({ reset: email });
-                        navigate(`/resetpassword/${res.data.data._id}/otp`);
+                        setResetAccount({ id: res.data.id, email: res.data.email });
+                        navigate(`/resetpassword/${params.user}/${res.data.id}/otp`);
                     }
                 })
                 .catch(err => {
                     if (err?.response?.status === 404) {
                         setError('Account does not exist');
+                        recaptchaRef.current.reset();
+                    }
+                    else if (err?.response?.status === 400) {
+                        setError('You are a Robot');
                         recaptchaRef.current.reset();
                     }
                 })
@@ -90,6 +99,7 @@ function ResetPasswordEmail() {
                     <div className='form_header'>
                         <h2>Forgot Password?</h2>
                     </div>
+
                     <FormInputText
                         label='Enter Email Address'
                         autoFocus
@@ -99,21 +109,26 @@ function ResetPasswordEmail() {
                         }}
                         onKeyPress={(e) => e.key === 'Enter' && resetPassword()} />
                     <FormError nbsp>{error}</FormError>
+
                     <div className='form_captcha' style={{ marginTop: '20px' }}>
                         <ReCAPTCHA
                             ref={recaptchaRef}
                             sitekey={process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY}
-                            onChange={() => console.log(recaptchaRef.current.getValue())}
+                            onChange={() => {
+                                setRecaptchaToken(recaptchaRef.current.getValue());
+                                console.log(recaptchaRef.current.getValue());
+                            }}
                             theme='dark' />
                     </div>
-                    <div className='form_button filled'
+
+                    <ButtonFilled
                         onClick={() => resetPassword()}>
                         Reset Password
-                    </div>
-                    <div className='form_button outlined'
+                    </ButtonFilled>
+                    <ButtonOutlined
                         onClick={() => navigate('/login')}>
                         Cancel
-                    </div>
+                    </ButtonOutlined>
                 </div>
             </div>
         </main>

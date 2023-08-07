@@ -1,18 +1,45 @@
-/* .app {
+.app {
     --color-primary: #45f3ff;
     --color-secondary: #ff01fa;
     --color-dark: #28292d;
-    --color-background: #23242a;
+    --color-background: #f3f3f3;
+    --app-header-height: 70px;
 }
 
 .app {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
     min-width: 100vw;
     min-height: 100vh;
     background-color: var(--color-background);
-} */
+}
 
 @import url('./styles/common/output.css');
 @import url('./styles/common/common.css');
+
+.app_header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--app-header-height);
+    z-index: 1000;
+}
+
+.app_body {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    width: 100%;
+    height: calc(100vh - var(--app-header-height));
+}
+
+.app_body_main {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--tertiary-color);
+    background-image: var(--background-image);
+}

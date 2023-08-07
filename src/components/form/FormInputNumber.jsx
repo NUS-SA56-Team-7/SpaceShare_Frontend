@@ -1,13 +1,12 @@
 import React, { forwardRef } from 'react';
 
-const FormInputText = forwardRef((props, ref) => {
+const FormInputNumber = forwardRef((props, ref) => {
     return (
         <div
-            className='form_group'>
+            className='form-group'>
             <label>{props.label}</label>
             <input
-                type='text'
-                required='required'
+                type='number'
                 ref={ref}
                 {...props} />
             <hr />
@@ -15,4 +14,4 @@ const FormInputText = forwardRef((props, ref) => {
     );
 });
 
-export default FormInputText;
+export default FormInputNumber;

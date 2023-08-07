@@ -12,7 +12,13 @@ function Home() {
     return (
         <div>
             <ButtonFilled
-                onClick={() => navigate('/login')}>Login/Sign Up</ButtonFilled>
+                onClick={() => navigate('/login/renter')}>
+                Are you a Renter?
+            </ButtonFilled>
+            <ButtonFilled
+                onClick={() => navigate('/login/tenant')}>
+                Are you a Tenant?
+            </ButtonFilled>
         </div>
     );
 }

@@ -2,9 +2,9 @@ import Badge from "./Badge";
 
 const UserIconWithTag = ({ imgUrl, username, status }) => {
     return (
-        <div class="grid grid-cols-2 my-4 items-center">
-            <div class="flex items-center">
-                <div class="relative flex rounded-full text-sm">
+        <div className="grid grid-cols-2 my-4 items-center">
+            <div className="flex items-center">
+                <div className="relative flex rounded-full text-sm">
                     <span className="absolute -inset-1.5" />
                     <img
                         className="h-8 w-8 rounded-full"
@@ -13,7 +13,7 @@ const UserIconWithTag = ({ imgUrl, username, status }) => {
                     />
                 </div>
 
-                <p class="ml-2 text-gray-800 line-clamp-1 text-sm">
+                <p className="ml-2 text-gray-800 line-clamp-1 text-sm">
                     {username}
                 </p>
             </div>

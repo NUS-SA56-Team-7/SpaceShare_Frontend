@@ -13,10 +13,12 @@ import 'styles/components/ui/Text.css';
 import Axios from 'utils/Axios';
 
 /* Context Imports */
-import EmailContext from 'contexts/EmailContext';
+import ResetPasswordContext from 'contexts/ResetPasswordContext';
 
 /* Component Imports */
 import FormError from 'components/form/FormError';
+import ButtonFilled from 'components/ui/ButtonFilled';
+import ButtonOutlined from 'components/ui/ButtonOutlined';
 
 /* Hook Imports */
 import useCountDownTimer from 'hooks/useCountDownTimer';
@@ -37,7 +39,7 @@ function ResetPasswordOTP() {
     const params = useParams();
 
     /* useContext */
-    const { email: ctxEmail } = useContext(EmailContext);
+    const { resetAccount: ctxResetAccount, recaptchaToken } = useContext(ResetPasswordContext);
 
     /* useState */
     const [render, setRender] = useState(false);
@@ -64,7 +66,7 @@ function ResetPasswordOTP() {
             // Input is Not a Number
             else {
                 setOTP(OTP.substring(0, index) + ' ' + OTP.substring(index + 1));
-                // setTimeot() buys some time until the DOM elements are loaded, even if timeout is set to 0,
+                // setTimeout() buys some time until the DOM elements are loaded, even if timeout is set to 0,
                 // and the callback function inside setTimeout() will be queued up
                 setTimeout(() => inputRef.current[index].select(), 0);
             }
@@ -100,7 +102,7 @@ function ResetPasswordOTP() {
 
     const sendOTP = () => {
         actionCountDown('RESET');
-        Axios.get(`/accounts/resetpassword/${params.id}`)
+        Axios.get(`/api/auth/resetpassword/${params.user}/${params.id}/otp`)
             .then(res => {
                 if (res.status === 200) {
                     actionCountDown('START');
@@ -113,13 +115,15 @@ function ResetPasswordOTP() {
 
     const handleSubmit = () => {
         if (!OTP.includes(' ')) {
-            Axios.post(`accounts/resetpassword/${params.id}/otp`,
+            Axios.post(`/api/auth/resetpassword/${params.user}/${params.id}/otp/verify`,
                 { otp: OTP },
                 { headers: { 'Content-Type': 'application/json' } }
             )
                 .then(res => {
-                    console.log(res)
-                    navigate(`/resetpassword/${params.id}/submit`, { state: res.data.data });
+                    if (res.status === 200) {
+                        console.log('OK');
+                    }
+                    navigate(`/resetpassword/${params.user}/${params.id}/submit`, { state: res.data.data });
                 })
                 .catch(err => {
                     if (err?.response?.status === 403) { setError('OTP Verification Failed') };
@@ -129,8 +133,8 @@ function ResetPasswordOTP() {
 
     /* useEffect */
     useEffect(() => {
-        if (!ctxEmail.reset) {
-            navigate('/resetpassword');
+        if (!ctxResetAccount.id) {
+            navigate(`/resetpassword/${params.user}`);
         } else {
             setRender(true);
             sendOTP();
@@ -156,7 +160,7 @@ function ResetPasswordOTP() {
                         <p>
                             Email with a 6-digit OTP for password reset has been sent to your email address:
                         </p>
-                        <p id='email'>{ctxEmail.reset}</p>
+                        <p id='email'>{ctxResetAccount.email}</p>
                         <p>Please check your email and enter OTP to reset your password.</p>
                     </div>
                     <div className='otp_input_container'>
@@ -188,14 +192,14 @@ function ResetPasswordOTP() {
                             {`${convertTimeString(countdown).mm}:${convertTimeString(countdown).ss}`}
                         </div>
                     </div>
-                    <div className='form_button filled'
+                    <ButtonFilled
                         onClick={() => handleSubmit()}>
                         Continue
-                    </div>
-                    <div className='form_button outlined'
+                    </ButtonFilled>
+                    <ButtonOutlined
                         onClick={() => navigate('/resetpassword')}>
                         Back
-                    </div>
+                    </ButtonOutlined>
                 </div>
             </div>
         </main>
