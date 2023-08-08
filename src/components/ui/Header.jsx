@@ -2,7 +2,7 @@ import { Fragment, useState } from 'react'
 import { useNavigate } from 'react-router';
 
 import { Dialog, Transition, Menu } from '@headlessui/react'
-import { Bars3Icon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -24,7 +24,7 @@ function Header() {
                             <a href="#"
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    navigate('/');
+                                    navigate('/landing');
                                 }}>
                                 <span className="sr-only">SpaceShare</span>
                                 <img
@@ -87,6 +87,10 @@ function Header() {
                                             {({ active }) => (
                                                 <a
                                                     href="#"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        navigate('/profile');
+                                                    }}
                                                     className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                                                 >
                                                     View Profile
@@ -97,9 +101,13 @@ function Header() {
                                             {({ active }) => (
                                                 <a
                                                     href="#"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        navigate('/favorite');
+                                                    }}
                                                     className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                                                 >
-                                                    Settings
+                                                    Favorites
                                                 </a>
                                             )}
                                         </Menu.Item>
@@ -107,6 +115,10 @@ function Header() {
                                             {({ active }) => (
                                                 <a
                                                     href="#"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        navigate('/login');
+                                                    }}
                                                     className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                                                 >
                                                     Log out

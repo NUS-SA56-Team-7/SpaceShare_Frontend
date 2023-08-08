@@ -17,6 +17,10 @@ import ResetPasswordSuccess from 'pages/ResetPasswordSuccess';
 
 import Landing from 'pages/Landing';
 import Detail from 'pages/Detail';
+import Profile from 'pages/Profile';
+import Forms from 'pages/Forms';
+import Search from 'pages/Search';
+import Favorite from 'pages/Favorite';
 
 function App() {
     return (
@@ -37,6 +41,10 @@ function App() {
                     {/* SOMIN ROUTES --- DELETE */}
                     <Route path='/landing' element={<Landing />} />
                     <Route path='/detail' element={<Detail />} />
+                    <Route path='/profile' element={<Profile />} />
+                    <Route path='/forms' element={<Forms />} />
+                    <Route path='/search' element={<Search />} />
+                    <Route path='/favorite' element={<Favorite />} />
                 </Routes>
             </main>
         </Router>
