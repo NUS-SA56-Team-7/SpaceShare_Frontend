@@ -131,7 +131,7 @@ function Profile() {
                             </li>
                             <li className="py-2">
                                 <ButtonOutlined
-                                    action={isEditing ? handleCancelClick : handleEditClick}
+                                    onClick={isEditing ? handleCancelClick : handleEditClick}
                                 >
                                     <PencilIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
                                     {isEditing ? 'Stop Editing...' : 'Edit Profile'}
@@ -324,7 +324,7 @@ function Profile() {
                                                 Save Profile
                                             </ButtonFilled>
                                             <ButtonOutlined
-                                                action={handleCancelClick}
+                                                onClick={handleCancelClick}
                                             >
                                                 Cancel
                                             </ButtonOutlined>

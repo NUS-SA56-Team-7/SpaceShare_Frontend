@@ -21,6 +21,7 @@ import Profile from 'pages/Profile';
 import Forms from 'pages/Forms';
 import Search from 'pages/Search';
 import Favorite from 'pages/Favorite';
+import ErrorPage from 'pages/404';
 
 function App() {
     return (
@@ -45,6 +46,7 @@ function App() {
                     <Route path='/forms' element={<Forms />} />
                     <Route path='/search' element={<Search />} />
                     <Route path='/favorite' element={<Favorite />} />
+                    <Route path='/404' element={<ErrorPage />} />
                 </Routes>
             </main>
         </Router>

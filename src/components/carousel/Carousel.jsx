@@ -12,11 +12,13 @@ const Carousel = ({ items }) => {
         return () => clearInterval(interval);
     }, [items]);
 
-    const nextSlide = () => {
+    const nextSlide = (e) => {
+        e.stopPropagation();
         setActiveIndex((prevIndex) => (prevIndex + 1) % items.length);
     };
 
-    const prevSlide = () => {
+    const prevSlide = (e) => {
+        e.stopPropagation();
         setActiveIndex((prevIndex) => (prevIndex - 1 + items.length) % items.length);
     };
 
