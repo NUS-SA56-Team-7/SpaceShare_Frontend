@@ -2,7 +2,7 @@ import React from 'react';
 
 import Layout from 'components/layout/Layout';
 
-function ErrorPage() {
+function NotFound404() {
     return (
         <Layout>
             <div className="text-center">
@@ -22,4 +22,4 @@ function ErrorPage() {
     );
 }
 
-export default ErrorPage;
+export default NotFound404;

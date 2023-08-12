@@ -111,7 +111,7 @@ function Profile() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-12 gap-12 rounded-lg p-8 py-0 border border-gray-300">
                 {/* 4 column section */}
-                <div className="sm:col-span-1 md:col-span-4 pr-8 border-r border-gray-300">
+                <div className="sm:col-span-1 md:col-span-4 md:pr-8 md:border-r border-gray-300">
                     <div className="mx-auto max-w-xs flow-root pt-8">
                         <ul role="list" className="-my-6 divide-y divide-none">
                             <li className="py-2">
