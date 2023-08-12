@@ -8,7 +8,7 @@ export default AuthContext;
 export const AuthContextProvider = (props) => {
 
     /* useState */
-    const [auth, setAuth] = useState({});
+    const [auth, setAuth] = useState();
 
     /* Context Values */
     const value = {

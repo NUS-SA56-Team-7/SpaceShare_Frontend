@@ -4,13 +4,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 /* CSS Imports */
 import './App.css';
 
-/* Service Imports */
-import firebase from 'services/firebase/firebase';
-
 /*** Page Imports ***/
 import Home from 'pages/Home';
 import LoginTenant from 'pages/Auth/LoginTenant';
-import Login from 'pages/Auth/Login';
 import RegisterRenter from 'pages/Auth/RegisterRenter';
 import ResetPasswordEmail from 'pages/Auth/ResetPasswordEmail';
 import ResetPasswordOTP from 'pages/Auth/ResetPasswordOTP';
@@ -20,15 +16,26 @@ import ResetPasswordSuccess from 'pages/Auth/ResetPasswordSuccess';
 import Listing from 'pages/Listing';
 import Layout01 from 'layouts/Layout01';
 
+/* Authentication */
 import Landing from 'pages/Landing';
-import Login2 from 'pages/Login';
+import UserTypeSelect from 'pages/Auth/UserTypeSelect';
+import Login from 'pages/Auth/Login';
 
 /* Listing */
 import ListingUpsert from 'pages/Listing/ListingUpsert';
 import ListingDetail from 'pages/Listing/ListingDetail';
 
+/* Renter */
+import RenterProperties from 'pages/Renter/RenterProperties';
+
+/* Tenant */
+import Favorites from 'pages/Auth/Tenant/Favorites';
+
 /* Error Pages */
 import NotFound404 from 'pages/Error/NotFound404';
+import Profile from 'pages/Profile/Profile';
+import Forms from 'pages/Forms';
+import Search from 'pages/Search';
 
 function App() {
 
@@ -41,22 +48,30 @@ function App() {
         <Router>
             <main className='app'>
                 <Routes>
-                    <Route path='/' element={<Home />} />
+                    <Route path='/home' element={<Home />} />
                     <Route path='/tenant/login' element={<LoginTenant />} />
                     <Route path='/register/renter' element={<RegisterRenter />} />
                     {/* <Route path='/register/success' element={<RegisterSuccess />} /> */}
                     <Route path='/resetpassword/:id/success' element={<ResetPasswordSuccess />} />
 
                     {/* SOMIN ROUTES --- DELETE */}
-                    <Route path='/landing' element={<Landing />} />
-                    <Route path='/login' element={<Login2 />} />
-                    <Route path='/renter/listing/:upsert' element={<ListingUpsert />} />
 
                     {/* Listing */}
+                    <Route path='/' element={<Landing />} />
                     <Route path='/listing/:id' element={<ListingDetail />} />
+                    <Route path='/renter/listing/:upsert' element={<ListingUpsert />} />
 
                     <Route path='resetpassword/:id/success' element={<ResetPasswordSuccess />} />
 
+                    {/* Renter */}
+                    <Route path='/renter/properties' element={<RenterProperties />} />
+
+                    {/* Tenant */}
+                    <Route path='/tenant/favorites' element={<Favorites />} />
+
+                    {/* Authentication */}
+                    <Route path='/login' element={<UserTypeSelect />} />
+                    <Route path='/register' element={<UserTypeSelect />} />
                     <Route path='/login/:user' element={<Login />} />
                     <Route path='/resetpassword/:user' element={<ResetPasswordEmail />} />
                     <Route path='/resetpassword/:user/:id/otp' element={<ResetPasswordOTP />} />
@@ -76,9 +91,12 @@ function App() {
 
                     <Route path='*' element={<NotFound404 />} />
 
-                </Routes>
-            </main>
-        </Router>
+                    <Route path='/profile' element={<Profile />} />
+                    <Route path='/forms' element={<Forms />} />
+                    <Route path='/search' element={<Search />} />
+                </Routes >
+            </main >
+        </Router >
     );
 }
 

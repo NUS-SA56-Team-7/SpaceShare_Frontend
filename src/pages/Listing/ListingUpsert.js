@@ -12,7 +12,10 @@ import ButtonFilled from 'components/ui/ButtonFilled';
 import FormRadioOption from 'components/form/FormRadioOption';
 import FormSelectOption from 'components/form/FormSelectOption';
 import NotFound404 from '../Error/NotFound404';
-import ImageUploader from 'components/ImageUploader/ImageUploader';
+import ImageSelector from 'components/ImageSelector/ImageSelector';
+
+/* Context Imports */
+import AuthContext from 'contexts/AuthContext';
 
 /* Utility Imports */
 import Axios from 'utils/Axios';
@@ -22,6 +25,9 @@ import { firebaseStorageRefs } from 'services/firebase/CloudStorage/firebaseClou
 import firebaseStorageUploadFiles from 'services/firebase/CloudStorage/firebaseStorageUploadFiles';
 import firebaseStorageDeleteFiles from 'services/firebase/CloudStorage/firebaseStorageDeleteFiles';
 import Loader from 'components/Loader/Loader';
+import { useContext } from 'react';
+import AuthChecker from 'components/layout/AuthChecker';
+import Layout from 'components/layout/Layout';
 
 function ListingUpsert() {
 
@@ -42,12 +48,17 @@ function ListingUpsert() {
     const [error, setError] = useState({});
     const [loading, setLoading] = useState(false);
     const [selectedImages, setSelectedImages] = useState([]);
+    const [existingImages, setExistingImages] = useState([]);
+    const [selectedDocs, setSelectedDocs] = useState([]);
 
     /* useParams */
     const { upsert: paramUpsert } = useParams();
 
     /* useLocation */
     const location = useLocation();
+
+    /* useContext */
+    const { auth } = useContext(AuthContext);
 
     /* Search Params */
     const searchParams = new URLSearchParams(location.search);
@@ -95,7 +106,7 @@ function ListingUpsert() {
         if (data['furnishment'].length === 0) {
             err['furnishment'] = 'Please select Furnishment Status'
         }
-        if (selectedImages.length === 0) {
+        if (selectedImages.length + existingImages.length === 0) {
             err['propertyImages'] = 'Please provide a Property Image'
         }
     };
@@ -118,49 +129,43 @@ function ListingUpsert() {
     };
 
     const create = async () => {
-        // Axios.post('/api/property/create', data,
-        //     { headers: { 'Content-Type': 'application/json' } })
-        //     .then(res => {
-        //         if (res.status === 200) {
-        //             console.log('OK');
-        //             // navigate('/home');
-        //         }
-        //     })
-        //     .catch(err => {
-        //         if (err.response.status === 500) {
-        //             setError(err.response.data);
-        //         }
-        //     })
-        // await firebaseStorageUploadFiles(firebaseStorageRefs.propertyImages, selectedImages)
-        //     .then((result) => {
-        //         setData({ ...data, propertyImageURLs: result });
-        //         Axios.post('/api/property/create', data,
-        //             { headers: { 'Content-Type': 'application/json' } })
-        //     })
-        //     .then(res => {
-        //         console.log("OK");
-        //     })
-        //     .catch(err => {
-        //         console.log(err);
-        //         firebaseStorageDeleteFiles(firebaseStorageRefs.propertyImages, data.propertyImageURLs);
-        //     })
-
         try {
-            // Upload images to Firebase Storage
-            const uploadedImageURLs = await firebaseStorageUploadFiles(firebaseStorageRefs.propertyImages, selectedImages);
-
-            // Update the data object with the uploaded image URLs
+            // Upload Images to Firebase Storage
+            const uploadedImageURLs = await firebaseStorageUploadFiles(
+                firebaseStorageRefs.propertyImages, selectedImages);
+            // Update the Data Object with the Uploaded Image URLs
             const updatedData = { ...data, propertyImageURLs: uploadedImageURLs };
 
-            // Create the property using your backend API
-            const response = await Axios.post('/api/property/create', updatedData, {
-                headers: { 'Content-Type': 'application/json' }
-            });
+            await Axios.post(`/api/renter/${auth?.id}/property/create`,
+                updatedData,
+                {
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => {
+                    if (res.status === 201) {
+                        setData(res.data);
+                    }
+                    setLoading(false);
+                })
+                .catch(err => {
+                    if (err.response.status === 404) {
+                        setError(err.response.data);
+                    }
+                    else if (err.response.status === 500) {
+                        setError(err.response.data);
+                    }
+                    setLoading(false);
+                });
         }
         catch (error) {
             console.error("Error creating property:", error);
         }
     };
+
+    useEffect(() => {
+        console.log(auth);
+    }, [auth])
+
 
     const get = (propertyId) => {
         setLoading(true);
@@ -168,6 +173,7 @@ function ListingUpsert() {
             .then(res => {
                 if (res.status === 200) {
                     setData(res.data);
+                    setSelectedImages(res.data?.propertyImages)
                 }
                 setLoading(false);
             })
@@ -183,10 +189,27 @@ function ListingUpsert() {
     };
 
     const update = () => {
-
+        // Axios.put(`/api/property/update/${propertyId}`)
+        //     .then(res => {
+        //         if (res.status === 200) {
+        //             setData(res.data);
+        //         }
+        //         setLoading(false);
+        //     })
+        //     .catch(err => {
+        //         if (err.response.status === 404) {
+        //             setError(err.response.data);
+        //         }
+        //         else if (err.response.status === 500) {
+        //             setError(err.response.data);
+        //         }
+        //         setLoading(false);
+        //     })
+        console.log(data);
     };
 
     const submit = () => {
+        console.log('here');
         if (checkData()) {
             if (paramUpsert === 'create') {
                 create();
@@ -199,12 +222,8 @@ function ListingUpsert() {
 
     /* useEffect */
     useEffect(() => {
-        if (paramUpsert === 'create') {
-            console.log('create');
-        }
-        else if (paramUpsert === 'update') {
+        if (paramUpsert === 'update') {
             get(propertyId);
-            console.log('update');
         }
     }, []);
 
@@ -213,126 +232,120 @@ function ListingUpsert() {
         console.log(data);
     }, [data]);
 
-    const uploadFiles = () => {
-        console.log(data);
-        firebaseStorageUploadFiles(firebaseStorageRefs.propertyImages, selectedImages)
-            .then((result) => {
-                setData({ ...data, propertyImageURLs: result });
-                return Axios.post('/api/property/create', data,
-                    { headers: { 'Content-Type': 'application/json' } })
-            })
-            .then(res => {
-                console.log("OK");
-            })
-            .catch(err => {
-                console.log(err);
-                firebaseStorageDeleteFiles(firebaseStorageRefs.propertyImages, data.propertyImages);
-            })
-    };
-
     if (!allowedPaths.includes(paramUpsert)) {
         return <NotFound404 />
     }
     else {
         return (
-            <div style={{ width: '500px' }}>
-                {loading && <Loader />}
-                <h1>
-                    {
-                        paramUpsert === 'create'
-                            ? 'Create a New Property Advertisement'
-                            : 'Update Property Advertisement'
-                    }
-                </h1>
+            <AuthChecker>
+                <Layout>
+                    <div style={{ width: '500px' }}>
+                        {loading && <Loader />}
+                        <h1>
+                            {
+                                paramUpsert === 'create'
+                                    ? 'Create a New Property Advertisement'
+                                    : 'Update Property Advertisement'
+                            }
+                        </h1>
 
-                <ImageUploader
-                    selectedImages={selectedImages}
-                    setSelectedImages={setSelectedImages}
-                    concurrentImageLimit={5} />
-                <FormError nbsp>{'propertyImages' in error && error['propertyImages']}</FormError>
+                        <ImageSelector
+                            selectedImages={selectedImages}
+                            setSelectedImages={setSelectedImages}
+                            concurrentImageLimit={5} />
+                        <FormError nbsp>{'propertyImages' in error && error['propertyImages']}</FormError>
 
-                <button onClick={() => uploadFiles(selectedImages)}>Upload</button>
+                        <div className='custom' style={{ display: 'flex' }}>
+                            {existingImages.map(image => (
+                                <img src={image.imageUrl} alt={image.id} style={{ maxWidth: '200px' }} />
+                            ))}
+                        </div>
 
-                <FormInputText
-                    label='Enter Title of Property Post'
-                    autoFocus
-                    value={data['title']}
-                    onChange={(e) => setData({ ...data, title: e.target.value })}
-                    onKeyPress={(e) => e.key === 'Enter' && submit()}
-                />
-                <FormError nbsp>{'title' in error && error['title']}</FormError>
+                        <FormInputText
+                            label='Enter Title of Property Post'
+                            autoFocus
+                            value={data['title']}
+                            onChange={(e) => setData({ ...data, title: e.target.value })}
+                            onKeyPress={(e) => e.key === 'Enter' && submit()}
+                        />
+                        <FormError nbsp>{'title' in error && error['title']}</FormError>
 
-                <FormRadioOption
-                    name='Property Type'
-                    options={{ 'HDB': 'HDB', 'Condominium': 'CONDOMINIUM', 'Landed': 'LANDED' }}
-                    selected={data['propertyType']}
-                    setSelected={(e) => setData({ ...data, propertyType: e.target.value })} />
-                <FormError nbsp>{'propertyType' in error && error['propertyType']}</FormError>
+                        <FormRadioOption
+                            name='Property Type'
+                            options={{ 'HDB': 'HDB', 'Condominium': 'CONDOMINIUM', 'Landed': 'LANDED' }}
+                            selected={data['propertyType']}
+                            setSelected={(e) => setData({ ...data, propertyType: e.target.value })} />
+                        <FormError nbsp>{'propertyType' in error && error['propertyType']}</FormError>
 
-                <FormRadioOption
-                    name='Room Type'
-                    options={{ 'Single': 'SINGLE', 'Common': 'COMMON', 'Master': 'MASTER', 'Whole Unit': 'WHOLE_UNIT' }}
-                    selected={data['roomType']}
-                    setSelected={(e) => setData({ ...data, roomType: e.target.value })} />
-                <FormError nbsp>{'roomType' in error && error['roomType']}</FormError>
+                        <FormRadioOption
+                            name='Room Type'
+                            options={{ 'Single': 'SINGLE', 'Common': 'COMMON', 'Master': 'MASTER', 'Whole Unit': 'WHOLE_UNIT' }}
+                            selected={data['roomType']}
+                            setSelected={(e) => setData({ ...data, roomType: e.target.value })} />
+                        <FormError nbsp>{'roomType' in error && error['roomType']}</FormError>
 
-                <FormInputNumber
-                    label='Enter Rental Fees'
-                    value={data['rentalFees']}
-                    min='0'
-                    step='50'
-                    onChange={(e) => setData({ ...data, rentalFees: e.target.value })} />
-                <FormError nbsp>{'rentalFees' in error && error['rentalFees']}</FormError>
+                        <FormInputNumber
+                            label='Enter Rental Fees'
+                            value={data['rentalFees']}
+                            min='0'
+                            step='50'
+                            onChange={(e) => setData({ ...data, rentalFees: e.target.value })} />
+                        <FormError nbsp>{'rentalFees' in error && error['rentalFees']}</FormError>
 
-                <FormInputText
-                    label='Enter Property Address'
-                    value={data['address']}
-                    onChange={(e) => setData({ ...data, address: e.target.value })}
-                    onKeyPress={(e) => e.key === 'Enter' && submit()}
-                />
-                <FormError nbsp>{'address' in error && error['address']}</FormError>
+                        <FormInputText
+                            label='Enter Property Address'
+                            value={data['address']}
+                            onChange={(e) => setData({ ...data, address: e.target.value })}
+                            onKeyPress={(e) => e.key === 'Enter' && submit()}
+                        />
+                        <FormError nbsp>{'address' in error && error['address']}</FormError>
 
-                <FormInputText
-                    label='Enter Postal Code'
-                    value={data['postalCode']}
-                    maxLength='6'
-                    onChange={(e) => setData({ ...data, postalCode: e.target.value })}
-                    onKeyPress={(e) => e.key === 'Enter' && submit()}
-                />
-                <FormError nbsp>{'postalCode' in error && error['postalCode']}</FormError>
+                        <FormInputText
+                            label='Enter Postal Code'
+                            value={data['postalCode']}
+                            maxLength='6'
+                            onChange={(e) => setData({ ...data, postalCode: e.target.value })}
+                            onKeyPress={(e) => e.key === 'Enter' && submit()}
+                        />
+                        <FormError nbsp>{'postalCode' in error && error['postalCode']}</FormError>
 
-                <FormRadioOption
-                    name='Proeprty Furnishment'
-                    options={{ 'Furnished': 'FURNISHED', 'Partial': 'PARTIAL_FURNISHED', 'Unfurnished': 'UNFURNISHED' }}
-                    selected={data['furnishment'] ? data['furnishment'] : ''}
-                    setSelected={(e) => setData({ ...data, furnishment: e.target.value })} />
-                <FormError nbsp>{'furnishment' in error && error['furnishment']}</FormError>
+                        <FormRadioOption
+                            name='Proeprty Furnishment'
+                            options={{ 'Furnished': 'FURNISHED', 'Partial': 'PARTIAL_FURNISHED', 'Unfurnished': 'UNFURNISHED' }}
+                            selected={data['furnishment'] ? data['furnishment'] : ''}
+                            setSelected={(e) => setData({ ...data, furnishment: e.target.value })} />
+                        <FormError nbsp>{'furnishment' in error && error['furnishment']}</FormError>
 
-                <FormSelectOption
-                    name='Number of Bedrooms'
-                    options={{ 'default': 'Select Number of Bedrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
-                    selected={data['numBedrooms'] ? data['numBedrooms'] : ''}
-                    setSelected={(e) => setData({ ...data, numBedrooms: e.target.value })} />
+                        <FormSelectOption
+                            name='Number of Bedrooms'
+                            options={{ 'default': 'Select Number of Bedrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
+                            selected={data['numBedrooms'] ? data['numBedrooms'] : ''}
+                            setSelected={(e) => setData({ ...data, numBedrooms: e.target.value })} />
 
-                <FormSelectOption
-                    name='Number of Bathrooms'
-                    options={{ 'default': 'Select Number of Bathrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
-                    selected={data['numBathrooms'] ? data['numBathrooms'] : ''}
-                    setSelected={(e) => setData({ ...data, numBathrooms: e.target.value })} />
+                        <FormSelectOption
+                            name='Number of Bathrooms'
+                            options={{ 'default': 'Select Number of Bathrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
+                            selected={data['numBathrooms'] ? data['numBathrooms'] : ''}
+                            setSelected={(e) => setData({ ...data, numBathrooms: e.target.value })} />
 
-                <FormSelectOption
-                    name='Number of Tenants'
-                    options={{ 'default': 'Select Number of Tenants', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6' }}
-                    selected={data['numTenants'] ? data['numTenants'] : ''}
-                    setSelected={(e) => setData({ ...data, numTenants: e.target.value })} />
+                        <FormSelectOption
+                            name='Number of Tenants'
+                            options={{ 'default': 'Select Number of Tenants', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6' }}
+                            selected={data['numTenants'] ? data['numTenants'] : ''}
+                            setSelected={(e) => setData({ ...data, numTenants: e.target.value })} />
 
-                <ButtonFilled
-                    onClick={() => submit()}>
-                    {paramUpsert === 'create'
-                        ? 'Create Property Advertisement'
-                        : 'Update Property Advertisement'}
-                </ButtonFilled>
-            </div>
+                        <input type='file' multiple
+                            onChange={(e) => setSelectedDocs(e.target.files)} />
+
+                        <ButtonFilled
+                            onClick={() => submit()}>
+                            {paramUpsert === 'create'
+                                ? 'Create Property Advertisement'
+                                : 'Update Property Advertisement'}
+                        </ButtonFilled>
+                    </div>
+                </Layout>
+            </AuthChecker>
         );
     }
 }

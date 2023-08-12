@@ -1,9 +1,9 @@
 import React from 'react';
 
-/* CSS Import */
+/* CSS Imports*/
 import './Loader.css';
 
-/* MUI Import */
+/* MUI Imports */
 import { CircularProgress } from '@mui/material';
 
 function Loader(props) {

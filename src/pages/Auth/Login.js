@@ -1,16 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 
-/* CSS Imports */
-import 'styles/pages/LoginRenter.css';
-import 'styles/components/form/Form.css';
-import 'styles/components/form/FormLink.css';
-import 'styles/components/ui/FormHeader.css';
-
 /* Utility Imports */
 import Axios from 'utils/Axios';
 
 /* Component Imports */
+import LoginLayout from 'components/layout/LoginLayout';
 import FormInputText from 'components/form/FormInputText';
 import FormInputPassword from 'components/form/FormInputPassword';
 import FormError from 'components/form/FormError';
@@ -80,15 +75,16 @@ function Login() {
     };
 
     const login = () => {
-        const api = user == 'renter' ? '/api/auth/login/renter' : '/api/auth/login/tenant';
+        const api = `/api/auth/login/${user}`;
         if (checkData()) {
             Axios.post(api, data,
                 { headers: { 'Content-Type': 'application/json' } })
                 .then(res => {
                     if (res.status === 200) {
-                        setAuth(res.data.message);
-                        sessionStorage.setItem('auth', JSON.stringify(res.data.message));
-                        navigate('/home');
+                        const data = { ...res.data, userType: user === 'renter' ? 'RENTER' : 'TENANT' };
+                        setAuth(data);
+                        sessionStorage.setItem('auth', JSON.stringify(data));
+                        navigate('/');
                     }
                 })
                 .catch(err => {
@@ -105,6 +101,12 @@ function Login() {
 
     /* useEffect */
     useEffect(() => {
+        if (sessionStorage.getItem('auth')) {
+            navigate('/');
+        }
+    }, []);
+
+    useEffect(() => {
         if (location?.state?.fromRegister) {
             setData({ ...data, email: ctxEmail['register'] });
         }
@@ -115,7 +117,65 @@ function Login() {
 
     return (
         <main className='login'>
-            <div className='form' style={{ height: '550px' }}>
+            <LoginLayout>
+
+                {/* Main Content */}
+                <div className="flex min-h-full flex-1 flex-col justify-center items-center px-6 py-12 lg:px-8">
+                    <div className="flex flex-col p-6 md:sticky md:top-6 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5 w-96">
+                        <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
+                            <img
+                                className="mx-auto h-auto w-40"
+                                src="/spaceshare_logo.svg"
+                                alt="SpaceShare" />
+                            <h2 className="mt-4 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+                                Sign in to your account
+                            </h2>
+                        </div>
+
+                        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+                            <div className="">
+                                <FormInputText
+                                    label='Enter Username or Email Address'
+                                    autoFocus
+                                    value={data['email'] ? data['email'] : ''}
+                                    onChange={(e) => setData({ ...data, email: (e.target.value).toLowerCase() })}
+                                    onKeyPress={(e) => e.key === 'Enter' && login()}
+                                />
+                                <FormError nbsp>{'email' in error && error['email']}</FormError>
+                                <div className="mt-2"></div>
+                                <FormInputPassword
+                                    label='Enter Password'
+                                    onChange={(e) => setData({ ...data, password: e.target.value })}
+                                    onKeyPress={(e) => e.key === 'Enter' && login()}
+                                />
+                                <FormError nbsp>{'password' in error && error['password']}</FormError>
+                                <div className="forgot_password text-right text-sm mb-2">
+                                    <a
+                                        className="txt-primary hover:txt-primary-hover"
+                                        onClick={() => navigate(`/resetpassword/${user}`)}>
+                                        Forgot Password?
+                                    </a>
+                                </div>
+                                <div className='mt-4'></div>
+                                <ButtonFilled
+                                    onClick={() => login()}>
+                                    Login
+                                </ButtonFilled>
+                            </div>
+                            <p className="mt-3 text-center text-sm text-gray-500">
+                                Don't have an account?{' '}
+                                <a
+                                    href="#"
+                                    className="font-semibold leading-6 txt-primary hover:txt-primary"
+                                    onClick={() => navigate('/register')}>
+                                    Register
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* <div className='form' style={{ height: '550px' }}>
                 <div className='form_container'>
                     <div className='form_header'>
                         {user == 'renter' && <h3>Renter Login</h3>}
@@ -152,12 +212,10 @@ function Login() {
 
                     <div className='login_form_footer'>
                         <span className='label'>Don't have an account?</span>
-                        <span className='form_link' onClick={() => navigate('/register')}>
-                            Register
-                        </span>
-                    </div>
+                        <span className='form_link' onClick={() => navigate('/register')}>Register</span>
+                    </div> */}
 
-                    {/* <section className={`login_form_options ${!formOptions && 'close'}`}>
+                {/* <section className={`login_form_options ${!formOptions && 'close'}`}>
                         <div className='login_form_options_button'
                             onClick={() => setFormOptions(!formOptions)}>
                             <div className='login_form_options_button_inner'>
@@ -180,8 +238,9 @@ function Login() {
                             </div>
                         </div>
                     </section> */}
-                </div>
-            </div>
+                {/* </div>
+            </div> */}
+            </LoginLayout>
         </main>
     );
 }

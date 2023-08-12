@@ -9,7 +9,7 @@ function Footer() {
                     </span>
                     <ul className="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
                         <li>
-                            <a href="#" className="mr-4 hover:txt-primary md:mr-6 ">Rooms</a>
+                            <a href="#" className="mr-4 hover:txt-primary md:mr-6 ">Properties</a>
                         </li>
                         <li>
                             <a href="#" className="mr-4 hover:txt-primary md:mr-6">Roomates</a>

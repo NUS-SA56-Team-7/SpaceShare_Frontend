@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 
 /* Component Imports */
 import FormInputText from 'components/form/FormInputText';
@@ -29,6 +29,12 @@ function RegisterRenter() {
     /* useNavigate */
     const navigate = useNavigate();
 
+    /* useLocation */
+    const location = useLocation();
+
+    /* useParams */
+    const { user } = useParams();
+
     /* useState */
     const [data, setData] = useState(initData);
     const [error, setError] = useState({});
@@ -56,7 +62,7 @@ function RegisterRenter() {
         else if (!validatePassword(data['password'])) {
             err['password'] = 'Password must contain at least one uppercase, lowercase, number and special character';
         }
-        else if (password != cfmPassword) {
+        else if (password !== cfmPassword) {
             err['cfmPassword'] = 'Passwords do not match';
         }
     };
@@ -119,6 +125,7 @@ function RegisterRenter() {
 
     return (
         <main className='register_finder'>
+            <h1>Register Property Owner Account</h1>
             <FormInputText
                 label='Enter Email Address'
                 autoFocus
@@ -147,7 +154,7 @@ function RegisterRenter() {
             <FormInputText
                 label='Enter Identification Number'
                 value={data['identificationNumber']}
-                onChange={(e) => setData({ ...data, identification: e.target.value })}
+                onChange={(e) => setData({ ...data, identificationNumber: e.target.value })}
                 onKeyPress={(e) => e.key === 'Enter' && register()}
             />
             <FormError nbsp>{'identificationNumber' in error && error['identificationNumber']}</FormError>

@@ -9,7 +9,8 @@ const firebaseStorageBuckets = {
 };
 
 const firebaseStorageRefs = {
-    propertyImages: (filename) => ref(firebaseStorageBuckets.default, `/properties/images/${filename}`)
+    propertyImages: (filename) => ref(firebaseStorageBuckets.default, `/properties/images/${filename}`),
+    propertyDocs: (filename) => ref(firebaseStorageBuckets.default, `/properties/docs`)
     /*
     // Child references can also take paths delimited by '/'
     const spaceRef = ref(storage, 'images/space.jpg');

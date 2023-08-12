@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 /* CSS Impoerts */
-import './ImageUploader.css';
+import './ImageSelector.css';
 
 /* MUI Imports */
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -10,7 +10,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 /* Utility Imports */
 import Axios from 'utils/Axios';
 
-function ImageUploader({
+function ImageSelector({
     selectedImages, setSelectedImages,
     allowedExtensions, concurrentImageLimit
 }) {
@@ -64,28 +64,6 @@ function ImageUploader({
         setSelectedImages([...initialImages]);
     };
 
-    const fileUpload = (files) => {
-        const formData = new FormData();
-        if (files) {
-            files.map((file) => {
-                formData.append('propertyImages', file, file.name);
-            })
-        };
-        Axios.post('/file/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            },
-            // onUploadProgress: (e) => {
-            //     setUploadProgress(e.loaded / e.total * 100)
-            // }
-        }).then((res) => {
-            if (res.status === 201) {
-                console.log('OK');
-                setSelectedImages(null);
-            }
-        });
-    };
-
     if (!selectedImages || !setSelectedImages) {
         throw new Error('\'selectedImages\' and \'setSelectedImages\'  must be specified');
     }
@@ -105,7 +83,9 @@ function ImageUploader({
                 </div>
                 {selectedImages && selectedImages.map((img, index) => (
                     <div key={index} className='imgup_img'>
-                        <img src={URL.createObjectURL(img)} alt={img.name} />
+                        {(img instanceof File)
+                            ? <img src={URL.createObjectURL(img)} alt={img.name} />
+                            : <img src={img?.imageUrl} alt={img.id} />}
                         <CancelIcon id='delete'
                             onClick={() => delImages(index, setSelectedImages)} />
                     </div>
@@ -138,4 +118,4 @@ function ImageUploader({
     )
 };
 
-export default ImageUploader;
+export default ImageSelector;

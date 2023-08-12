@@ -39,14 +39,12 @@ body {
     background-color: var(--primary-color);
 }
 
-.transition {
-    transition-property: color, max-height;
-    transition-duration: 0.3s;
-    transition-timing-function: ease;
+.focus\:ring-primary:focus {
+    --tw-ring-opacity: 1;
+    --tw-ring-color: var(--primary-color);
 }
 
-.transition-max-height {
-    transition-property: max-height;
-    transition-duration: 0.3s;
-    transition-timing-function: ease;
+.focus\:border-primary:focus {
+    --tw-border-opacity: 1;
+    border-color: var(--primary-color);
 }

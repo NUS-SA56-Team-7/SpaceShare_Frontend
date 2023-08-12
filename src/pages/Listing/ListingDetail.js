@@ -55,33 +55,25 @@ function ListingDetail() {
             })
     }, []);
 
-    /* CarouselItems */
-    const carouselItems = [
-        {
-            id: 'default',
-            imageUrl: 'https://thumb.viva.id/intipseleb/1265x711/2022/08/04/62eb741ca5cb6-winter-aespa.jpeg',
-        },
-        {
-            imageSrc: 'https://images.unsplash.com/photo-1565402170291-8491f14678db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2917&q=80', // Replace this with your image link
-            altText: 'Slide 2 Alt Text',
-        },
-        {
-            imageSrc: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1548&q=80', // Replace this with your image link
-            altText: 'Slide 3 Alt Text',
-        },
-        {
-            imageSrc: 'https://images.unsplash.com/photo-1560184897-ae75f418493e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80', // Replace this with your image link
-            altText: 'Slide 4 Alt Text',
-        },
-        {
-            imageSrc: 'https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80', // Replace this with your image link
-            altText: 'Slide 5 Alt Text',
-        },
-        {
-            imageSrc: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80', // Replace this with your image link
-            altText: 'Slide 6 Alt Text',
-        },
-    ];
+    useEffect(() => {
+        Axios.patch(`api/property/${propertyId}/views`)
+            .then(res => {
+                if (res.status === 200) {
+                    // setData(res.data);
+                    console.log(res.data);
+                }
+            })
+            .catch(err => {
+                if (err.response.status === 404) {
+                    setError(err.response.data);
+                }
+                else if (err.response.status === 500) {
+                    setError(err.response.data);
+                }
+            })
+    }, []);
+
+
 
     const userDetail = [
         { imgUrl: "https://i.pinimg.com/originals/50/28/ce/5028ce929cd06b95691bd55db694a37b.jpg", userName: "UserName" },
