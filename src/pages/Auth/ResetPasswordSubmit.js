@@ -16,6 +16,8 @@ import Axios from 'utils/Axios';
 
 /* Function Imports */
 import validatePassword from 'functions/validatePassword';
+import LoginLayout from 'components/layout/LoginLayout';
+import ButtonFilled from 'components/ui/ButtonFilled';
 
 function ResetPasswordSubmit() {
 
@@ -79,33 +81,48 @@ function ResetPasswordSubmit() {
     };
 
     return (
-        <main className='resetpwd_submit'>
-            <div className='form' style={{ width: '380px', height: '400px' }}>
-                <div className='form_container'>
-                    <div className='form_header'>
-                        <h2>Reset Password</h2>
-                    </div>
-                    <FormInputPassword
-                        label='Enter New Password'
-                        autoFocus
-                        onInput={(e) => setPassword(e.target.value)}
-                        onChange={() => setError({})}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-                    />
-                    <FormError nbsp>{'password' in error && error['password']}</FormError>
-                    <FormInputPassword
-                        label='Confirm New Password'
-                        onInput={(e) => setCfmPassword(e.target.value)}
-                        onChange={() => setError({})}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-                    />
-                    <FormError nbsp>{'cfmPassword' in error && error['cfmPassword']}</FormError>
-                    <div className='form_button filled'
-                        onClick={() => handleSubmit()}>
-                        Reset Password
+        <main>
+            <LoginLayout>
+                <div className="flex min-h-full flex-1 flex-col justify-center items-center px-6 py-12 lg:px-8">
+                    <div className="flex flex-col p-6 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5 w-96 z-50">
+                        <div>
+                            <div>
+                                <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
+                                    <img
+                                        className="mx-auto h-auto w-40"
+                                        src="/spaceshare_logo.svg"
+                                        alt="SpaceShare" />
+                                    <h2 className="mt-4 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+                                        Reset Password
+                                    </h2>
+                                </div>
+                                <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+                                    <FormInputPassword
+                                        label='Enter New Password'
+                                        autoFocus
+                                        onInput={(e) => setPassword(e.target.value)}
+                                        onChange={() => setError({})}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+                                    />
+                                    <FormError nbsp>{'password' in error && error['password']}</FormError>
+                                    <FormInputPassword
+                                        label='Confirm New Password'
+                                        onInput={(e) => setCfmPassword(e.target.value)}
+                                        onChange={() => setError({})}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+                                    />
+                                    <FormError nbsp>{'cfmPassword' in error && error['cfmPassword']}</FormError>
+                                    <div className='mt-3'>
+                                        <ButtonFilled onClick={() => handleSubmit()}>
+                                            Reset Password
+                                        </ButtonFilled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </LoginLayout>
         </main>
     );
 }

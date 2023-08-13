@@ -150,58 +150,72 @@ function ResetPasswordOTP() {
     }, [OTP]);
 
     return (
-        <main className='resetpwd_otp' >
-            <div className='form' style={{ width: '400px', height: '550px' }}>
-                <div className='form_container'>
-                    <div className='form_header'>
-                        <h2>Verify it's you</h2>
-                    </div>
-                    <div className='form_text'>
-                        <p>
-                            Email with a 6-digit OTP for password reset has been sent to your email address:
-                        </p>
-                        <p id='email'>{ctxResetAccount.email}</p>
-                        <p>Please check your email and enter OTP to reset your password.</p>
-                    </div>
-                    <div className='otp_input_container'>
-                        {Array(OTP_MAX_LENGTH).fill().map((_, index) => (
-                            <input className='otp_input' key={index}
-                                type='text'
-                                name='otp'
-                                ref={e => inputRef.current[index] = e}
-                                required='required'
-                                value={OTP[index]}
-                                inputMode='numeric'
-                                autoComplete='one-time-code'
-                                maxLength='1'
-                                onFocus={(e) => e.target.select()}
-                                onInput={(e) => handleInput(e, index)}
-                                onChange={() => setError('')}
-                                onKeyDown={(e) => handleKeyEvents(e, index)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-                            />
-                        ))}
-                    </div>
-                    <FormError nbsp>{error}</FormError>
-                    <div className='forgotpwdotp_resendotp'>
-                        <div className='form_link'
-                            onClick={() => sendOTP()}>
-                            Resend OTP
+        <main>
+            <LoginLayout>
+                <div className='flex min-h-full flex-1 flex-col justify-center items-center px-6 py-12 lg:px-8'>
+                    <div className='flex flex-col p-6 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5 w-96 z-50'>
+                        <div>
+                            <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
+                                <img
+                                    className="mx-auto h-auto w-40"
+                                    src="/spaceshare_logo.svg"
+                                    alt="SpaceShare" />
+                                <h2 className="mt-4 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+                                    Verify it's you
+                                </h2>
+                                <div className='flex flex-col text-sm text-center my-6'>
+                                    <p>
+                                        Email with a 6-digit OTP for password reset has been sent to your email address:
+                                    </p>
+                                    <p id='email'>{ctxResetAccount.email}</p>
+                                    <p>Please check your email and enter OTP to reset your password.</p>
+                                </div>
+                            </div>
+                            <div className='otp_input_container'>
+                                {Array(OTP_MAX_LENGTH).fill().map((_, index) => (
+                                    <input className='otp_input' key={index}
+                                        type='text'
+                                        name='otp'
+                                        ref={e => inputRef.current[index] = e}
+                                        required='required'
+                                        value={OTP[index]}
+                                        inputMode='numeric'
+                                        autoComplete='one-time-code'
+                                        maxLength='1'
+                                        onFocus={(e) => e.target.select()}
+                                        onInput={(e) => handleInput(e, index)}
+                                        onChange={() => setError('')}
+                                        onKeyDown={(e) => handleKeyEvents(e, index)}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+                                    />
+                                ))}
+                            </div>
+                            <FormError nbsp>{error}</FormError>
+                            <div className='forgotpwdotp_resendotp text-base font-medium'>
+                                <div className='form_link'
+                                    onClick={() => sendOTP()}>
+                                    Resend OTP
+                                </div>
+                                <div className='form_link' id='countdown'>
+                                    {`${convertTimeString(countdown).mm}:${convertTimeString(countdown).ss}`}
+                                </div>
+                            </div>
+                            <div className='mt-3'>
+                                <ButtonFilled
+                                    onClick={() => handleSubmit()}>
+                                    Continue
+                                </ButtonFilled>
+                            </div>
+                            <div className='mt-3'>
+                                <ButtonOutlined
+                                    onClick={() => navigate('/resetpassword')}>
+                                    Back
+                                </ButtonOutlined>
+                            </div>
                         </div>
-                        <div className='form_link' id='countdown'>
-                            {`${convertTimeString(countdown).mm}:${convertTimeString(countdown).ss}`}
-                        </div>
                     </div>
-                    <ButtonFilled
-                        onClick={() => handleSubmit()}>
-                        Continue
-                    </ButtonFilled>
-                    <ButtonOutlined
-                        onClick={() => navigate('/resetpassword')}>
-                        Back
-                    </ButtonOutlined>
                 </div>
-            </div>
+            </LoginLayout>
         </main>
     );
 };

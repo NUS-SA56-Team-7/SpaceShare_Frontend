@@ -93,44 +93,62 @@ function ResetPasswordEmail() {
     };
 
     return (
-        <main className='resetpwd_email'>
-            <div className='form' style={{ width: '400px', height: '500px' }}>
-                <div className='form_container'>
-                    <div className='form_header'>
-                        <h2>Forgot Password?</h2>
+        <main>
+            <LoginLayout>
+                <div className="flex min-h-full flex-1 flex-col justify-center items-center px-6 py-12 lg:px-8">
+                    <div className="flex flex-col p-6 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5 w-96 z-50">
+                        <div>
+                            <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
+                                <img
+                                    className="mx-auto h-auto w-40"
+                                    src="/spaceshare_logo.svg"
+                                    alt="SpaceShare" />
+                                <h2 className="mt-4 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+                                    Forgot Password?
+                                </h2>
+                            </div>
+                            <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+                                <div>
+                                    <FormInputText
+                                        label='Enter Email Address'
+                                        autoFocus
+                                        onChange={(e) => {
+                                            setError('');
+                                            setEmail((e.target.value).toLowerCase());
+                                        }}
+                                        onKeyPress={(e) => e.key === 'Enter' && resetPassword()} />
+                                    <FormError nbsp>{error}</FormError>
+
+                                    <div className='form_captcha' style={{ marginTop: '20px' }}>
+                                        <ReCAPTCHA
+                                            ref={recaptchaRef}
+                                            sitekey={process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY}
+                                            onChange={() => {
+                                                setRecaptchaToken(recaptchaRef.current.getValue());
+                                                console.log(recaptchaRef.current.getValue());
+                                            }}
+                                            theme='dark' />
+                                    </div>
+
+                                    <div className='mt-3'>
+                                        <ButtonFilled
+                                            onClick={() => resetPassword()}>
+                                            Reset Password
+                                        </ButtonFilled>
+                                    </div>
+                                    <div className='mt-3'>
+                                        <ButtonOutlined
+                                            onClick={() => navigate('/login')}>
+                                            Cancel
+                                        </ButtonOutlined>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
-
-                    <FormInputText
-                        label='Enter Email Address'
-                        autoFocus
-                        onChange={(e) => {
-                            setError('');
-                            setEmail((e.target.value).toLowerCase());
-                        }}
-                        onKeyPress={(e) => e.key === 'Enter' && resetPassword()} />
-                    <FormError nbsp>{error}</FormError>
-
-                    <div className='form_captcha' style={{ marginTop: '20px' }}>
-                        <ReCAPTCHA
-                            ref={recaptchaRef}
-                            sitekey={process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY}
-                            onChange={() => {
-                                setRecaptchaToken(recaptchaRef.current.getValue());
-                                console.log(recaptchaRef.current.getValue());
-                            }}
-                            theme='dark' />
-                    </div>
-
-                    <ButtonFilled
-                        onClick={() => resetPassword()}>
-                        Reset Password
-                    </ButtonFilled>
-                    <ButtonOutlined
-                        onClick={() => navigate('/login')}>
-                        Cancel
-                    </ButtonOutlined>
                 </div>
-            </div>
+            </LoginLayout>
         </main>
     );
 }

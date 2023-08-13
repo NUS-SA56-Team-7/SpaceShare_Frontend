@@ -13,6 +13,9 @@ import ButtonOutlined from 'components/ui/ButtonOutlined';
 import ButtonFilled from 'components/ui/ButtonFilled';
 import GoogleMap from 'components/map/GoogleMap';
 import Badge from 'components/ui/Badge';
+import CommentForm from 'components/ui/CommentForm';
+import Comment from 'components/ui/Comment';
+import Modal from 'components/modal/Modal';
 
 function Detail() {
 
@@ -185,11 +188,55 @@ function Detail() {
                 <GoogleMap></GoogleMap>
             </div>
 
-            <div className="my-8">
+            <div className="my-8 pb-8 border-b border-gray-200">
                 <Heading
                     title="Comments"
                 />
+                <div className='my-6'>
+                    <CommentForm />
+                    <Comment
+                        imgUrl={userDetail[0].imgUrl}
+                        username={userDetail[0].userName}
+                        date="01/01/2000"
+                        text="멈출 수 없는 이 떨림은 on and on and on
+                        내 전부를 너란 세상에 다 던지고 싶어
+                        Look at me, look at me now
+                        이렇게 넌 날 애태우고 있잖아
+                        끌 수 없어, 우리 사랑은 불장난
+                        My love is on fire (ooh)
+                        Now burn, baby, burn 불장난
+                        My love is on fire (ooh)
+                        So don't play with me, boy 불장난"
+                    />
+                    <Comment
+                        imgUrl={userDetail[0].imgUrl}
+                        username={userDetail[0].userName}
+                        date="02/02/2000"
+                        text="Oh my, oh my God 예상했어 나
+                        I was really hoping that he will come through
+                        Oh my, oh my God 단 너뿐이야
+                        Asking all the time about what I should do
+                        No, I can never let him go
+                        너만 생각나 twenty-four
+                        난 행운아야 정말로 I know, I know
+                        널 알기 전까지는 나 의미 없었어 전부 다
+                        내 맘이 끝이 없는 걸 I know, I know
+                        I'm going crazy, right?"
+                    />
+                    <Comment
+                        imgUrl={userDetail[0].imgUrl}
+                        username={userDetail[0].userName}
+                        date="03/03/2000"
+                        text="Lorem ipsum dolor sit amet, 
+                        consectetur adipiscing elit, 
+                        sed do eiusmod tempor incididunt ut labore et 
+                        dolore magna aliqua. Ut enim ad minim veniam, 
+                        quis nostrud exercitation ullamco laboris nisi ut 
+                        aliquip ex ea commodo consequat. "
+                    />
+                </div>
             </div>
+            <Modal />
         </Layout>
     );
 }

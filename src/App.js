@@ -62,6 +62,7 @@ function App() {
                     <Route path='/resetpassword/:user' element={<ResetPasswordEmail />} />
                     <Route path='/resetpassword/:user/:id/otp' element={<ResetPasswordOTP />} />
                     <Route path='/resetpassword/:user/:id/submit' element={<ResetPasswordSubmit />} />
+                    <Route path='/resetpassword/:user/:id/success' element={<ResetPasswordSuccess />} />
                 </Routes>
             </main>
         </Router>
