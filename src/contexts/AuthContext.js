@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 
 /* Context */
 const AuthContext = createContext();
@@ -9,6 +9,13 @@ export const AuthContextProvider = (props) => {
 
     /* useState */
     const [auth, setAuth] = useState();
+
+    /* useEffect */
+    useEffect(() => {
+        if (sessionStorage.getItem('auth')) {
+            setAuth(JSON.parse(sessionStorage.getItem('auth')));
+        }
+    }, []);
 
     /* Context Values */
     const value = {

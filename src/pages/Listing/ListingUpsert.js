@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router';
 
-/* Package Imports */
-import { v4 as uuidv4 } from 'uuid';
-
 /* Component Imports */
 import FormInputText from 'components/form/FormInputText';
 import FormInputNumber from 'components/form/FormInputNumber';
@@ -11,8 +8,8 @@ import FormError from 'components/form/FormError';
 import ButtonFilled from 'components/ui/ButtonFilled';
 import FormRadioOption from 'components/form/FormRadioOption';
 import FormSelectOption from 'components/form/FormSelectOption';
-import NotFound404 from '../Error/NotFound404';
 import ImageSelector from 'components/ImageSelector/ImageSelector';
+import Heading from 'components/ui/Heading';
 
 /* Context Imports */
 import AuthContext from 'contexts/AuthContext';
@@ -28,6 +25,9 @@ import Loader from 'components/Loader/Loader';
 import { useContext } from 'react';
 import AuthChecker from 'components/layout/AuthChecker';
 import Layout from 'components/layout/Layout';
+
+/* Page Imports */
+import NotFound404 from 'pages/Error/NotFound404';
 
 function ListingUpsert() {
 
@@ -162,11 +162,6 @@ function ListingUpsert() {
         }
     };
 
-    useEffect(() => {
-        console.log(auth);
-    }, [auth])
-
-
     const get = (propertyId) => {
         setLoading(true);
         Axios.get(`/api/property/${propertyId}`)
@@ -222,10 +217,13 @@ function ListingUpsert() {
 
     /* useEffect */
     useEffect(() => {
-        if (paramUpsert === 'update') {
+        if (paramUpsert === 'create') {
+            setData(initData);
+        }
+        else if (paramUpsert === 'update') {
             get(propertyId);
         }
-    }, []);
+    }, [paramUpsert]);
 
     /* Testing */
     useEffect(() => {
@@ -239,110 +237,141 @@ function ListingUpsert() {
         return (
             <AuthChecker>
                 <Layout>
-                    <div style={{ width: '500px' }}>
-                        {loading && <Loader />}
-                        <h1>
-                            {
-                                paramUpsert === 'create'
-                                    ? 'Create a New Property Advertisement'
-                                    : 'Update Property Advertisement'
-                            }
-                        </h1>
+                    {loading && <Loader />}
+                    <Heading
+                        title={
+                            paramUpsert === 'create'
+                                ? 'Create a New Property Advertisement'
+                                : 'Update Property Advertisement'
+                        }
+                    />
 
-                        <ImageSelector
-                            selectedImages={selectedImages}
-                            setSelectedImages={setSelectedImages}
-                            concurrentImageLimit={5} />
-                        <FormError nbsp>{'propertyImages' in error && error['propertyImages']}</FormError>
+                    <div className="grid grid-cols-12 p-8 my-12 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5">
+                        <div className="col-span-12 md:col-span-8 grid grid-cols-1 md:grid-cols-12 gap-y-4">
+                            <div className="col-span-1 md:col-span-12">
+                                <FormInputText
+                                    label='Enter Title of Property Post'
+                                    autoFocus
+                                    value={data['title']}
+                                    onChange={(e) => setData({ ...data, title: e.target.value })}
+                                    onKeyPress={(e) => e.key === 'Enter' && submit()}
+                                />
+                                <FormError nbsp>{'title' in error && error['title']}</FormError>
+                            </div>
 
-                        <div className='custom' style={{ display: 'flex' }}>
-                            {existingImages.map(image => (
-                                <img src={image.imageUrl} alt={image.id} style={{ maxWidth: '200px' }} />
-                            ))}
+                            <div className="col-span-1 md:col-span-12">
+                                <FormRadioOption
+                                    name='Property Type'
+                                    options={{ 'HDB': 'HDB', 'Condominium': 'CONDOMINIUM', 'Landed': 'LANDED' }}
+                                    selected={data['propertyType']}
+                                    setSelected={(e) => setData({ ...data, propertyType: e.target.value })} />
+                                <FormError nbsp>{'propertyType' in error && error['propertyType']}</FormError>
+                            </div>
+
+
+                            <div className="col-span-1 md:col-span-12">
+                                <FormRadioOption
+                                    name='Room Type'
+                                    options={{ 'Single': 'SINGLE', 'Common': 'COMMON', 'Master': 'MASTER', 'Whole Unit': 'WHOLE_UNIT' }}
+                                    selected={data['roomType']}
+                                    setSelected={(e) => setData({ ...data, roomType: e.target.value })} />
+                                <FormError nbsp>{'roomType' in error && error['roomType']}</FormError>
+                            </div>
+
+
+                            <div className="col-span-1 md:col-span-6">
+                                <FormInputNumber
+                                    label='Enter Rental Fees'
+                                    value={data['rentalFees']}
+                                    min='0'
+                                    step='50'
+                                    onChange={(e) => setData({ ...data, rentalFees: e.target.value })} />
+                                <FormError nbsp>{'rentalFees' in error && error['rentalFees']}</FormError>
+                            </div>
+
+
+                            <div className="col-span-1 md:col-span-12">
+                                <FormInputText
+                                    label='Enter Property Address'
+                                    value={data['address']}
+                                    onChange={(e) => setData({ ...data, address: e.target.value })}
+                                    onKeyPress={(e) => e.key === 'Enter' && submit()}
+                                />
+                                <FormError nbsp>{'address' in error && error['address']}</FormError>
+                            </div>
+
+
+                            <div className="col-span-1 md:col-span-12">
+                                <FormInputText
+                                    label='Enter Postal Code'
+                                    value={data['postalCode']}
+                                    maxLength='6'
+                                    onChange={(e) => setData({ ...data, postalCode: e.target.value })}
+                                    onKeyPress={(e) => e.key === 'Enter' && submit()}
+                                />
+                                <FormError nbsp>{'postalCode' in error && error['postalCode']}</FormError>
+                            </div>
+
+
+                            <div className="col-span-1 md:col-span-12">
+                                <FormRadioOption
+                                    name='Proeprty Furnishment'
+                                    options={{ 'Furnished': 'FURNISHED', 'Partial': 'PARTIAL_FURNISHED', 'Unfurnished': 'UNFURNISHED' }}
+                                    selected={data['furnishment'] ? data['furnishment'] : ''}
+                                    setSelected={(e) => setData({ ...data, furnishment: e.target.value })} />
+                                <FormError nbsp>{'furnishment' in error && error['furnishment']}</FormError>
+                            </div>
+
+
+                            <div className="col-span-1 md:col-span-12">
+                                <FormSelectOption
+                                    name='Number of Bedrooms'
+                                    options={{ 'default': 'Select Number of Bedrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
+                                    selected={data['numBedrooms'] ? data['numBedrooms'] : ''}
+                                    setSelected={(e) => setData({ ...data, numBedrooms: e.target.value })} />
+                            </div>
+
+
+                            <div className="col-span-1 md:col-span-12">
+                                <FormSelectOption
+                                    name='Number of Bathrooms'
+                                    options={{ 'default': 'Select Number of Bathrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
+                                    selected={data['numBathrooms'] ? data['numBathrooms'] : ''}
+                                    setSelected={(e) => setData({ ...data, numBathrooms: e.target.value })} />
+
+                            </div>
+
+                            <div className="col-span-1 md:col-span-12">
+                                <FormSelectOption
+                                    name='Number of Tenants'
+                                    options={{ 'default': 'Select Number of Tenants', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6' }}
+                                    selected={data['numTenants'] ? data['numTenants'] : ''}
+                                    setSelected={(e) => setData({ ...data, numTenants: e.target.value })} />
+                            </div>
+
+                            <div className="col-span-1 md:col-span-12">
+                                <ImageSelector
+                                    selectedImages={selectedImages}
+                                    setSelectedImages={setSelectedImages}
+                                    concurrentImageLimit={5} />
+                                <FormError nbsp>{'propertyImages' in error && error['propertyImages']}</FormError>
+
+                                <div className='custom' style={{ display: 'flex' }}>
+                                    {existingImages.map(image => (
+                                        <img src={image.imageUrl} alt={image.id} style={{ maxWidth: '200px' }} />
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="col-span-1 md:col-span-12">
+                                <ButtonFilled
+                                    onClick={() => submit()}>
+                                    {paramUpsert === 'create'
+                                        ? 'Create Property Advertisement'
+                                        : 'Update Property Advertisement'}
+                                </ButtonFilled>
+                            </div>
                         </div>
-
-                        <FormInputText
-                            label='Enter Title of Property Post'
-                            autoFocus
-                            value={data['title']}
-                            onChange={(e) => setData({ ...data, title: e.target.value })}
-                            onKeyPress={(e) => e.key === 'Enter' && submit()}
-                        />
-                        <FormError nbsp>{'title' in error && error['title']}</FormError>
-
-                        <FormRadioOption
-                            name='Property Type'
-                            options={{ 'HDB': 'HDB', 'Condominium': 'CONDOMINIUM', 'Landed': 'LANDED' }}
-                            selected={data['propertyType']}
-                            setSelected={(e) => setData({ ...data, propertyType: e.target.value })} />
-                        <FormError nbsp>{'propertyType' in error && error['propertyType']}</FormError>
-
-                        <FormRadioOption
-                            name='Room Type'
-                            options={{ 'Single': 'SINGLE', 'Common': 'COMMON', 'Master': 'MASTER', 'Whole Unit': 'WHOLE_UNIT' }}
-                            selected={data['roomType']}
-                            setSelected={(e) => setData({ ...data, roomType: e.target.value })} />
-                        <FormError nbsp>{'roomType' in error && error['roomType']}</FormError>
-
-                        <FormInputNumber
-                            label='Enter Rental Fees'
-                            value={data['rentalFees']}
-                            min='0'
-                            step='50'
-                            onChange={(e) => setData({ ...data, rentalFees: e.target.value })} />
-                        <FormError nbsp>{'rentalFees' in error && error['rentalFees']}</FormError>
-
-                        <FormInputText
-                            label='Enter Property Address'
-                            value={data['address']}
-                            onChange={(e) => setData({ ...data, address: e.target.value })}
-                            onKeyPress={(e) => e.key === 'Enter' && submit()}
-                        />
-                        <FormError nbsp>{'address' in error && error['address']}</FormError>
-
-                        <FormInputText
-                            label='Enter Postal Code'
-                            value={data['postalCode']}
-                            maxLength='6'
-                            onChange={(e) => setData({ ...data, postalCode: e.target.value })}
-                            onKeyPress={(e) => e.key === 'Enter' && submit()}
-                        />
-                        <FormError nbsp>{'postalCode' in error && error['postalCode']}</FormError>
-
-                        <FormRadioOption
-                            name='Proeprty Furnishment'
-                            options={{ 'Furnished': 'FURNISHED', 'Partial': 'PARTIAL_FURNISHED', 'Unfurnished': 'UNFURNISHED' }}
-                            selected={data['furnishment'] ? data['furnishment'] : ''}
-                            setSelected={(e) => setData({ ...data, furnishment: e.target.value })} />
-                        <FormError nbsp>{'furnishment' in error && error['furnishment']}</FormError>
-
-                        <FormSelectOption
-                            name='Number of Bedrooms'
-                            options={{ 'default': 'Select Number of Bedrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
-                            selected={data['numBedrooms'] ? data['numBedrooms'] : ''}
-                            setSelected={(e) => setData({ ...data, numBedrooms: e.target.value })} />
-
-                        <FormSelectOption
-                            name='Number of Bathrooms'
-                            options={{ 'default': 'Select Number of Bathrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
-                            selected={data['numBathrooms'] ? data['numBathrooms'] : ''}
-                            setSelected={(e) => setData({ ...data, numBathrooms: e.target.value })} />
-
-                        <FormSelectOption
-                            name='Number of Tenants'
-                            options={{ 'default': 'Select Number of Tenants', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6' }}
-                            selected={data['numTenants'] ? data['numTenants'] : ''}
-                            setSelected={(e) => setData({ ...data, numTenants: e.target.value })} />
-
-                        <input type='file' multiple
-                            onChange={(e) => setSelectedDocs(e.target.files)} />
-
-                        <ButtonFilled
-                            onClick={() => submit()}>
-                            {paramUpsert === 'create'
-                                ? 'Create Property Advertisement'
-                                : 'Update Property Advertisement'}
-                        </ButtonFilled>
                     </div>
                 </Layout>
             </AuthChecker>

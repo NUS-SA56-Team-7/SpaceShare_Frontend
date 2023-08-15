@@ -149,12 +149,12 @@ function Login() {
                                     onKeyPress={(e) => e.key === 'Enter' && login()}
                                 />
                                 <FormError nbsp>{'password' in error && error['password']}</FormError>
-                                <div className="forgot_password text-right text-sm mb-2">
-                                    <a
-                                        className="txt-primary hover:txt-primary-hover"
+                                <div className="text-right text-sm mb-2">
+                                    <span
+                                        className="txt-primary hover:txt-primary-hover cursor-pointer w-auto"
                                         onClick={() => navigate(`/resetpassword/${user}`)}>
                                         Forgot Password?
-                                    </a>
+                                    </span>
                                 </div>
                                 <div className='mt-4'></div>
                                 <ButtonFilled
@@ -163,13 +163,13 @@ function Login() {
                                 </ButtonFilled>
                             </div>
                             <p className="mt-3 text-center text-sm text-gray-500">
-                                Don't have an account?{' '}
-                                <a
-                                    href="#"
-                                    className="font-semibold leading-6 txt-primary hover:txt-primary"
+                                Don't have an account?
+                                <span
+                                    className="font-semibold leading-6 txt-primary
+                                        hover:txt-primary cursor-pointer ml-2"
                                     onClick={() => navigate('/register')}>
                                     Register
-                                </a>
+                                </span>
                             </p>
                         </div>
                     </div>

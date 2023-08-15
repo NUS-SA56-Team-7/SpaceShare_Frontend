@@ -6,6 +6,7 @@ import './ImageSelector.css';
 /* MUI Imports */
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { PhotoIcon } from '@heroicons/react/24/outline';
 
 /* Utility Imports */
 import Axios from 'utils/Axios';
@@ -68,53 +69,63 @@ function ImageSelector({
         throw new Error('\'selectedImages\' and \'setSelectedImages\'  must be specified');
     }
     return (
-        <div className='imgup'>
-            <div className='imgup_body'>
-                <div className='imgup_img addimg'>
-                    <AddCircleIcon style={{ fontSize: '40px' }} />
-                    <input
-                        type='file' multiple
-                        accept='image/*'
-                        name='myImage'
-                        onChange={(e) => {
-                            updateSelectedFiles(
-                                selectedImages, [...e.target.files]);
-                        }} />
-                </div>
-                {selectedImages && selectedImages.map((img, index) => (
-                    <div key={index} className='imgup_img'>
-                        {(img instanceof File)
-                            ? <img src={URL.createObjectURL(img)} alt={img.name} />
-                            : <img src={img?.imageUrl} alt={img.id} />}
-                        <CancelIcon id='delete'
-                            onClick={() => delImages(index, setSelectedImages)} />
+        <div>
+            <label className="block text-sm font-medium leading-6 text-gray-900">
+                Image Upload
+            </label>
+            <div className="mt-2 flex flex-col justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                <div className='imgup'>
+                    <div className='imgup_body border grid h-auto min-h-[240px] max-h-0 md:max-h-[540px] overflow-y-scroll md:overflow-y-hidden border-gray-300 rounded-lg px-10 py-6'>
+                        <div className='imgup_img addimg border border-gray-300 rounded-lg col-span-1'>
+                            <AddCircleIcon style={{ fontSize: '40px' }} />
+                            <input
+                                type='file' multiple
+                                accept='image/*'
+                                name='myImage'
+                                onChange={(e) => {
+                                    updateSelectedFiles(
+                                        selectedImages, [...e.target.files]);
+                                }} />
+                        </div>
+                        {selectedImages && selectedImages.map((img, index) => (
+                            <div key={index} className='imgup_img rounded-lg border border-gray-300 bg-slate-300 col-span-1'>
+                                {(img instanceof File)
+                                    ? <img src={URL.createObjectURL(img)} alt={img.name} />
+                                    : <img src={img?.imageUrl} alt={img.id} />}
+                                <CancelIcon id='delete'
+                                    onClick={() => delImages(index, setSelectedImages)} />
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
-            {/* <div className='imgup_progressbar_wrapper'>
-                <div className='imgup_progressbar'>
-                    <div
-                        className='imgup_progressbar_progress'
-                        style={{ width: `${uploadProgress}%` }}>
+                    {/* <div className='imgup_progressbar_wrapper'>
+                        <div className='imgup_progressbar'>
+                            <div
+                                className='imgup_progressbar_progress'
+                                style={{ width: `${uploadProgress}%` }}>
+                            </div>
+                            <p className='imgup_progress'>
+                                {`${Math.floor(uploadProgress)}%`}
+                            </p>
+                        </div>
+                    </div> */}
+                    <div className='imgup_footer'>
+                        <button
+                            onClick={() => setSelectedImages(null)}
+                            className="inline-flex w-full items-center justify-center rounded-md
+                                bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">
+                            Clear All
+                        </button>
+                        <button
+                            className="btn-primary w-full inline-flex items-center justify-center
+                                rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm
+                                focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+                            Upload
+                        </button>
                     </div>
-                    <p className='imgup_progress'>
-                        {`${Math.floor(uploadProgress)}%`}
-                    </p>
                 </div>
-            </div> */}
-            <div className='imgup_footer'>
-                <button
-                    className='btn outlined'
-                    onClick={() => setSelectedImages(null)}>
-                    Clear All
-                </button>
-                {/* <button
-                    className='btn filled'
-                    onClick={() => fileUpload(selectedImages)}>
-                    Upload
-                </button> */}
             </div>
         </div>
+
     )
 };
 

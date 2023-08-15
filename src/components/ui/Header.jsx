@@ -1,4 +1,4 @@
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { Fragment, useContext, useState } from 'react'
 import { useNavigate } from 'react-router';
 
 import { Dialog, Transition, Menu } from '@headlessui/react'
@@ -30,13 +30,6 @@ function Header() {
         sessionStorage.removeItem('auth');
         setAuth(null);
     };
-
-    /* useEffect */
-    useEffect(() => {
-        if (sessionStorage.getItem('auth')) {
-            setAuth(JSON.parse(sessionStorage.getItem('auth')));
-        }
-    }, []);
 
     return (
         <header className='bg-white border-b border-gray-200 sticky-top'>

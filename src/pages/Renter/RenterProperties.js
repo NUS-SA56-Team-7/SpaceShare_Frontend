@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 /* Component Imports */
 import Layout from 'components/layout/Layout';
 import Heading from 'components/ui/Heading';
-import CardFavorite from 'components/ui/CardFavorite';
+import CardProperties from 'components/ui/CardProperties';
 
 /* Utility Imports */
 import Axios from 'utils/Axios';
@@ -55,7 +55,7 @@ function RenterProperties() {
                         )
                         : (
                             properties.map((property, index) => (
-                                <CardFavorite
+                                <CardProperties
                                     key={index}
                                     title={property.title}
                                     propertyImgUrl={property.propertyImgUrl}

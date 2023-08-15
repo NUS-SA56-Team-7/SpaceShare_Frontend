@@ -1,6 +1,6 @@
 import Badge from "./Badge";
 
-const UserIconWithTag = ({ imgUrl, username, status }) => {
+const UserIconWithTag = ({ userPhotoUrl, username, status }) => {
     return (
         <div className="grid grid-cols-2 my-4 items-center">
             <div className="flex items-center">
@@ -8,7 +8,7 @@ const UserIconWithTag = ({ imgUrl, username, status }) => {
                     <span className="absolute -inset-1.5" />
                     <img
                         className="h-8 w-8 rounded-full"
-                        src={imgUrl}
+                        src={userPhotoUrl}
                         alt="profile-img"
                     />
                 </div>

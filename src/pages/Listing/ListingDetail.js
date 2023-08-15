@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { HeartIcon, CalendarIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 /* CSS Imports */
 import 'styles/pages/Detail.css';
@@ -17,9 +16,17 @@ import ButtonFilled from 'components/ui/ButtonFilled';
 import GoogleMap from 'components/GoogleMap/GoogleMap';
 import Badge from 'components/ui/Badge';
 import Loader from 'components/Loader/Loader';
+import CommentForm from 'components/ui/CommentForm';
+import Comment from 'components/ui/Comment';
+
+/* Context Imports */
+import AuthContext from 'contexts/AuthContext';
 
 /* Utility Imports */
 import Axios from 'utils/Axios';
+
+/* Icon Imports */
+import { HeartIcon, CalendarIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 function ListingDetail() {
 
@@ -27,12 +34,66 @@ function ListingDetail() {
     const [data, setData] = useState({});
     const [error, setError] = useState();
     const [loading, setLoading] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [newComment, setNewComment] = useState('');
+    const [comments, setComments] = useState([]);
 
     /* useNavigate */
     const navigate = useNavigate();
 
     /* useParams */
     const { id: propertyId } = useParams();
+
+    /* useContext */
+    const { auth } = useContext(AuthContext);
+
+    /* Functions */
+    const addToFavorite = (e) => {
+        e.stopPropagation();
+        if (!isFavorite) {
+            Axios.post('api/favourite/create',
+                {
+                    tenantId: auth?.id,
+                    propertyId: parseInt(propertyId)
+                },
+                {
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => {
+                    if (res.status === 201) {
+                        setIsFavorite(true);
+                    }
+                })
+                .catch(err => {
+                    if (err.response.status === 404) {
+                        setError(err.response.data);
+                    }
+                    else if (err.response.status === 500) {
+                        setError(err.response.data);
+                    }
+                })
+        }
+        else {
+            Axios.delete(`/api/favourite/delete?tenantId=${auth?.id}&propertyId=${parseInt(propertyId)}`)
+                .then(res => {
+                    if (res.status === 200) {
+                        setIsFavorite(false);
+                    }
+                })
+                .catch(err => {
+                    if (err.response.status === 404) {
+                        setError(err.response.data);
+                    }
+                    else if (err.response.status === 500) {
+                        setError(err.response.data);
+                    }
+                })
+        }
+    };
+
+    const submitComment = () => {
+        console.log(newComment);
+    };
 
     /* useEffect */
     useEffect(() => {
@@ -73,11 +134,41 @@ function ListingDetail() {
             })
     }, []);
 
+    useEffect(() => {
+        if (auth?.id) {
+            Axios.get(`/api/tenant/${auth?.id}/favourites/id`)
+                .then(res => {
+                    if (res.status === 200) {
+                        if (res.data.indexOf(parseInt(propertyId)) !== -1) setIsFavorite(true);
+                    }
+                })
+                .catch(err => {
+                    if (err.response.status === 404) {
+                        setError(err.response.data);
+                    }
+                    else if (err.response.status === 500) {
+                        setError(err.response.data);
+                    }
+                })
+        }
+    }, [auth]);
 
-
-    const userDetail = [
-        { imgUrl: "https://i.pinimg.com/originals/50/28/ce/5028ce929cd06b95691bd55db694a37b.jpg", userName: "UserName" },
-    ];
+    useEffect(() => {
+        Axios.get(`api/property/${parseInt(propertyId)}/comments`)
+            .then(res => {
+                if (res.status === 200) {
+                    setComments(res.data);
+                }
+            })
+            .catch(err => {
+                if (err.response.status === 404) {
+                    setError(err.response.data);
+                }
+                else if (err.response.status === 500) {
+                    setError(err.response.data);
+                }
+            })
+    }, []);
 
     const propertyAmenities = [
         'Shower',
@@ -92,8 +183,8 @@ function ListingDetail() {
     else {
         return (
             <Layout>
-                {console.log(data)}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pb-12 border-b border-gray-200">
+
                     {/* 8-column section */}
                     <div className="sm:col-span-1 md:col-span-8">
                         <Carousel items={data['propertyImages'] ? data['propertyImages'] : []} />
@@ -102,7 +193,6 @@ function ListingDetail() {
                             description={data['description'] && data['description']}
                         />
 
-                        {/* Needs FIX */}
                         <dl className="mt-16 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
                             {
                                 [
@@ -120,9 +210,7 @@ function ListingDetail() {
                         </dl>
 
                         <div className='pt-8 mt-8 border-t border-gray-200'>
-                            <DetailList
-                                title={'Property Details'}
-                            />
+                            <DetailList title={'Property Details'} />
                         </div>
                     </div>
 
@@ -148,8 +236,7 @@ function ListingDetail() {
                                             </div>
                                             <ul
                                                 role="list"
-                                                className="mt-8 grid grid-cols-1 gap-4 text-sm leading-6 text-gray-600 sm:grid-cols-2 sm:gap-6"
-                                            >
+                                                className="mt-8 grid grid-cols-1 gap-4 text-sm leading-6 text-gray-600 sm:grid-cols-2 sm:gap-6">
                                                 {propertyAmenities.map((amenity) => (
                                                     <li key={amenity} className="flex gap-x-3">
                                                         <CheckIcon className="h-6 w-5 flex-none txt-primary" aria-hidden="true" />
@@ -162,9 +249,24 @@ function ListingDetail() {
 
                                     <li className="flex flex-col md:flex-row py-6 justify-around">
                                         <span className="flex-1">
-                                            <ButtonOutlined action="">
-                                                <HeartIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
-                                                Save to Wishlist
+                                            <ButtonOutlined onClick={addToFavorite}>
+                                                {isFavorite
+                                                    ? (
+                                                        <div className="flex items-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="rgb(220, 38, 38)" className="-ml-0.5 mr-1.5 h-5 w-5">
+                                                                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                                                            </svg>
+                                                            <span className="text-red-600">
+                                                                Favorite
+                                                            </span>
+                                                        </div>
+                                                    )
+                                                    : (
+                                                        <div className="flex items-center">
+                                                            <HeartIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+                                                            Add to Favorites
+                                                        </div>
+                                                    )}
                                             </ButtonOutlined>
                                         </span>
 
@@ -177,8 +279,8 @@ function ListingDetail() {
                                     </li>
                                     <li className="flex flex-col pt-2 pb-6">
                                         <UserIconWithTag
-                                            imgUrl={userDetail[0].imgUrl}
-                                            username={userDetail[0].userName}
+                                            imgUrl={data?.renter?.photoUrl}
+                                            username={`${data?.renter?.firstName} ${data?.renter?.lastName}`}
                                         />
                                         <ButtonFilled>
                                             Contact
@@ -198,49 +300,23 @@ function ListingDetail() {
                         zoom={17} />
                 </div>
 
-                <div className="my-8">
-                    <Heading title="Comments" />
-                    {/* https://bbbootstrap.com/snippets/bootstrap-like-comment-share-section-comment-box-63008805 */}
-                    <div className="container mt-5">
-                        <div className="d-flex justify-content-center row">
-                            <div className="col-md-8">
-                                <div className="d-flex flex-column comment-section">
-                                    <div className="bg-white p-2">
-                                        <div className="d-flex flex-row user-info">
-                                            <img className="rounded-circle" src="https://i.imgur.com/RpzrMR2.jpg" width="40" />
-                                            <div className="d-flex flex-column justify-content-start ml-2">
-                                                <span className="d-block font-weight-bold name">Marry Andrews</span>
-                                                <span className="date text-black-50">Shared publicly - Jan 2020</span>
-                                            </div>
-                                        </div>
-                                        <div className="mt-2">
-                                            <p className="comment-text">Comment 1</p>
-                                        </div>
-                                    </div>
-                                    <div className="bg-white">
-                                        <div className="d-flex flex-row fs-12">
-                                            <div className="like p-2 cursor"><i className="fa fa-thumbs-o-up"></i><span className="ml-1">Like</span></div>
-                                            <div className="like p-2 cursor"><i className="fa fa-commenting-o"></i><span className="ml-1">Comment</span></div>
-                                            <div className="like p-2 cursor"><i className="fa fa-share"></i><span className="ml-1">Share</span></div>
-                                        </div>
-                                    </div>
-                                    <div className="bg-light p-2">
-                                        <div className="d-flex flex-row align-items-start">
-                                            <img className="rounded-circle" src="https://i.imgur.com/RpzrMR2.jpg" width="40" />
-                                            <textarea className="form-control ml-1 shadow-none textarea"></textarea>
-                                        </div>
-                                        <div className="mt-2 text-right">
-                                            <button className="btn btn-primary btn-sm shadow-none" type="button">
-                                                Post comment
-                                            </button>
-                                            <button className="btn btn-outline-primary btn-sm ml-1 shadow-none" type="button">
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div className="my-8 pb-8 border-b border-gray-200">
+                    <Heading
+                        title="Comments"
+                    />
+                    <div className='my-6'>
+                        <CommentForm comment={newComment} setComment={setNewComment} handleSubmit={submitComment} />
+                        {
+                            comments.map((comment, index) => (
+                                <Comment
+                                    key={index}
+                                    imgUrl='https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/b2a0f028-f3a9-4fd5-92a2-f75d028c884e/d32mwam-ac62a6e4-de96-46a1-b4ec-15b1138b8937.jpg/v1/fill/w_1280,h_960,q_75,strp/tom_cruise_as_a_na_vi_by_scribblingangel_d32mwam-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9OTYwIiwicGF0aCI6IlwvZlwvYjJhMGYwMjgtZjNhOS00ZmQ1LTkyYTItZjc1ZDAyOGM4ODRlXC9kMzJtd2FtLWFjNjJhNmU0LWRlOTYtNDZhMS1iNGVjLTE1YjExMzhiODkzNy5qcGciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.FO7FSE9cAxLV7i9AjryAmESe-tlQkH23L00p-VKP8Ww'
+                                    username='Stephen Phyo'
+                                    date="01/01/2000"
+                                    text="Comment 01"
+                                />
+                            ))
+                        }
                     </div>
                 </div>
             </Layout>
