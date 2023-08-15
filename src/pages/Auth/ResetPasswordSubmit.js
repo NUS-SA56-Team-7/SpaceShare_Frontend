@@ -18,6 +18,7 @@ import Axios from 'utils/Axios';
 import validatePassword from 'functions/validatePassword';
 import LoginLayout from 'components/layout/LoginLayout';
 import ButtonFilled from 'components/ui/ButtonFilled';
+import ButtonOutlined from 'components/ui/ButtonOutlined';
 
 function ResetPasswordSubmit() {
 
@@ -116,6 +117,12 @@ function ResetPasswordSubmit() {
                                         <ButtonFilled onClick={() => handleSubmit()}>
                                             Reset Password
                                         </ButtonFilled>
+                                    </div>
+                                    <div className='mt-3 mb-4'>
+                                        <ButtonOutlined
+                                            onClick={() => navigate('/resetpassword')}>
+                                            Cancel
+                                        </ButtonOutlined>
                                     </div>
                                 </div>
                             </div>

@@ -21,7 +21,7 @@ function Profile() {
 
     const userDetail = [
         {
-            imgUrl: "https://i.pinimg.com/originals/50/28/ce/5028ce929cd06b95691bd55db694a37b.jpg",
+            imgUrl: "https://image.tmdb.org/t/p/original/8qBylBsQf4llkGrWR3qAsOtOU8O.jpg",
             userName: "Winter Winter",
             status: 1
         },
@@ -115,27 +115,20 @@ function Profile() {
                     <div className="mx-auto max-w-xs flow-root pt-8">
                         <ul role="list" className="-my-6 divide-y divide-none">
                             <li className="py-2">
-                                <div class="relative flex rounded-full">
-                                    <span className="absolute -inset-1.5" />
-                                    <img
-                                        className="w-full rounded-full"
-                                        src={userDetail[0].imgUrl}
-                                        alt="profile-img"
-                                    />
+                                <div className="relative inline-block w-full">
+                                    <div className="relative aspect-square pt-[100%]">
+                                        <img
+                                            className="absolute inset-0 w-full h-full object-cover object-center rounded-full"
+                                            src={userDetail[0].imgUrl}
+                                            alt="profile-img"
+                                        />
+                                    </div>
                                 </div>
                             </li>
                             <li className="py-2">
                                 <p class="text-3xl font-normal text-gray-800 line-clamp-1">
                                     {firstName} {lastName}
                                 </p>
-                            </li>
-                            <li className="py-2">
-                                <ButtonOutlined
-                                    onClick={isEditing ? handleCancelClick : handleEditClick}
-                                >
-                                    <PencilIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
-                                    {isEditing ? 'Stop Editing...' : 'Edit Profile'}
-                                </ButtonOutlined>
                             </li>
                             <li className="py-2">
                                 <div className="flex flex-col p-6 justify-between rounded-lg bg-white border border-gray-300">
@@ -171,31 +164,6 @@ function Profile() {
                                     </div>
                                 </div>
                             </li>
-                            {/* <li className="py-2">
-                                <div>
-                                    <div className="relative flex rounded-full">
-                                        <span className="absolute -inset-1.5" />
-                                        <img
-                                            className="w-full rounded-full"
-                                            src={userImgUrl}
-                                            alt="profile-img"
-                                        />
-                                    </div>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleImageChange}
-                                        className="mt-2"
-                                    />
-                                    <button
-                                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
-                                        onClick={handleImageUpdate}
-                                        disabled={!userImgFile} 
-                                    >
-                                        Update Image
-                                    </button>
-                                </div>
-                            </li> */}
                         </ul>
                     </div>
                 </div>
@@ -216,44 +184,69 @@ function Profile() {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
                                                 <div className="flex flex-col gap-x-6 gap-y-8">
                                                     <div className="sm:col-span-4">
-                                                        <FormText
-                                                            title="First Name"
-                                                            content={firstName}
+                                                        <FormInputText
+                                                            label='First Name'
+                                                            disabled
+                                                            autoFocus
+                                                            value={firstName}
+                                                            onChange={(e) => setFirstName(e.target.value)}
                                                         />
                                                     </div>
                                                     <div className="sm:col-span-4">
-                                                        <FormText
-                                                            title="Last Name"
-                                                            content={lastName}
+                                                        <FormInputText
+                                                            label='Last Name'
+                                                            disabled
+                                                            autoFocus
+                                                            value={lastName}
+                                                            onChange={(e) => setLastName(e.target.value)}
                                                         />
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
                                         <div className="sm:col-span-4">
-                                            <FormText
-                                                title="Email"
-                                                content={email}
+                                            <FormInputText
+                                                label='Email'
+                                                disabled
+                                                autoFocus
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
                                             />
                                         </div>
                                         <div className="sm:col-span-4">
-                                            <FormText
-                                                title="Phone"
-                                                content={phone}
+                                            <FormInputText
+                                                label='Phone'
+                                                disabled
+                                                autoFocus
+                                                value={phone}
+                                                onChange={(e) => setPhone(e.target.value)}
                                             />
                                         </div>
                                         <div className="sm:col-span-4">
-                                            <FormText
-                                                title="Address"
-                                                content={address}
+                                            <FormInputText
+                                                label='Address'
+                                                disabled
+                                                autoFocus
+                                                value={address}
+                                                onChange={(e) => setAddress(e.target.value)}
                                             />
                                         </div>
                                         <div className="sm:col-span-4">
-                                            <FormText
-                                                title="Date of Birth"
-                                                content={dob}
+                                            <FormInputText
+                                                label='Date of Birth'
+                                                disabled
+                                                autoFocus
+                                                value={dob}
+                                                onChange={(e) => setDob(e.target.value)}
                                             />
+                                        </div>
+                                        <div className="sm:col-span-3 flex gap-x-4">
+                                            <ButtonOutlined
+                                                onClick={isEditing ? handleCancelClick : handleEditClick}
+                                            >
+                                                <PencilIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                Edit Profile
+                                            </ButtonOutlined>
                                         </div>
                                     </div>
                                 ) : (
@@ -312,22 +305,17 @@ function Profile() {
                                                 onChange={(e) => setDob(e.target.value)}
                                             />
                                         </div>
-                                        <div className="sm:col-span-4">
-                                            <FormInputPassword
-                                                label='Password'
-                                            />
-                                        </div>
                                         <div className="sm:col-span-3 flex gap-x-4">
-                                            <ButtonFilled
-                                                onClick={handleSaveClick}
-                                            >
-                                                Save Profile
-                                            </ButtonFilled>
                                             <ButtonOutlined
                                                 onClick={handleCancelClick}
                                             >
                                                 Cancel
                                             </ButtonOutlined>
+                                            <ButtonFilled
+                                                onClick={handleSaveClick}
+                                            >
+                                                Save Profile
+                                            </ButtonFilled>
                                         </div>
                                     </div>
                                 )
@@ -343,7 +331,7 @@ function Profile() {
                                     Favorites
                                 </p>
                             </div>
-                            <a 
+                            <a
                                 href="#"
                                 onClick={(e) => {
                                     e.preventDefault();
@@ -351,7 +339,7 @@ function Profile() {
                                 }}
                                 className="text-sm font-semibold leading-6 txt-primary hover:txt-primary-hover mr-6"
                             >
-                                View All 
+                                View All
                                 <span aria-hidden="true">
 
                                 </span>

@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 
 /*** Page Imports ***/
-import RegisterRenter from 'pages/Auth/RegisterRenter';
+import Register from 'pages/Auth/Register';
 import ResetPasswordEmail from 'pages/Auth/ResetPasswordEmail';
 import ResetPasswordOTP from 'pages/Auth/ResetPasswordOTP';
 import ResetPasswordSubmit from 'pages/Auth/ResetPasswordSubmit';
@@ -58,6 +58,8 @@ function App() {
                     <Route path='/resetpassword/:id/success' element={<ResetPasswordSuccess />} /> */}
 
                     {/* SOMIN ROUTES --- DELETE */}
+                    <Route path='/renter/register' element={<Register />} />
+                    {/* <Route path='/register/success' element={<RegisterSuccess />} /> */}
 
                     {/* Listing */}
                     <Route path='/' element={<Landing />} />

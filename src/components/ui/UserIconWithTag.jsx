@@ -7,7 +7,7 @@ const UserIconWithTag = ({ userPhotoUrl, username, status }) => {
                 <div className="relative flex rounded-full text-sm">
                     <span className="absolute -inset-1.5" />
                     <img
-                        className="h-8 w-8 rounded-full"
+                        className="h-8 w-8 rounded-full object-cover object-center"
                         src={userPhotoUrl}
                         alt="profile-img"
                     />

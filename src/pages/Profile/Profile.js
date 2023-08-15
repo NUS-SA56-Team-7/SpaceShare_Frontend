@@ -160,14 +160,15 @@ function Profile() {
                         <div className='profile mx-auto max-w-s flow-root px-8 py-0'>
                             <ul role='list' className='my-4 divide-y divide-none align-items-center justify-content-center'>
                                 <li className='py-2'>
-                                    <div className='relative flex rounded-full justify-content-center'
+                                    <div className="relative inline-block w-full"
                                         onClick={() => setModal(true)}>
-                                        <span className='absolute -inset-1.5' />
-                                        <img
-                                            className='w-full rounded-full col-10'
-                                            src={auth?.photoUrl ? auth.photoUrl : avatar}
-                                            alt='profile-img'
-                                        />
+                                        <div className="relative aspect-square pt-[100%]">
+                                            <img
+                                                className="absolute inset-0 w-full h-full object-cover object-center rounded-full"
+                                                src={auth?.photoUrl ? auth.photoUrl : avatar}
+                                                alt="profile-img"
+                                            />
+                                        </div>
                                     </div>
                                 </li>
                                 <li className='py-2'>

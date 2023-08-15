@@ -48,7 +48,7 @@ function RenterProperties() {
         <Layout>
             <Heading title='My Properties' />
             <section className='py-10 border-b border-gray-200 mb-24'>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full flex-grow">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full flex-grow min-h-[calc((100vh-201px)-25rem)]">
                     {loading
                         ? (
                             <CircularProgress />

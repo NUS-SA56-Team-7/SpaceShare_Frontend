@@ -99,11 +99,11 @@ const Search = () => {
             </div>
             <div className="searchbar-container sm:col-span-1 md:col-span-12 flex items-center sticky top-0 z-50 gap-x-6 py-8">
                 <div className="mx-auto w-full max-w-7xl">
-                    <div className="grid grid-cols-12 items-center justify-between gap-x-1">
-                        <div className="col-span-8">
+                    <div className="grid grid-cols-1 md:grid-cols-12 items-center justify-between gap-x-2">
+                        <div className="col-span-1 md:col-span-7">
                             <SearchForm></SearchForm>
                         </div>
-                        <div className="col-span-2">
+                        <div className="col-span-1 mt-4 md:col-span-5 md:mt-0 flex gap-x-2 flex-grow">
                             <Dropdown title="Property Type">
                                 {/* Dropdown Children */}
                                 <Menu.Item>
@@ -141,8 +141,6 @@ const Search = () => {
                                     )}
                                 </Menu.Item>
                             </Dropdown>
-                        </div>
-                        <div className="col-span-1">
                             <Dropdown title="Room Type">
                                 {/* Dropdown Children */}
                                 <Menu.Item>
@@ -180,8 +178,6 @@ const Search = () => {
                                     )}
                                 </Menu.Item>
                             </Dropdown>
-                        </div>
-                        <div className="col-span-1">
                             <Dropdown title="Price">
                                 {/* Dropdown Children */}
                                 <Menu.Item>

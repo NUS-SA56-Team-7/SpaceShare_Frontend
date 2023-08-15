@@ -121,7 +121,7 @@ function Login() {
 
                 {/* Main Content */}
                 <div className="flex min-h-full flex-1 flex-col justify-center items-center px-6 py-12 lg:px-8">
-                    <div className="flex flex-col p-6 md:sticky md:top-6 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5 w-96">
+                    <div className="flex flex-col p-6 md:sticky md:top-6 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5 w-96 z-30">
                         <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
                             <img
                                 className="mx-auto h-auto w-40"

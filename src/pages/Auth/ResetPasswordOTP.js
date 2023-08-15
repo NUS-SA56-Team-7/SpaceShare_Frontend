@@ -190,8 +190,8 @@ function ResetPasswordOTP() {
                                 ))}
                             </div>
                             <FormError nbsp>{error}</FormError>
-                            <div className='text-base font-medium'>
-                                <div className='form_link d-inline-block'
+                            <div className='text-base font-medium flex px-2'>
+                                <div className='form_link d-inline-block hover:cursor-pointer hover:txt-primary'
                                     onClick={() => sendOTP()}>
                                     Resend OTP
                                 </div>
@@ -206,7 +206,7 @@ function ResetPasswordOTP() {
                                     Continue
                                 </ButtonFilled>
                             </div>
-                            <div className='mt-3'>
+                            <div className='mt-3 mb-4'>
                                 <ButtonOutlined
                                     onClick={() => navigate('/resetpassword')}>
                                     Back

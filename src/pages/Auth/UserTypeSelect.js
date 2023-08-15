@@ -23,13 +23,13 @@ function UserTypeSelect() {
 
     return (
         <LoginLayout>
-            <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+            <div className="mx-auto max-w-lg md:max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                    <div className="md:col-start-2 sm:col-span-1 md:col-span-5 flex items-center max-h-96">
+                    <div className="md:col-start-2 sm:col-span-1 md:col-span-5 flex items-center justify-center md:justify-normal max-h-96">
                         <img src="./spaceshare_logo.svg" alt="Logo" className="h-10 w-auto z-10" />
                     </div>
 
-                    <div className="md:col-start-7 sm:col-span-1 md:col-span-5">
+                    <div className="md:col-start-7 sm:col-span-1 md:col-span-5 z-30">
                         <div className="flex flex-col p-6 md:sticky md:top-6 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5">
                             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                                 <div className="flex mt-10 items-center">

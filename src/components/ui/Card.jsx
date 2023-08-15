@@ -116,11 +116,6 @@ function Card(props) {
                         imgUrl={props.data?.renter?.photoUrl}
                         username={props.data?.renter?.firstName}>
                     </UserIconWithTag>
-                    <div>
-                        <ButtonFilled onClick={props.onClick}>
-                            View Details
-                        </ButtonFilled>
-                    </div>
                 </div>
             </div>
         </div>

@@ -49,12 +49,12 @@ function Header() {
 
                         {/* Menu - Renter*/}
                         {auth?.userType === 'RENTER' &&
-                            <div className="ml-4 flex lg:ml-4">
-                                <div className='cursor-pointer'
+                            <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-start lg:space-x-6 lg:ml-8">
+                                <div className='text-sm font-medium text-gray-700 hover:txt-primary btn cursor-pointer'
                                     onClick={() => navigate('/renter/properties')}>
                                     <span>My Properties</span>
                                 </div>
-                                <div className='ml-4 cursor-pointer'
+                                <div className='ml-4 text-sm font-medium text-gray-700 hover:txt-primary btn cursor-pointer'
                                     onClick={() => navigate('/renter/listing/create')}>
                                     <span>Create New Post</span>
                                 </div>
@@ -63,8 +63,8 @@ function Header() {
 
                         {/* Menu - Tenant */}
                         {auth?.userType === 'TENANT' &&
-                            <div className="ml-4 flex lg:ml-4">
-                                <div className='cursor-pointer'
+                            <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-start lg:space-x-6 lg:ml-8">
+                                <div className='text-sm font-medium text-gray-700 hover:txt-primary btn cursor-pointer'
                                     onClick={() => navigate('/tenant/favorites')}>
                                     <span>My Favorites</span>
                                 </div>
@@ -92,11 +92,11 @@ function Header() {
 
                             {/* Username */}
                             {auth &&
-                                <div className="ml-auto flex items-center">
-                                    <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6"
-                                        style={{ userSelect: 'none' }}>
+                                <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6"
+                                    style={{ userSelect: 'none' }}>
+                                    <span className="text-sm font-medium text-gray-700">
                                         {auth?.firstName} {auth?.lastName}
-                                    </div>
+                                    </span>
                                 </div>
                             }
 
@@ -107,7 +107,7 @@ function Header() {
                                         <Menu.Button className="relative flex rounded-full bg-primary text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-green-700">
                                             <span className="absolute -inset-1.5" />
                                             <span className="sr-only">Open user menu</span>
-                                            <img className="h-10 w-10 rounded-full"
+                                            <img className="h-10 w-10 rounded-full object-cover object-center"
                                                 src={auth?.photoUrl ? auth.photoUrl : avatar} alt="profile-img"
                                             />
                                         </Menu.Button>
