@@ -37,6 +37,16 @@ import Profile2 from 'pages/Profile/Profile';
 import Forms from 'pages/Forms';
 import Search from 'pages/Search';
 
+/* Admin */
+import Dashboard from 'pages/Admin/Dashboard';
+import ViewAdmins from 'pages/Admin/ViewAdmins';
+import ViewAmenities from 'pages/Admin/ViewAmenities';
+import ViewFacilities from 'pages/Admin/ViewFacilities';
+import ViewProperties from 'pages/Admin/ViewProperties';
+import ViewRenters from 'pages/Admin/ViewRenters';
+import ViewScamReports from 'pages/Admin/ViewScamReports';
+import ViewTenants from 'pages/Admin/ViewTenants';
+
 function App() {
 
     /* Program Initialization */
@@ -110,6 +120,16 @@ function App() {
                     <Route path='/resetpassword/:user' element={<ResetPasswordEmail />} />
                     <Route path='/resetpassword/:user/:id/otp' element={<ResetPasswordOTP />} />
                     <Route path='/resetpassword/:user/:id/submit' element={<ResetPasswordSubmit />} />
+
+                    {/* Admin */}
+                    <Route path='/admin/dashboard' element={<Dashboard />} />
+                    <Route path='/admin/adminlist' element={<ViewAdmins />} />
+                    <Route path='/admin/amenities' element={<ViewAmenities />} />
+                    <Route path='/admin/facilities' element={<ViewFacilities />} />
+                    <Route path='/admin/properties' element={<ViewProperties />} />
+                    <Route path='/admin/renters' element={<ViewRenters />} />
+                    <Route path='/admin/scamreports' element={<ViewScamReports />} />
+                    <Route path='/admin/tenants' element={<ViewTenants />} />
                 </Routes>
             </main>
         </Router>

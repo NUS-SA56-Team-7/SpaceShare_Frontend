@@ -86,7 +86,7 @@ function Card(props) {
                     <div className="flex justify-center relative rounded-lg overflow-hidden h-52">
                         <div className="transition-transform duration-500 transform ease-in-out hover:scale-110 w-full
                             d-flex align-items-center justify-content-center">
-                            <img src={props.data?.propertyImages[0]?.imageUrl} alt={props.data?.title} />
+                            <img src={props.data?.propertyImages[0]?.imageUrl} alt={props.data?.title} className='w-full h-full object-content object-cover'/>
                         </div>
                         <span className="absolute top-0 left-0 inline-flex mt-3 ml-3">
                             <Badge status="danger">

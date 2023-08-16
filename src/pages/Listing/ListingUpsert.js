@@ -430,65 +430,71 @@ function ListingUpsert() {
                                 </ButtonFilled>
                             </div>
 
-                            <FileSelector
-                                selectedFiles={selectedDocs}
-                                setSelectedFiles={setSelectedDocs} />
-
-                            <div onClick={() => setToggleAmenity(!toggleAmenity)}>
-                                <div className='font-semibold cursor-pointer'>
-                                    {
-                                        selectedAmenities.length === 0
-                                            ? '0 amenity selected'
-                                            : `${selectedAmenities.length} amenities selected`
-                                    }
-                                </div>
+                            <div className="col-span-1 md:col-span-12 mt-1">
+                                <FileSelector
+                                    selectedFiles={selectedDocs}
+                                    setSelectedFiles={setSelectedDocs} />
                             </div>
-                            {toggleAmenity && (
-                                <div className="border-gray-200 border border-solid">
-                                    {amenities.map((amenity, index) => (
-                                        <label key={index} className="block">
-                                            <input
-                                                type='checkbox'
-                                                className='m-3 cursor-pointer'
-                                                name={amenity.amenityName}
-                                                value={amenity.id}
-                                                onChange={() => selectedAmenities.includes(amenity.id)
-                                                    ? setSelectedAmenities(
-                                                        selectedAmenities.filter(item => item !== amenity.id))
-                                                    : setSelectedAmenities([...selectedAmenities, amenity.id])} />
-                                            {amenity.amenityName}
-                                        </label>
-                                    ))}
-                                </div>
-                            )}
 
-                            <div onClick={() => setToggleFacility(!toggleFacility)}>
-                                <div className='font-semibold cursor-pointer'>
-                                    {
-                                        selectedFacilities.length === 0
-                                            ? '0 facility selected'
-                                            : `${selectedFacilities.length} facilities selected`
-                                    }
+                            <div className="col-span-1 md:col-span-12 mt-1">
+                                <div onClick={() => setToggleAmenity(!toggleAmenity)}>
+                                    <div className='font-semibold cursor-pointer'>
+                                        {
+                                            selectedAmenities.length === 0
+                                                ? '0 amenity selected'
+                                                : `${selectedAmenities.length} amenities selected`
+                                        }
+                                    </div>
                                 </div>
+                                {toggleAmenity && (
+                                    <div className="border-gray-200 border border-solid">
+                                        {amenities.map((amenity, index) => (
+                                            <label key={index} className="block">
+                                                <input
+                                                    type='checkbox'
+                                                    className='m-3 cursor-pointer'
+                                                    name={amenity.amenityName}
+                                                    value={amenity.id}
+                                                    onChange={() => selectedAmenities.includes(amenity.id)
+                                                        ? setSelectedAmenities(
+                                                            selectedAmenities.filter(item => item !== amenity.id))
+                                                        : setSelectedAmenities([...selectedAmenities, amenity.id])} />
+                                                {amenity.amenityName}
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                            {toggleFacility && (
-                                <div className="border-gray-200 border border-solid">
-                                    {facilities.map((facility, index) => (
-                                        <label key={index} className="block">
-                                            <input
-                                                type='checkbox'
-                                                className='m-3 cursor-pointer'
-                                                name={facility.facilityName}
-                                                value={facility.id}
-                                                onChange={() => selectedFacilities.includes(facility.id)
-                                                    ? setSelectedFacilities(
-                                                        selectedFacilities.filter(item => item !== facility.id))
-                                                    : setSelectedFacilities([...selectedFacilities, facility.id])} />
-                                            {facility.facilityName}
-                                        </label>
-                                    ))}
+
+                            <div className="col-span-1 md:col-span-12 mt-1">
+                                <div onClick={() => setToggleFacility(!toggleFacility)}>
+                                    <div className='font-semibold cursor-pointer'>
+                                        {
+                                            selectedFacilities.length === 0
+                                                ? '0 facility selected'
+                                                : `${selectedFacilities.length} facilities selected`
+                                        }
+                                    </div>
                                 </div>
-                            )}
+                                {toggleFacility && (
+                                    <div className="border-gray-200 border border-solid">
+                                        {facilities.map((facility, index) => (
+                                            <label key={index} className="block">
+                                                <input
+                                                    type='checkbox'
+                                                    className='m-3 cursor-pointer'
+                                                    name={facility.facilityName}
+                                                    value={facility.id}
+                                                    onChange={() => selectedFacilities.includes(facility.id)
+                                                        ? setSelectedFacilities(
+                                                            selectedFacilities.filter(item => item !== facility.id))
+                                                        : setSelectedFacilities([...selectedFacilities, facility.id])} />
+                                                {facility.facilityName}
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </Layout>
