@@ -7,7 +7,7 @@ const uploadFile = async (fileRef, file) => {
     return fileURL;
 }
 
-const uploadFiles = async (storageRef, files) => {
+export const uploadFilesUUID = async (storageRef, files) => {
     const filePromises = files.map(file => {
         const fileExtension = file.name.split('.').pop();
         const fileName = uuidv4() + '.' + fileExtension;
@@ -19,4 +19,14 @@ const uploadFiles = async (storageRef, files) => {
     return fileURLs;
 }
 
-export default uploadFiles;
+export const uploadFiles = async (storageRef, files) => {
+    const uuid = uuidv4();
+    const filePromises = files.map(file => {
+        const fileName = uuid + '/' + file.name;
+
+        return uploadFile(storageRef(fileName), file);
+    });
+
+    const fileURLs = await Promise.all(filePromises);
+    return fileURLs;
+}

@@ -33,6 +33,7 @@ import Favorites from 'pages/Tenant/Favorites';
 import NotFound404 from 'pages/Error/NotFound404';
 
 import Profile from 'pages/Profile';
+import Profile2 from 'pages/Profile/Profile';
 import Forms from 'pages/Forms';
 import Search from 'pages/Search';
 
@@ -98,6 +99,7 @@ function App() {
                     <Route path='*' element={<NotFound404 />} />
 
                     <Route path='/profile' element={<Profile />} />
+                    <Route path='/profile2' element={<Profile2 />} />
                     <Route path='/forms' element={<Forms />} />
                     <Route path='/search' element={<Search />} />
 

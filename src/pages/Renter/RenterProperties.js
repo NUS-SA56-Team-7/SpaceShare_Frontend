@@ -55,13 +55,8 @@ function RenterProperties() {
                         )
                         : (
                             properties.map((property, index) => (
-                                <CardProperties
-                                    key={index}
-                                    title={property.title}
-                                    propertyImgUrl={property.propertyImgUrl}
-                                    description={property.description}
-                                    location={property.location}
-                                />
+                                <CardProperties key={index}
+                                    data={property} />
                             ))
                         )
                     }

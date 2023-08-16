@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 /* CSS Impoerts */
 import './ImageSelector.css';
@@ -6,10 +6,6 @@ import './ImageSelector.css';
 /* MUI Imports */
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { PhotoIcon } from '@heroicons/react/24/outline';
-
-/* Utility Imports */
-import Axios from 'utils/Axios';
 
 function ImageSelector({
     selectedImages, setSelectedImages,
@@ -17,11 +13,10 @@ function ImageSelector({
 }) {
 
     /* Constants & Variables */
-    // ['.jpg', '.jpeg', '.png', '.webp', '.bmp']
     const _allowedExtensions =
         allowedExtensions
             ? allowedExtensions
-            : [];
+            : ['.jpg', '.jpeg', '.png', '.webp', '.bmp'];
     const _concurrentImageLimit =
         concurrentImageLimit
             ? concurrentImageLimit
@@ -97,29 +92,12 @@ function ImageSelector({
                             </div>
                         ))}
                     </div>
-                    {/* <div className='imgup_progressbar_wrapper'>
-                        <div className='imgup_progressbar'>
-                            <div
-                                className='imgup_progressbar_progress'
-                                style={{ width: `${uploadProgress}%` }}>
-                            </div>
-                            <p className='imgup_progress'>
-                                {`${Math.floor(uploadProgress)}%`}
-                            </p>
-                        </div>
-                    </div> */}
                     <div className='imgup_footer'>
                         <button
                             onClick={() => setSelectedImages(null)}
                             className="inline-flex w-full items-center justify-center rounded-md
                                 bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">
                             Clear All
-                        </button>
-                        <button
-                            className="btn-primary w-full inline-flex items-center justify-center
-                                rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm
-                                focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-                            Upload
                         </button>
                     </div>
                 </div>

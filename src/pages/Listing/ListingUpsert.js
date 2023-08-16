@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 
 /* Component Imports */
 import FormInputText from 'components/form/FormInputText';
@@ -9,6 +9,7 @@ import ButtonFilled from 'components/ui/ButtonFilled';
 import FormRadioOption from 'components/form/FormRadioOption';
 import FormSelectOption from 'components/form/FormSelectOption';
 import ImageSelector from 'components/ImageSelector/ImageSelector';
+import FileSelector from 'components/FileSelector/FileSelector';
 import Heading from 'components/ui/Heading';
 
 /* Context Imports */
@@ -19,7 +20,7 @@ import Axios from 'utils/Axios';
 
 /* Service Imports */
 import { firebaseStorageRefs } from 'services/firebase/CloudStorage/firebaseCloudStorage';
-import firebaseStorageUploadFiles from 'services/firebase/CloudStorage/firebaseStorageUploadFiles';
+import { uploadFiles, uploadFilesUUID } from 'services/firebase/CloudStorage/firebaseStorageUploadFiles'
 import firebaseStorageDeleteFiles from 'services/firebase/CloudStorage/firebaseStorageDeleteFiles';
 import Loader from 'components/Loader/Loader';
 import { useContext } from 'react';
@@ -50,6 +51,16 @@ function ListingUpsert() {
     const [selectedImages, setSelectedImages] = useState([]);
     const [existingImages, setExistingImages] = useState([]);
     const [selectedDocs, setSelectedDocs] = useState([]);
+    const [amenities, setAmenities] = useState([]);
+    const [selectedAmenities, setSelectedAmenities] = useState([]);
+    const [facilities, setFacilities] = useState([]);
+    const [selectedFacilities, setSelectedFacilities] = useState([]);
+
+    const [toggleAmenity, setToggleAmenity] = useState(false);
+    const [toggleFacility, setToggleFacility] = useState(false);
+
+    /* useNavigate */
+    const navigate = useNavigate();
 
     /* useParams */
     const { upsert: paramUpsert } = useParams();
@@ -131,10 +142,21 @@ function ListingUpsert() {
     const create = async () => {
         try {
             // Upload Images to Firebase Storage
-            const uploadedImageURLs = await firebaseStorageUploadFiles(
+            const uploadedImageURLs = await uploadFilesUUID(
                 firebaseStorageRefs.propertyImages, selectedImages);
+
+            // Upload Files to Firebase Storage
+            const uploadedFileURLs = await uploadFiles(
+                firebaseStorageRefs.propertyDocs, selectedDocs);
+
             // Update the Data Object with the Uploaded Image URLs
-            const updatedData = { ...data, propertyImageURLs: uploadedImageURLs };
+            const updatedData = {
+                ...data,
+                propertyImageURLs: uploadedImageURLs,
+                propertyDocURLs: uploadedFileURLs,
+                propertyAmenityIDs: selectedAmenities,
+                propertyFacilityIDs: selectedFacilities
+            };
 
             await Axios.post(`/api/renter/${auth?.id}/property/create`,
                 updatedData,
@@ -168,7 +190,9 @@ function ListingUpsert() {
             .then(res => {
                 if (res.status === 200) {
                     setData(res.data);
-                    setSelectedImages(res.data?.propertyImages)
+                    setSelectedImages(res.data?.propertyImages);
+                    setSelectedDocs(res.data?.propertyDocs);
+                    // setSelectedAmenities(res.data?.)
                 }
                 setLoading(false);
             })
@@ -204,7 +228,6 @@ function ListingUpsert() {
     };
 
     const submit = () => {
-        console.log('here');
         if (checkData()) {
             if (paramUpsert === 'create') {
                 create();
@@ -225,10 +248,39 @@ function ListingUpsert() {
         }
     }, [paramUpsert]);
 
-    /* Testing */
     useEffect(() => {
-        console.log(data);
-    }, [data]);
+        Axios.get('api/amenity/')
+            .then(res => {
+                if (res.status === 200) {
+                    setAmenities(res.data);
+                }
+            })
+            .catch(err => {
+                if (err.response.status === 500) {
+                    setError(err.response.data);
+                }
+            })
+    }, []);
+
+    useEffect(() => {
+        Axios.get('api/facility/')
+            .then(res => {
+                if (res.status === 200) {
+                    setFacilities(res.data);
+                }
+            })
+            .catch(err => {
+                if (err.response.status === 500) {
+                    setError(err.response.data);
+                }
+            })
+    }, []);
+
+    useEffect(() => {
+        console.log(selectedDocs);
+        console.log(setSelectedDocs)
+    }, [selectedDocs, setSelectedDocs])
+
 
     if (!allowedPaths.includes(paramUpsert)) {
         return <NotFound404 />
@@ -256,7 +308,7 @@ function ListingUpsert() {
                                     onChange={(e) => setData({ ...data, title: e.target.value })}
                                     onKeyPress={(e) => e.key === 'Enter' && submit()}
                                 />
-                                <FormError nbsp>{'title' in error && error['title']}</FormError>
+                                <FormError nbsp>{error?.title}</FormError>
                             </div>
 
                             <div className="col-span-1 md:col-span-12">
@@ -265,7 +317,7 @@ function ListingUpsert() {
                                     options={{ 'HDB': 'HDB', 'Condominium': 'CONDOMINIUM', 'Landed': 'LANDED' }}
                                     selected={data['propertyType']}
                                     setSelected={(e) => setData({ ...data, propertyType: e.target.value })} />
-                                <FormError nbsp>{'propertyType' in error && error['propertyType']}</FormError>
+                                <FormError nbsp>{error?.propertyType}</FormError>
                             </div>
 
 
@@ -275,7 +327,7 @@ function ListingUpsert() {
                                     options={{ 'Single': 'SINGLE', 'Common': 'COMMON', 'Master': 'MASTER', 'Whole Unit': 'WHOLE_UNIT' }}
                                     selected={data['roomType']}
                                     setSelected={(e) => setData({ ...data, roomType: e.target.value })} />
-                                <FormError nbsp>{'roomType' in error && error['roomType']}</FormError>
+                                <FormError nbsp>{error?.roomType}</FormError>
                             </div>
 
 
@@ -286,7 +338,7 @@ function ListingUpsert() {
                                     min='0'
                                     step='50'
                                     onChange={(e) => setData({ ...data, rentalFees: e.target.value })} />
-                                <FormError nbsp>{'rentalFees' in error && error['rentalFees']}</FormError>
+                                <FormError nbsp>{error?.rentalFees}</FormError>
                             </div>
 
 
@@ -297,7 +349,7 @@ function ListingUpsert() {
                                     onChange={(e) => setData({ ...data, address: e.target.value })}
                                     onKeyPress={(e) => e.key === 'Enter' && submit()}
                                 />
-                                <FormError nbsp>{'address' in error && error['address']}</FormError>
+                                <FormError nbsp>{error?.address}</FormError>
                             </div>
 
 
@@ -309,7 +361,7 @@ function ListingUpsert() {
                                     onChange={(e) => setData({ ...data, postalCode: e.target.value })}
                                     onKeyPress={(e) => e.key === 'Enter' && submit()}
                                 />
-                                <FormError nbsp>{'postalCode' in error && error['postalCode']}</FormError>
+                                <FormError nbsp>{error?.postalCode}</FormError>
                             </div>
 
 
@@ -319,48 +371,48 @@ function ListingUpsert() {
                                     options={{ 'Furnished': 'FURNISHED', 'Partial': 'PARTIAL_FURNISHED', 'Unfurnished': 'UNFURNISHED' }}
                                     selected={data['furnishment'] ? data['furnishment'] : ''}
                                     setSelected={(e) => setData({ ...data, furnishment: e.target.value })} />
-                                <FormError nbsp>{'furnishment' in error && error['furnishment']}</FormError>
+                                <FormError nbsp>{error?.furnishment}</FormError>
                             </div>
 
+                            {
+                                data?.roomType === 'WHOLE_UNIT' &&
+                                <div className="col-span-1 md:col-span-12">
+                                    <FormSelectOption
+                                        name='Number of Bedrooms'
+                                        options={{ 'default': 'Select Number of Bedrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
+                                        selected={data['numBedrooms'] ? data['numBedrooms'] : ''}
+                                        setSelected={(e) => setData({ ...data, numBedrooms: e.target.value })} />
+                                </div>
+                            }
 
-                            <div className="col-span-1 md:col-span-12">
-                                <FormSelectOption
-                                    name='Number of Bedrooms'
-                                    options={{ 'default': 'Select Number of Bedrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
-                                    selected={data['numBedrooms'] ? data['numBedrooms'] : ''}
-                                    setSelected={(e) => setData({ ...data, numBedrooms: e.target.value })} />
-                            </div>
+                            {
+                                data?.roomType === 'WHOLE_UNIT' &&
+                                <div className="col-span-1 md:col-span-12">
+                                    <FormSelectOption
+                                        name='Number of Bathrooms'
+                                        options={{ 'default': 'Select Number of Bathrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
+                                        selected={data['numBathrooms'] ? data['numBathrooms'] : ''}
+                                        setSelected={(e) => setData({ ...data, numBathrooms: e.target.value })} />
+                                </div>
+                            }
 
-
-                            <div className="col-span-1 md:col-span-12">
-                                <FormSelectOption
-                                    name='Number of Bathrooms'
-                                    options={{ 'default': 'Select Number of Bathrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
-                                    selected={data['numBathrooms'] ? data['numBathrooms'] : ''}
-                                    setSelected={(e) => setData({ ...data, numBathrooms: e.target.value })} />
-
-                            </div>
-
-                            <div className="col-span-1 md:col-span-12">
-                                <FormSelectOption
-                                    name='Number of Tenants'
-                                    options={{ 'default': 'Select Number of Tenants', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6' }}
-                                    selected={data['numTenants'] ? data['numTenants'] : ''}
-                                    setSelected={(e) => setData({ ...data, numTenants: e.target.value })} />
-                            </div>
+                            {
+                                data?.roomType === 'WHOLE_UNIT' &&
+                                <div className="col-span-1 md:col-span-12">
+                                    <FormSelectOption
+                                        name='Number of Tenants'
+                                        options={{ 'default': 'Select Number of Tenants', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6' }}
+                                        selected={data['numTenants'] ? data['numTenants'] : ''}
+                                        setSelected={(e) => setData({ ...data, numTenants: e.target.value })} />
+                                </div>
+                            }
 
                             <div className="col-span-1 md:col-span-12">
                                 <ImageSelector
                                     selectedImages={selectedImages}
                                     setSelectedImages={setSelectedImages}
                                     concurrentImageLimit={5} />
-                                <FormError nbsp>{'propertyImages' in error && error['propertyImages']}</FormError>
-
-                                <div className='custom' style={{ display: 'flex' }}>
-                                    {existingImages.map(image => (
-                                        <img src={image.imageUrl} alt={image.id} style={{ maxWidth: '200px' }} />
-                                    ))}
-                                </div>
+                                <FormError nbsp>{error?.propertyImages}</FormError>
                             </div>
 
                             <div className="col-span-1 md:col-span-12">
@@ -371,6 +423,72 @@ function ListingUpsert() {
                                         : 'Update Property Advertisement'}
                                 </ButtonFilled>
                             </div>
+                            <div className="col-span-1 md:col-span-12 mt-1">
+                                <ButtonFilled
+                                    onClick={() => navigate('/renter/properties')}>
+                                    Cancel
+                                </ButtonFilled>
+                            </div>
+
+                            <FileSelector
+                                selectedFiles={selectedDocs}
+                                setSelectedFiles={setSelectedDocs} />
+
+                            <div onClick={() => setToggleAmenity(!toggleAmenity)}>
+                                <div className='font-semibold cursor-pointer'>
+                                    {
+                                        selectedAmenities.length === 0
+                                            ? '0 amenity selected'
+                                            : `${selectedAmenities.length} amenities selected`
+                                    }
+                                </div>
+                            </div>
+                            {toggleAmenity && (
+                                <div className="border-gray-200 border border-solid">
+                                    {amenities.map((amenity, index) => (
+                                        <label key={index} className="block">
+                                            <input
+                                                type='checkbox'
+                                                className='m-3 cursor-pointer'
+                                                name={amenity.amenityName}
+                                                value={amenity.id}
+                                                onChange={() => selectedAmenities.includes(amenity.id)
+                                                    ? setSelectedAmenities(
+                                                        selectedAmenities.filter(item => item !== amenity.id))
+                                                    : setSelectedAmenities([...selectedAmenities, amenity.id])} />
+                                            {amenity.amenityName}
+                                        </label>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div onClick={() => setToggleFacility(!toggleFacility)}>
+                                <div className='font-semibold cursor-pointer'>
+                                    {
+                                        selectedFacilities.length === 0
+                                            ? '0 facility selected'
+                                            : `${selectedFacilities.length} facilities selected`
+                                    }
+                                </div>
+                            </div>
+                            {toggleFacility && (
+                                <div className="border-gray-200 border border-solid">
+                                    {facilities.map((facility, index) => (
+                                        <label key={index} className="block">
+                                            <input
+                                                type='checkbox'
+                                                className='m-3 cursor-pointer'
+                                                name={facility.facilityName}
+                                                value={facility.id}
+                                                onChange={() => selectedFacilities.includes(facility.id)
+                                                    ? setSelectedFacilities(
+                                                        selectedFacilities.filter(item => item !== facility.id))
+                                                    : setSelectedFacilities([...selectedFacilities, facility.id])} />
+                                            {facility.facilityName}
+                                        </label>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </Layout>

@@ -257,14 +257,14 @@ function ListingDetail() {
                                                                 <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                                                             </svg>
                                                             <span className="text-red-600">
-                                                                Saved
+                                                                Favorite
                                                             </span>
                                                         </div>
                                                     )
                                                     : (
                                                         <div className="flex items-center">
                                                             <HeartIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-                                                            Save
+                                                            Add to Favorites
                                                         </div>
                                                     )}
                                             </ButtonOutlined>
@@ -307,15 +307,17 @@ function ListingDetail() {
                     <div className='my-6'>
                         <CommentForm comment={newComment} setComment={setNewComment} handleSubmit={submitComment} />
                         {
-                            comments.map((comment, index) => (
-                                <Comment
-                                    key={index}
-                                    imgUrl='https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/b2a0f028-f3a9-4fd5-92a2-f75d028c884e/d32mwam-ac62a6e4-de96-46a1-b4ec-15b1138b8937.jpg/v1/fill/w_1280,h_960,q_75,strp/tom_cruise_as_a_na_vi_by_scribblingangel_d32mwam-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9OTYwIiwicGF0aCI6IlwvZlwvYjJhMGYwMjgtZjNhOS00ZmQ1LTkyYTItZjc1ZDAyOGM4ODRlXC9kMzJtd2FtLWFjNjJhNmU0LWRlOTYtNDZhMS1iNGVjLTE1YjExMzhiODkzNy5qcGciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.FO7FSE9cAxLV7i9AjryAmESe-tlQkH23L00p-VKP8Ww'
-                                    username='Stephen Phyo'
-                                    date="01/01/2000"
-                                    text="Comment 01"
-                                />
-                            ))
+                            (comments.length === 0)
+                                ? <p>There are no comments yet</p>
+                                : comments.map((comment, index) => (
+                                    <Comment
+                                        key={index}
+                                        userPhotoUrl='https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/b2a0f028-f3a9-4fd5-92a2-f75d028c884e/d32mwam-ac62a6e4-de96-46a1-b4ec-15b1138b8937.jpg/v1/fill/w_1280,h_960,q_75,strp/tom_cruise_as_a_na_vi_by_scribblingangel_d32mwam-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9OTYwIiwicGF0aCI6IlwvZlwvYjJhMGYwMjgtZjNhOS00ZmQ1LTkyYTItZjc1ZDAyOGM4ODRlXC9kMzJtd2FtLWFjNjJhNmU0LWRlOTYtNDZhMS1iNGVjLTE1YjExMzhiODkzNy5qcGciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.FO7FSE9cAxLV7i9AjryAmESe-tlQkH23L00p-VKP8Ww'
+                                        username='Stephen Phyo'
+                                        date="01/01/2000"
+                                        text="Comment 01"
+                                    />
+                                ))
                         }
                     </div>
                 </div>

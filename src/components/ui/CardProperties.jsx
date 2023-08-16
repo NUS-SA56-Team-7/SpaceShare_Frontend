@@ -7,7 +7,10 @@ import Badge from './Badge';
 import ButtonWishlist from './ButtonFavorite';
 import Carousel from 'components/carousel/Carousel';
 
-const CardProperties = () => {
+/* Function Imports */
+import formatPrettyDate from 'functions/formatPrettyDate';
+
+const CardProperties = (props) => {
 
     /* CarouselItems */
     const carouselItems = [
@@ -43,8 +46,7 @@ const CardProperties = () => {
     return (
         <div
             className="block shadow p-4 rounded-lg bg-white h-full border hover:border-primary hover:cursor-pointer"
-            onClick={() => navigate('/detail')}
-        >
+            onClick={() => navigate(`/listing/${props?.data?.id}`)}>
             <div className="flex flex-col">
                 <div>
                     <Carousel items={carouselItems} />
@@ -52,62 +54,53 @@ const CardProperties = () => {
                 <div>
                     <div className="flex justify-between">
                         <p className="text-3xl font-semibold">
-                            Residence Near Clementi
+                            {props?.data?.title}
                         </p>
                         <div className="menu relative z-30 flex gap-x-2">
-                            <div className="w-10">
-                                <ButtonWishlist
-                                    status={0}
-                                    onClick={(event) => event.stopPropagation()}
-                                />
-                            </div>
-                            <div className="w-10">
+                            <div className="w-9">
                                 <button
                                     type="button"
                                     className="w-full shadow p-2 rounded-md bg-white hover:cursor-pointer hover:txt-primary"
-                                    onClick={(event) => event.stopPropagation()}
-                                >
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/renter/listing/update?id=${props?.data?.id}`)
+                                    }}>
                                     <PencilIcon />
                                 </button>
                             </div>
-                            <div className="w-10">
+                            <div className="w-9">
                                 <button
                                     type="button"
                                     className="w-full shadow p-2 rounded-md bg-white hover:cursor-pointer hover:text-red-600"
-                                    onClick={(event) => event.stopPropagation()}
-                                >
+                                    onClick={(event) => event.stopPropagation()}>
                                     <TrashIcon />
                                 </button>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <p className="mt-2 text-sm text-gray-800 line-clamp-1">
-                            Clementi blk 528, West Coast Vale, 123456
+                        <p className="mt-2 text-sm text-gray-800 line-clamp-2 leading-6">
+                            {`${props?.data?.address}, ${props?.data?.postalCode}`}
                         </p>
                     </div>
                     <div>
                         <p className="my-4 text-2xl font-bold tracking-tight text-gray-900">
-                            S$ <span>1050</span>
+                            S$ <span>{props?.data?.rentalFees}</span>
                         </p>
                     </div>
                     <div>
                         <p className="my-4 text-base tracking-tight text-gray-800">
                             Available On:
                             <span className="ml-2 font-semibold">
-                                30 May 2023
+                                {formatPrettyDate(props?.data?.updatedAt)}
                             </span>
                         </p>
                     </div>
                     <div className="flex gap-x-2">
-                        <Badge
-                            status="success"
-                        >
+                        <Badge status="success">
                             Condo
                         </Badge>
-                        <Badge
-                            status="danger"
-                        >
+                        <Badge status="danger">
                             New
                         </Badge>
                     </div>
@@ -115,7 +108,7 @@ const CardProperties = () => {
                         <p className="my-4 text-sm tracking-tight text-gray-800">
                             Created at:
                             <span className="ml-2 font-semibold">
-                                18 May 2023
+                                {formatPrettyDate(props?.data?.createdAt)}
                             </span>
                         </p>
                     </div>

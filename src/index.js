@@ -8,13 +8,6 @@ import { EmailContextProvider } from 'contexts/EmailContext';
 import { AuthContextProvider } from 'contexts/AuthContext';
 import { ResetPasswordContextProvider } from 'contexts/ResetPasswordContext';
 
-/* CSS Imports */
-import './index.css';
-// Bootstrap CSS
-// import 'bootstrap/dist/css/bootstrap.min.css';
-// Bootstrap Bundle JS
-// import 'bootstrap/dist/js/bootstrap.bundle.min';
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
