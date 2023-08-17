@@ -39,8 +39,8 @@ function ListingUpsert() {
         title: '', description: '', propertyType: '', roomType: '',
         rentalFees: 0, address: '', postalCode: '', furnishment: '',
         numBedrooms: 0, numBathrooms: 0, numTenants: 0,
-        propertyImageURLs: [],
-        postType: 'ROOM_RENTAL'
+        propertyImageURLs: [], tenantType: '', amenities: [],
+        facilities: [], postType: 'ROOM_RENTAL'
     };
     const err = {};
 
@@ -51,9 +51,12 @@ function ListingUpsert() {
     const [selectedImages, setSelectedImages] = useState([]);
     const [existingImages, setExistingImages] = useState([]);
     const [selectedDocs, setSelectedDocs] = useState([]);
+    const [existingDocs, setExistingDocs] = useState([]);
     const [amenities, setAmenities] = useState([]);
     const [selectedAmenities, setSelectedAmenities] = useState([]);
+    const [existingAmenities, setExistingAmenities] = useState([]);
     const [facilities, setFacilities] = useState([]);
+    const [existingFacilities, setExistingFacilities] = useState([]);
     const [selectedFacilities, setSelectedFacilities] = useState([]);
 
     const [toggleAmenity, setToggleAmenity] = useState(false);
@@ -63,7 +66,7 @@ function ListingUpsert() {
     const navigate = useNavigate();
 
     /* useParams */
-    const { upsert: paramUpsert } = useParams();
+    const { upsert: paramUpsert, user: paramUser } = useParams();
 
     /* useLocation */
     const location = useLocation();
@@ -83,11 +86,8 @@ function ListingUpsert() {
     };
 
     const checkRentalFees = (rentalFees) => {
-        if (rentalFees < 0) {
-            err['rentalFees'] = 'Minimum Rental Fees must be greater than 0'
-        }
-        else if (rentalFees === 0) {
-            err['rentalFees'] = 'Please set the Rental Fees'
+        if (rentalFees < 100) {
+            err['rentalFees'] = 'Minimum Rental Fees must be greater than 100'
         }
     };
 
@@ -117,8 +117,29 @@ function ListingUpsert() {
         if (data['furnishment'].length === 0) {
             err['furnishment'] = 'Please select Furnishment Status'
         }
+        if (data['tenantType'].length === 0) {
+            err['tenantType'] = 'Please select Tenant Type'
+        }
+        if (selectedAmenities.length + existingAmenities.length === 0) {
+            err['amenities'] = 'Please select at least one Amenity'
+        }
+        if (selectedFacilities.length + existingFacilities.length === 0) {
+            err['facilities'] = 'Please select at least one Facility'
+        }
+        if (data['roomType'] === 'WHOLE_UNIT' && data['numBedrooms'] === 0) {
+            err['numBedrooms'] = 'Number of Bedrooms must be greater than 0'
+        }
+        if (data['roomType'] === 'WHOLE_UNIT' && data['numBathrooms'] === 0) {
+            err['numBathrooms'] = 'Number of Bathrooms must be greater than 0'
+        }
+        if (data['roomType'] === 'WHOLE_UNIT' && data['numTenants'] === 0) {
+            err['numTenants'] = 'Number of Tenants must be greater than 0'
+        }
         if (selectedImages.length + existingImages.length === 0) {
-            err['propertyImages'] = 'Please provide a Property Image'
+            err['propertyImages'] = 'Please provide at least one Property Image'
+        }
+        if (paramUser === 'renter' && selectedDocs.length + existingDocs.length === 0) {
+            err['propertyDocs'] = 'Please provide at least one Property Document'
         }
     };
 
@@ -152,13 +173,14 @@ function ListingUpsert() {
             // Update the Data Object with the Uploaded Image URLs
             const updatedData = {
                 ...data,
+                postType: paramUser === 'tenant' ? 'ROOMMATE_FINDING' : paramUser === 'renter' && 'ROOM_RENTAL',
                 propertyImageURLs: uploadedImageURLs,
                 propertyDocURLs: uploadedFileURLs,
                 propertyAmenityIDs: selectedAmenities,
                 propertyFacilityIDs: selectedFacilities
             };
 
-            await Axios.post(`/api/renter/${auth?.id}/property/create`,
+            await Axios.post(`/api/${paramUser}/${auth?.id}/property/create`,
                 updatedData,
                 {
                     headers: { 'Content-Type': 'application/json' }
@@ -276,12 +298,6 @@ function ListingUpsert() {
             })
     }, []);
 
-    useEffect(() => {
-        console.log(selectedDocs);
-        console.log(setSelectedDocs)
-    }, [selectedDocs, setSelectedDocs])
-
-
     if (!allowedPaths.includes(paramUpsert)) {
         return <NotFound404 />
     }
@@ -292,9 +308,14 @@ function ListingUpsert() {
                     {loading && <Loader />}
                     <Heading
                         title={
-                            paramUpsert === 'create'
-                                ? 'Create a New Property Advertisement'
-                                : 'Update Property Advertisement'
+                            paramUser === 'renter'
+                                ? paramUpsert === 'create'
+                                    ? 'Create a New Rental Property'
+                                    : 'Update Rental Property'
+                                : paramUser === 'tenant'
+                                    && paramUser === 'tenant' && paramUpsert === 'create'
+                                    ? 'Create a New Roommate Finding'
+                                    : 'Update Roommate Finding'
                         }
                     />
 
@@ -324,7 +345,7 @@ function ListingUpsert() {
                             <div className="col-span-1 md:col-span-12">
                                 <FormRadioOption
                                     name='Room Type'
-                                    options={{ 'Single': 'SINGLE', 'Common': 'COMMON', 'Master': 'MASTER', 'Whole Unit': 'WHOLE_UNIT' }}
+                                    options={auth?.userType === 'RENTER' ? { 'Single': 'SINGLE', 'Common': 'COMMON', 'Master': 'MASTER', 'Whole Unit': 'WHOLE_UNIT' } : { 'Single': 'SINGLE', 'Common': 'COMMON', 'Master': 'MASTER' }}
                                     selected={data['roomType']}
                                     setSelected={(e) => setData({ ...data, roomType: e.target.value })} />
                                 <FormError nbsp>{error?.roomType}</FormError>
@@ -367,44 +388,64 @@ function ListingUpsert() {
 
                             <div className="col-span-1 md:col-span-12">
                                 <FormRadioOption
-                                    name='Proeprty Furnishment'
+                                    name='Property Furnishment'
                                     options={{ 'Furnished': 'FURNISHED', 'Partial': 'PARTIAL_FURNISHED', 'Unfurnished': 'UNFURNISHED' }}
                                     selected={data['furnishment'] ? data['furnishment'] : ''}
                                     setSelected={(e) => setData({ ...data, furnishment: e.target.value })} />
                                 <FormError nbsp>{error?.furnishment}</FormError>
                             </div>
 
+                            <div className="col-span-1 md:col-span-12">
+                                <FormRadioOption
+                                    name='Tenant Type'
+                                    options={auth?.userType === 'RENTER'
+                                        ? { 'Male': 'MALE', 'Female': 'FEMALE', 'Couple': 'COUPLE', 'Family': 'FAMILY' }
+                                        : { 'Male': 'MALE', 'Female': 'FEMALE' }}
+                                    selected={data['tenantType'] ? data['tenantType'] : ''}
+                                    setSelected={(e) => setData({ ...data, tenantType: e.target.value })} />
+                                <FormError nbsp>{error?.tenantType}</FormError>
+                            </div>
+
                             {
                                 data?.roomType === 'WHOLE_UNIT' &&
-                                <div className="col-span-1 md:col-span-12">
-                                    <FormSelectOption
-                                        name='Number of Bedrooms'
-                                        options={{ 'default': 'Select Number of Bedrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
-                                        selected={data['numBedrooms'] ? data['numBedrooms'] : ''}
-                                        setSelected={(e) => setData({ ...data, numBedrooms: e.target.value })} />
-                                </div>
+                                <>
+                                    <div className="col-span-1 md:col-span-12">
+                                        <FormSelectOption
+                                            name='Number of Bedrooms'
+                                            options={{ 'default': 'Select Number of Bedrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
+                                            selected={data['numBedrooms'] ? data['numBedrooms'] : ''}
+                                            setSelected={(e) => setData({ ...data, numBedrooms: e.target.value })} />
+                                    </div>
+                                    <FormError nbsp>{error?.numBedrooms}</FormError>
+                                </>
                             }
 
                             {
                                 data?.roomType === 'WHOLE_UNIT' &&
-                                <div className="col-span-1 md:col-span-12">
-                                    <FormSelectOption
-                                        name='Number of Bathrooms'
-                                        options={{ 'default': 'Select Number of Bathrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
-                                        selected={data['numBathrooms'] ? data['numBathrooms'] : ''}
-                                        setSelected={(e) => setData({ ...data, numBathrooms: e.target.value })} />
-                                </div>
+                                <>
+                                    <div className="col-span-1 md:col-span-12">
+                                        <FormSelectOption
+                                            name='Number of Bathrooms'
+                                            options={{ 'default': 'Select Number of Bathrooms', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
+                                            selected={data['numBathrooms'] ? data['numBathrooms'] : ''}
+                                            setSelected={(e) => setData({ ...data, numBathrooms: e.target.value })} />
+                                    </div>
+                                    <FormError nbsp>{error?.numBathrooms}</FormError>
+                                </>
                             }
 
                             {
                                 data?.roomType === 'WHOLE_UNIT' &&
-                                <div className="col-span-1 md:col-span-12">
-                                    <FormSelectOption
-                                        name='Number of Tenants'
-                                        options={{ 'default': 'Select Number of Tenants', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6' }}
-                                        selected={data['numTenants'] ? data['numTenants'] : ''}
-                                        setSelected={(e) => setData({ ...data, numTenants: e.target.value })} />
-                                </div>
+                                <>
+                                    <div className="col-span-1 md:col-span-12">
+                                        <FormSelectOption
+                                            name='Number of Tenants'
+                                            options={{ 'default': 'Select Number of Tenants', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6' }}
+                                            selected={data['numTenants'] ? data['numTenants'] : ''}
+                                            setSelected={(e) => setData({ ...data, numTenants: e.target.value })} />
+                                    </div>
+                                    <FormError nbsp>{error?.numTenants}</FormError>
+                                </>
                             }
 
                             <div className="col-span-1 md:col-span-12">
@@ -415,26 +456,46 @@ function ListingUpsert() {
                                 <FormError nbsp>{error?.propertyImages}</FormError>
                             </div>
 
-                            <div className="col-span-1 md:col-span-12">
-                                <ButtonFilled
-                                    onClick={() => submit()}>
-                                    {paramUpsert === 'create'
-                                        ? 'Create Property Advertisement'
-                                        : 'Update Property Advertisement'}
-                                </ButtonFilled>
-                            </div>
-                            <div className="col-span-1 md:col-span-12 mt-1">
-                                <ButtonFilled
-                                    onClick={() => navigate('/renter/properties')}>
-                                    Cancel
-                                </ButtonFilled>
-                            </div>
+                            {
+                                paramUser === 'renter' &&
+                                <div className="col-span-1 md:col-span-12 mt-1">
+                                    <FileSelector
+                                        selectedFiles={selectedDocs}
+                                        setSelectedFiles={setSelectedDocs} />
+                                    <FormError nbsp>{error?.propertyDocs}</FormError>
+                                </div>
+                            }
 
-                            <div className="col-span-1 md:col-span-12 mt-1">
-                                <FileSelector
-                                    selectedFiles={selectedDocs}
-                                    setSelectedFiles={setSelectedDocs} />
+                            <div onClick={() => setToggleAmenity(!toggleAmenity)}>
+                                <div className='font-semibold cursor-pointer'>
+                                    {
+                                        selectedAmenities.length === 0
+                                            ? '0 amenity selected'
+                                            : `${selectedAmenities.length} amenities selected`
+                                    }
+                                </div>
                             </div>
+                            <div className="col-span-1 md:col-span-12 mt-1">
+                                {toggleAmenity && (
+                                    <div className="border-gray-200 border border-solid">
+                                        {amenities.map((amenity, index) => (
+                                            <label key={index} className="block">
+                                                <input
+                                                    type='checkbox'
+                                                    className='m-3 cursor-pointer'
+                                                    name={amenity.amenityName}
+                                                    value={amenity.id}
+                                                    onChange={() => selectedAmenities.includes(amenity.id)
+                                                        ? setSelectedAmenities(
+                                                            selectedAmenities.filter(item => item !== amenity.id))
+                                                        : setSelectedAmenities([...selectedAmenities, amenity.id])} />
+                                                {amenity.amenityName}
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            <FormError nbsp>{error?.amenities}</FormError>
 
                             <div className="col-span-1 md:col-span-12 mt-1">
                                 <div onClick={() => setToggleAmenity(!toggleAmenity)}>
@@ -495,10 +556,27 @@ function ListingUpsert() {
                                     </div>
                                 )}
                             </div>
-                        </div>
-                    </div>
-                </Layout>
-            </AuthChecker>
+                            <FormError nbsp>{error?.facilities}</FormError>
+
+                            <div className="col-span-1 md:col-span-12">
+                                <ButtonFilled
+                                    onClick={() => submit()}>
+                                    {paramUpsert === 'create'
+                                        ? 'Create Property Advertisement'
+                                        : 'Update Property Advertisement'}
+                                </ButtonFilled>
+                            </div>
+                            <div className="col-span-1 md:col-span-12 mt-1">
+                                <ButtonFilled
+                                    onClick={() => navigate('/renter/properties')}>
+                                    Cancel
+                                </ButtonFilled>
+                            </div>
+
+                        </div >
+                    </div >
+                </Layout >
+            </AuthChecker >
         );
     }
 }

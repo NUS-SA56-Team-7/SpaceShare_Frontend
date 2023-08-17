@@ -29,6 +29,11 @@ function Card(props) {
     /* Functions */
     const addToFavorite = (e) => {
         e.stopPropagation();
+
+        if (!auth) {
+            navigate('/login');
+            return;
+        }
         if (!isFavorite) {
             Axios.post('api/favourite/create',
                 {
@@ -93,27 +98,35 @@ function Card(props) {
                                 New
                             </Badge>
                         </span>
-                        <div className="absolute top-0 right-0 inline-flex mt-3 mr-3 w-9">
-                            <ButtonFavorite status={isFavorite} handleClick={addToFavorite} />
-                        </div>
+                        {
+                            props?.userType !== 'RENTER' &&
+                            <div className="absolute top-0 right-0 inline-flex mt-3 mr-3 w-9">
+                                <ButtonFavorite status={isFavorite} handleClick={addToFavorite} />
+                            </div>
+                        }
                     </div>
 
                     <div className='mt-4'>
                         <h2 className='font-bold text-base md:text-lg text-gray-800 line-clamp-1'>
                             {props.data?.title}
                         </h2>
-                        <p className='mt-2 text-sm text-gray-800 line-clamp-1'>
-                            {props.data?.address}
+                        <p className='mt-2 text-sm text-gray-800 line-clamp-2'>
+                            {`${props.data?.address}, ${props.data?.postalCode}`}
                         </p>
                     </div>
 
-                    <div className='grid grid-cols-2 grid-rows-2 gap-4 mt-8'>
+                    <div className='grid grid-cols-2 gap-4 mt-4'>
                         <p>
-                            Detail List
+                            Available on:
+                        </p>
+                    </div>
+                    <div className='grid grid-cols-2 gap-4 mt-4'>
+                        <p>
+                            {`S$ ${props?.data?.rentalFees}`}
                         </p>
                     </div>
                     <UserIconWithTag
-                        imgUrl={props.data?.renter?.photoUrl}
+                        userPhotoUrl={props.data?.renter?.photoUrl}
                         username={props.data?.renter?.firstName}>
                     </UserIconWithTag>
                 </div>

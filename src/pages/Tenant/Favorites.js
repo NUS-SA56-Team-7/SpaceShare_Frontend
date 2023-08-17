@@ -1,48 +1,106 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
+/* Component Imports */
 import Layout from 'components/layout/Layout';
 import Heading from 'components/ui/Heading';
-import CardFavorite from 'components/ui/CardFavorite';
+import Card from 'components/ui/Card';
+
+/* MUI Imports */
+import { CircularProgress } from '@mui/material';
+
+/* Context Improts */
+import AuthContext from 'contexts/AuthContext';
+
+/* Utility Imports */
+import Axios from 'utils/Axios';
+import { useNavigate } from 'react-router';
 
 function Favorites() {
 
-    const properties = [
-        {
-            title: 'Modern Condo in Pioneer',
-            propertyImgUrl: 'https://images.pexels.com/photos/280222/pexels-photo-280222.jpeg?auto=compress&cs=tinysrgb&w=800',
-            description: 'Beautiful 2-bedroom condo in the heart of Orchard Road. Fully furnished with modern amenities. Close to shopping malls and public transport.',
-            location: 'Pioneer',
-        },
-        {
-            title: 'Spacious HDB Flat in Clementi',
-            propertyImgUrl: 'https://images.pexels.com/photos/280222/pexels-photo-280222.jpeg?auto=compress&cs=tinysrgb&w=800',
-            description: 'Bright and airy 4-room HDB flat in Clementi. Well-maintained and conveniently located near MRT station and amenities.',
-            location: 'Clementi',
-        },
-        {
-            title: 'Cosy Studio Apartment in Boonlay',
-            propertyImgUrl: 'https://images.pexels.com/photos/280222/pexels-photo-280222.jpeg?auto=compress&cs=tinysrgb&w=800',
-            description: 'Charming studio apartment in Boonlay. Ideal for working professionals or students. Close to medical facilities and shopping malls.',
-            location: 'Boonlay',
+    /* useState */
+    const [properties, setProperties] = useState([]);
+    const [favorites, setFavorites] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState({});
+    const [rendered, setRendered] = useState(false);
+
+    /* useContext */
+    const { auth } = useContext(AuthContext);
+
+    /* useNavigate */
+    const navigate = useNavigate();
+
+    /* useEffect */
+    useEffect(() => {
+        setRendered(true);
+    }, []);
+
+    useEffect(() => {
+        if (auth && rendered) console.log("There is Auth");
+    }, [rendered, auth]);
+
+    useEffect(() => {
+        if (rendered && !auth) navigate('/');
+    }, [rendered, auth]);
+
+    useEffect(() => {
+        if (!rendered) return;
+
+        setLoading(true);
+        Axios.get(`/api/tenant/${auth?.id}/favourites`)
+            .then(res => {
+                if (res.status === 200) {
+                    setProperties(res.data);
+                }
+                setLoading(false);
+            })
+            .catch(err => {
+                if (err.response.status === 404) {
+                    setError(err.response.data);
+                }
+                else if (err.response.status === 500) {
+                    setError(err.response.data);
+                }
+                setLoading(false);
+            })
+    }, [rendered, auth]);
+
+    useEffect(() => {
+        if (auth?.id) {
+            Axios.get(`/api/tenant/${auth?.id}/favourites/id`)
+                .then(res => {
+                    if (res.status === 200) {
+                        setFavorites(res.data);
+                    }
+                })
+                .catch(err => {
+                    if (err.response.status === 404) {
+                        setError(err.response.data);
+                    }
+                    else if (err.response.status === 500) {
+                        setError(err.response.data);
+                    }
+                })
         }
-    ];
+    }, [auth]);
 
     return (
         <Layout>
-            <Heading
-                title="Favorites"
-            />
+            <Heading title="My Favorites" />
             <section className='py-10 border-b border-gray-200 mb-24'>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full flex-grow">
-                    {properties.map((property, index) => (
-                        <CardFavorite
-                            key={index}
-                            title={property.title}
-                            propertyImgUrl={property.propertyImgUrl}
-                            description={property.description}
-                            location={property.location}
-                        />
-                    ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full flex-grow">
+                    {
+                        loading
+                            ? <CircularProgress />
+                            : properties.map((property, index) => (
+                                <Card
+                                    key={index}
+                                    data={property}
+                                    isFavorite={favorites.indexOf(property?.id) !== -1}
+                                    userType={auth?.userType}>
+                                </Card>
+                            ))
+                    }
                 </div>
             </section>
         </Layout>

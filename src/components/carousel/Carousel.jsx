@@ -24,7 +24,6 @@ const Carousel = ({ items }) => {
 
     return (
         <div className="relative w-full mb-10">
-            {console.log(items)}
             <div className="relative h-56 md:h-96 overflow-hidden rounded-lg">
                 {items.map((item, index) => (
                     <CarouselItem

@@ -81,35 +81,55 @@ function Landing() {
 
                 </SearchForm>
 
-                <section className='pb-10 border-b border-gray-200 mb-24'>
+                <section className='pb-10 border-b border-gray-200 mt-4 mb-4'>
                     <div className='mx-auto lg:mx-0 pb-8 mb-4 border-b border-gray-200'>
-                        <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>Section Title</h2>
-                        <p className='mt-2 text-lg leading-8 text-gray-600'>
-                            Latest Projects
-                        </p>
+                        <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>
+                            Latest Rental Properties
+                        </h2>
                     </div>
                     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full'>
                         {properties.map((property, index) => (
                             <Card
                                 key={index}
                                 data={property}
-                                isFavorite={favorites.indexOf(property?.id) !== -1}>
+                                isFavorite={favorites.indexOf(property?.id) !== -1}
+                                userType={auth?.userType}>
                             </Card>
                         ))}
                     </div>
                 </section>
 
-                <section>
+                <section className='pb-10 border-b border-gray-200 mt-4 mb-4'>
                     <div className='mx-auto lg:mx-0 pb-8 mb-4 border-b border-gray-200'>
-                        <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>Section Title</h2>
-                        <p className='mt-2 text-lg leading-8 text-gray-600'>
-                            Recommended For You
-                        </p>
+                        <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>
+                            Latest Roommate Findings
+                        </h2>
                     </div>
                     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full'>
-                        <Card></Card>
+                        {properties.map((property, index) => (
+                            <Card
+                                key={index}
+                                data={property}
+                                isFavorite={favorites.indexOf(property?.id) !== -1}
+                                userType={auth?.userType}>
+                            </Card>
+                        ))}
                     </div>
                 </section>
+
+                {
+                    auth?.userType === 'TENANT' &&
+                    <section>
+                        <div className='mx-auto lg:mx-0 pb-8 mb-4 border-b border-gray-200'>
+                            <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mt-2'>
+                                Recommended For You
+                            </h2>
+                        </div>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full'>
+                            <Card></Card>
+                        </div>
+                    </section>
+                }
             </Layout>
         );
     }

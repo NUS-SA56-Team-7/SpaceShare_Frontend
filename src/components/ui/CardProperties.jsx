@@ -49,7 +49,7 @@ const CardProperties = (props) => {
             onClick={() => navigate(`/listing/${props?.data?.id}`)}>
             <div className="flex flex-col">
                 <div>
-                    <Carousel items={carouselItems} />
+                    <Carousel items={props?.data['propertyImages'] ? props?.data['propertyImages'] : []} />
                 </div>
                 <div>
                     <div className="flex justify-between">

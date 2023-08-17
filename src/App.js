@@ -75,7 +75,7 @@ function App() {
                     {/* Listing */}
                     <Route path='/' element={<Landing />} />
                     <Route path='/listing/:id' element={<ListingDetail />} />
-                    <Route path='/renter/listing/:upsert' element={<ListingUpsert />} />
+                    <Route path='/:user/listing/:upsert' element={<ListingUpsert />} />
 
                     <Route path='resetpassword/:id/success' element={<ResetPasswordSuccess />} />
 

@@ -32,7 +32,7 @@ function Header() {
     };
 
     return (
-        <header className='bg-white border-b border-gray-200 sticky-top'>
+        <header className='bg-white border-b border-gray-200 sticky top-0 z-50'>
             <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div>
                     <div className="flex h-16 items-center">
@@ -46,30 +46,6 @@ function Header() {
                                     src="/spaceshare_logo.svg" alt="logo" />
                             </div>
                         </div>
-
-                        {/* Menu - Renter*/}
-                        {auth?.userType === 'RENTER' &&
-                            <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-start lg:space-x-6 lg:ml-8">
-                                <div className='text-sm font-medium text-gray-700 hover:txt-primary btn cursor-pointer'
-                                    onClick={() => navigate('/renter/properties')}>
-                                    <span>My Properties</span>
-                                </div>
-                                <div className='ml-4 text-sm font-medium text-gray-700 hover:txt-primary btn cursor-pointer'
-                                    onClick={() => navigate('/renter/listing/create')}>
-                                    <span>Create New Post</span>
-                                </div>
-                            </div>
-                        }
-
-                        {/* Menu - Tenant */}
-                        {auth?.userType === 'TENANT' &&
-                            <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-start lg:space-x-6 lg:ml-8">
-                                <div className='text-sm font-medium text-gray-700 hover:txt-primary btn cursor-pointer'
-                                    onClick={() => navigate('/tenant/favorites')}>
-                                    <span>My Favorites</span>
-                                </div>
-                            </div>
-                        }
 
                         <div className="ml-auto flex items-center">
 
@@ -129,20 +105,55 @@ function Header() {
                                                     </div>
                                                 )}
                                             </Menu.Item>
-                                            <Menu.Item>
-                                                {({ active }) => (
-                                                    <a
-                                                        href="#"
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            navigate('/favorite');
-                                                        }}
-                                                        className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
-                                                    >
-                                                        Favorites
-                                                    </a>
-                                                )}
-                                            </Menu.Item>
+                                            {
+                                                auth?.userType === 'TENANT'
+                                                    ?
+                                                    <>
+                                                        <Menu.Item>
+                                                            {({ active }) => (
+                                                                <div onClick={(e) => { navigate('/tenant/listing/create') }}
+                                                                    className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer')}>
+                                                                    Create New Finding
+                                                                </div>
+                                                            )}
+                                                        </Menu.Item>
+                                                        <Menu.Item>
+                                                            {({ active }) => (
+                                                                <div onClick={(e) => { navigate('/renter/properties') }}
+                                                                    className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer')}>
+                                                                    My Findings
+                                                                </div>
+                                                            )}
+                                                        </Menu.Item>
+                                                        <Menu.Item>
+                                                            {({ active }) => (
+                                                                <div onClick={(e) => { navigate('/tenant/favorites') }}
+                                                                    className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer')}>
+                                                                    My Favorites
+                                                                </div>
+                                                            )}
+                                                        </Menu.Item>
+                                                    </>
+                                                    :
+                                                    <>
+                                                        <Menu.Item>
+                                                            {({ active }) => (
+                                                                <div onClick={(e) => { navigate('/renter/listing/create') }}
+                                                                    className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer')}>
+                                                                    Create New Rental
+                                                                </div>
+                                                            )}
+                                                        </Menu.Item>
+                                                        <Menu.Item>
+                                                            {({ active }) => (
+                                                                <div onClick={(e) => { navigate('/renter/properties') }}
+                                                                    className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer')}>
+                                                                    My Rentals
+                                                                </div>
+                                                            )}
+                                                        </Menu.Item>
+                                                    </>
+                                            }
                                             <Menu.Item>
                                                 {({ active }) => (
                                                     <div className={classNames(active ? 'bg-gray-100 cursor-pointer' : '', 'block px-4 py-2 text-sm text-gray-700')}
@@ -178,8 +189,7 @@ function Header() {
                         enterTo="opacity-100"
                         leave="ease-in-out duration-500"
                         leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                    >
+                        leaveTo="opacity-0">
                         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
                     </Transition.Child>
 
@@ -193,8 +203,7 @@ function Header() {
                                     enterTo="translate-x-0"
                                     leave="transform transition ease-in-out duration-500 sm:duration-700"
                                     leaveFrom="translate-x-0"
-                                    leaveTo="translate-x-full"
-                                >
+                                    leaveTo="translate-x-full">
                                     <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
                                         <div className='flex h-full flex-col overflow-y-scroll bg-white shadow-xl'>
                                             <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
@@ -204,8 +213,7 @@ function Header() {
                                                         <button
                                                             type="button"
                                                             className="relative -m-2 p-2 text-gray-400 hover:text-gray-500"
-                                                            onClick={() => setOpen(false)}
-                                                        >
+                                                            onClick={() => setOpen(false)}>
                                                             <span className="absolute -inset-0.5" />
                                                             <span className="sr-only">Close panel</span>
                                                             <XMarkIcon className="h-6 w-6" aria-hidden="true" />

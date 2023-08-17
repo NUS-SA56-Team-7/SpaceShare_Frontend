@@ -55,7 +55,8 @@ function RenterProperties() {
                         )
                         : (
                             properties.map((property, index) => (
-                                <CardProperties key={index}
+                                <CardProperties
+                                    key={index}
                                     data={property} />
                             ))
                         )
