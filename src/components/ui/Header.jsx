@@ -68,7 +68,7 @@ function Header() {
 
                             {/* Username */}
                             {auth &&
-                                <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6"
+                                <div className="hidden md:flex md:flex-1 md:items-center md:justify-end md:space-x-6"
                                     style={{ userSelect: 'none' }}>
                                     <span className="text-sm font-medium text-gray-700">
                                         {auth?.firstName} {auth?.lastName}
@@ -78,7 +78,7 @@ function Header() {
 
                             {/* Profile Dropdown */}
                             {auth &&
-                                <Menu as="div" className="relative ml-3">
+                                <Menu as="div" className="relative ml-3 hidden md:block">
                                     <div>
                                         <Menu.Button className="relative flex rounded-full bg-primary text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-green-700">
                                             <span className="absolute -inset-1.5" />
@@ -169,11 +169,15 @@ function Header() {
 
                             <button
                                 type="button"
-                                className="relative rounded-md bg-white p-2 text-gray-400 lg:hidden"
+                                className="relative rounded-md bg-white p-2 text-gray-400 md:hidden"
                                 onClick={() => setOpen(true)}>
                                 <span className="absolute -inset-0.5" />
                                 <span className="sr-only">Open menu</span>
-                                <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+                                {open ? (
+                                    <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                                ) : (
+                                    <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                                )}
                             </button>
 
                         </div>
@@ -222,60 +226,89 @@ function Header() {
                                                 </div>
 
                                                 <div className="mt-8">
-                                                    <div className="flow-root">
-                                                        <div className="flex items-center gap-x-6 pb-6 mb-6 border-b border-gray-200">
-                                                            <img className="h-16 w-16 rounded-full" src="https://i.pinimg.com/originals/50/28/ce/5028ce929cd06b95691bd55db694a37b.jpg" alt="" />
-                                                            <div>
-                                                                <h3 className="text-base font-semibold leading-7 tracking-tight text-gray-900">UserName</h3>
-                                                                <p className="text-sm font-semibold leading-6 txt-primary">Verified</p>
+                                                    {!auth &&
+                                                        <div className="flex flex-col rounded-lg border border-gray-200">
+                                                            <div
+                                                                className="text-gray-700 hover:bg-gray-200 hover:text-white px-4 py-2 text-base font-medium border-b border-gray-200 hover:cursor-pointer"
+                                                                onClick={(e) => { navigate('/login') }}
+                                                            >
+                                                                Login
                                                             </div>
-                                                            <div className="ml-auto">
-                                                                <a
-                                                                    href="#"
-                                                                    className="inline-flex items-center justify-center rounded-md border border-transparent btn-primary px-5 py-2.5 text-base font-sm text-white shadow-sm"
+                                                            <div
+                                                                className="text-gray-700 hover:bg-gray-200 hover:text-white px-4 py-2 text-base font-medium hover:cursor-pointer"
+                                                                onClick={(e) => { navigate('/register') }}
+                                                            >
+                                                                Register Account
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    {auth &&
+                                                        <div className="flow-root">
+                                                            <div className="flex items-center gap-x-6 pb-6 mb-6 border-b border-gray-200">
+                                                                <img className="h-16 w-16 rounded-full object-cover object-center" src={auth?.photoUrl ? auth.photoUrl : avatar} alt="" />
+                                                                <div>
+                                                                    <h3 className="text-base font-semibold leading-7 tracking-tight text-gray-900">{auth?.firstName} {auth?.lastName}</h3>
+                                                                    <p className="text-sm font-semibold leading-6 txt-primary">Verified</p>
+                                                                </div>
+                                                                <div className="ml-auto">
+                                                                    <a
+                                                                        href="#"
+                                                                        className="inline-flex items-center justify-center rounded-md border border-transparent btn-primary px-5 py-2.5 text-base font-sm text-white shadow-sm"
+                                                                        onClick={() => navigate('/profile')}
+                                                                    >
+                                                                        Edit
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex flex-col rounded-lg border border-gray-200">
+                                                                {
+                                                                    auth?.userType === 'TENANT'
+                                                                        ?
+                                                                        <>
+                                                                            <div
+                                                                                className="text-gray-700 hover:bg-gray-200 hover:text-white px-4 py-2 text-base font-medium border-b border-gray-200 hover:cursor-pointer"
+                                                                                onClick={(e) => { navigate('/tenant/listing/create') }}
+                                                                            >
+                                                                                Create New Finding
+                                                                            </div>
+                                                                            <div
+                                                                                className="text-gray-700 hover:bg-gray-200 hover:text-white px-4 py-2 text-base font-medium border-b border-gray-200 hover:cursor-pointer"
+                                                                                onClick={(e) => { navigate('/renter/properties') }}
+                                                                            >
+                                                                                My Findings
+                                                                            </div>
+                                                                            <div
+                                                                                className="text-gray-700 hover:bg-gray-200 hover:text-white px-4 py-2 text-base font-medium border-b border-gray-200 hover:cursor-pointer"
+                                                                                onClick={(e) => { navigate('/tenant/favorites') }}
+                                                                            >
+                                                                                My Favorites
+                                                                            </div>
+                                                                        </>
+                                                                        :
+                                                                        <>
+                                                                            <div
+                                                                                className="text-gray-700 hover:bg-gray-200 hover:text-white px-4 py-2 text-base font-medium border-b border-gray-200 hover:cursor-pointer"
+                                                                                onClick={(e) => { navigate('/renter/listing/create') }}
+                                                                            >
+                                                                                Create New Rental
+                                                                            </div>
+                                                                            <div
+                                                                                className="text-gray-700 hover:bg-gray-200 hover:text-white px-4 py-2 text-base font-medium border-b border-gray-200 hover:cursor-pointer"
+                                                                                onClick={(e) => { navigate('/renter/properties') }}
+                                                                            >
+                                                                                My Rentals
+                                                                            </div>
+                                                                        </>
+                                                                }
+                                                                <div
+                                                                    className="text-gray-700 hover:bg-gray-200 hover:text-white px-4 py-2 text-base font-medium hover:cursor-pointer"
+                                                                    onClick={() => logout()}
                                                                 >
-                                                                    Edit
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <a
-                                                                href="#"
-                                                                className="font-normal"
-                                                            >
-                                                                View Posts
-                                                            </a>
-                                                            <a
-                                                                href="#"
-                                                                className="font-normal"
-                                                            >
-                                                                View Wishlist
-                                                            </a>
-                                                        </div>
-                                                        {/* <ul role="list" className="-my-6 divide-y divide-gray-200">
-
-                                                            <div>
-                                                                <div className="mt-6">
-                                                                    <a
-                                                                        href="#"
-                                                                        className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
-                                                                    >
-                                                                        Log in
-                                                                    </a>
+                                                                    Logout
                                                                 </div>
                                                             </div>
-                                                            <div>
-                                                                <div className="mt-6">
-                                                                    <a
-                                                                        href="#"
-                                                                        className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
-                                                                    >
-                                                                        Sign Up
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </ul> */}
-                                                    </div>
+                                                        </div>
+                                                    }
                                                 </div>
                                             </div>
                                         </div>

@@ -30,6 +30,9 @@ import Layout from 'components/layout/Layout';
 /* Page Imports */
 import NotFound404 from 'pages/Error/NotFound404';
 
+/* Icon */
+import { ChevronDownIcon } from '@heroicons/react/20/solid'
+
 function ListingUpsert() {
 
     /* Initialization */
@@ -498,60 +501,78 @@ function ListingUpsert() {
                             <FormError nbsp>{error?.amenities}</FormError>
 
                             <div className="col-span-1 md:col-span-12 mt-1">
+                                <label className="block text-sm font-medium leading-6 text-gray-900">
+                                    Amenities
+                                </label>
                                 <div onClick={() => setToggleAmenity(!toggleAmenity)}>
-                                    <div className='font-semibold cursor-pointer'>
+                                    <div className='min-w-[200px] inline-flex items-center justify-between gap-x-1.5 rounded-md bg-white px-4 py-2 mb-2 text-sm text-left font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:cursor-pointer'>
                                         {
                                             selectedAmenities.length === 0
                                                 ? '0 amenity selected'
                                                 : `${selectedAmenities.length} amenities selected`
                                         }
+                                        <ChevronDownIcon
+                                            className="-mr-1 h-5 w-5 text-gray-400"
+                                            aria-hidden="true"
+                                        />
                                     </div>
                                 </div>
                                 {toggleAmenity && (
-                                    <div className="border-gray-200 border border-solid">
+                                    <div className="rounded-lg p-4 border-gray-200 border border-solid">
                                         {amenities.map((amenity, index) => (
-                                            <label key={index} className="block">
-                                                <input
-                                                    type='checkbox'
-                                                    className='m-3 cursor-pointer'
-                                                    name={amenity.amenityName}
-                                                    value={amenity.id}
-                                                    onChange={() => selectedAmenities.includes(amenity.id)
-                                                        ? setSelectedAmenities(
-                                                            selectedAmenities.filter(item => item !== amenity.id))
-                                                        : setSelectedAmenities([...selectedAmenities, amenity.id])} />
-                                                {amenity.amenityName}
-                                            </label>
+                                            <div className="flex gap-x-3 items-center">
+                                                <label key={index} className="block font-medium text-gray-900">
+                                                    <input
+                                                        type='checkbox'
+                                                        className='m-3 cursor-pointer h-4 w-4 rounded border-gray-300 txt-primary focus:ring-primary'
+                                                        name={amenity.amenityName}
+                                                        value={amenity.id}
+                                                        onChange={() => selectedAmenities.includes(amenity.id)
+                                                            ? setSelectedAmenities(
+                                                                selectedAmenities.filter(item => item !== amenity.id))
+                                                            : setSelectedAmenities([...selectedAmenities, amenity.id])} />
+                                                    {amenity.amenityName}
+                                                </label>
+                                            </div>
                                         ))}
                                     </div>
                                 )}
                             </div>
 
                             <div className="col-span-1 md:col-span-12 mt-1">
+                                <label className="block text-sm font-medium leading-6 text-gray-900">
+                                    Facilities
+                                </label>
                                 <div onClick={() => setToggleFacility(!toggleFacility)}>
-                                    <div className='font-semibold cursor-pointer'>
+                                    <div className='min-w-[200px] inline-flex items-center justify-between gap-x-1.5 rounded-md bg-white px-4 py-2 mb-2 text-sm text-left font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:cursor-pointer'>
                                         {
                                             selectedFacilities.length === 0
                                                 ? '0 facility selected'
                                                 : `${selectedFacilities.length} facilities selected`
                                         }
+                                        <ChevronDownIcon
+                                            className="-mr-1 h-5 w-5 text-gray-400"
+                                            aria-hidden="true"
+                                        />
                                     </div>
                                 </div>
                                 {toggleFacility && (
-                                    <div className="border-gray-200 border border-solid">
+                                    <div className="rounded-lg p-4 border-gray-200 border border-solid">
                                         {facilities.map((facility, index) => (
-                                            <label key={index} className="block">
-                                                <input
-                                                    type='checkbox'
-                                                    className='m-3 cursor-pointer'
-                                                    name={facility.facilityName}
-                                                    value={facility.id}
-                                                    onChange={() => selectedFacilities.includes(facility.id)
-                                                        ? setSelectedFacilities(
-                                                            selectedFacilities.filter(item => item !== facility.id))
-                                                        : setSelectedFacilities([...selectedFacilities, facility.id])} />
-                                                {facility.facilityName}
-                                            </label>
+                                            <div className="flex gap-x-3 items-center">
+                                                <label key={index} className="block font-medium text-gray-900">
+                                                    <input
+                                                        type='checkbox'
+                                                        className='m-3 cursor-pointer h-4 w-4 rounded border-gray-300 txt-primary focus:ring-primary'
+                                                        name={facility.facilityName}
+                                                        value={facility.id}
+                                                        onChange={() => selectedFacilities.includes(facility.id)
+                                                            ? setSelectedFacilities(
+                                                                selectedFacilities.filter(item => item !== facility.id))
+                                                            : setSelectedFacilities([...selectedFacilities, facility.id])} />
+                                                    {facility.facilityName}
+                                                </label>
+                                            </div>
                                         ))}
                                     </div>
                                 )}

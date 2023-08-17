@@ -77,7 +77,7 @@ function FileSelector({
                     }} />
             </div>
             {selectedFiles && selectedFiles.map((file, index) => (
-                <div key={index} className='rounded-lg border border-gray-300 bg-slate-300 col-span-1'>
+                <div key={index} className='rounded-sm border border-gray-300 bg-slate-300 col-span-1 px-2 my-1'>
                     {
                         (file instanceof File)
                             ? <a href={URL.createObjectURL(file)} target="_blank">
