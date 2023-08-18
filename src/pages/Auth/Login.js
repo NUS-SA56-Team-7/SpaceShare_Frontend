@@ -81,7 +81,7 @@ function Login() {
                 { headers: { 'Content-Type': 'application/json' } })
                 .then(res => {
                     if (res.status === 200) {
-                        const data = { ...res.data, userType: user === 'renter' ? 'RENTER' : 'TENANT' };
+                        const data = { ...res.data, userType: user };
                         setAuth(data);
                         sessionStorage.setItem('auth', JSON.stringify(data));
                         navigate('/');
@@ -139,14 +139,14 @@ function Login() {
                                     autoFocus
                                     value={data['email'] ? data['email'] : ''}
                                     onChange={(e) => setData({ ...data, email: (e.target.value).toLowerCase() })}
-                                    onKeyPress={(e) => e.key === 'Enter' && login()}
+                                    onKeyDown={(e) => e.key === 'Enter' && login()}
                                 />
                                 <FormError nbsp>{'email' in error && error['email']}</FormError>
                                 <div className="mt-2"></div>
                                 <FormInputPassword
                                     label='Enter Password'
                                     onChange={(e) => setData({ ...data, password: e.target.value })}
-                                    onKeyPress={(e) => e.key === 'Enter' && login()}
+                                    onKeyDown={(e) => e.key === 'Enter' && login()}
                                 />
                                 <FormError nbsp>{'password' in error && error['password']}</FormError>
                                 <div className="text-right text-sm mb-2">
@@ -186,7 +186,7 @@ function Login() {
                         autoFocus
                         value={data['email']}
                         onChange={(e) => setData({ ...data, email: (e.target.value).toLowerCase() })}
-                        onKeyPress={(e) => e.key === 'Enter' && login()}
+                        onKeyDown={(e) => e.key === 'Enter' && login()}
                     />
                     <FormError nbsp>{'email' in error && error['email']}</FormError>
 
@@ -194,7 +194,7 @@ function Login() {
                         label='Enter Password'
                         value={data['password']}
                         onChange={(e) => setData({ ...data, password: e.target.value })}
-                        onKeyPress={(e) => e.key === 'Enter' && login()}
+                        onKeyDown={(e) => e.key === 'Enter' && login()}
                     />
                     <FormError nbsp>{'password' in error && error['password']}</FormError>
 

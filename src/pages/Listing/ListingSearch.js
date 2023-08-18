@@ -1,9 +1,17 @@
-import React, { Fragment, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react'
-import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, Squares2X2Icon, CheckIcon } from '@heroicons/react/20/solid'
+/* CSS Imports */
+import 'styles/pages/Search.css';
 
+/* Context Imports */
+import SearchContext from 'contexts/SearchContext';
+
+/* Icon Imports */
+import { Disclosure, Menu } from '@headlessui/react';
+import { MinusIcon, PlusIcon, CheckIcon } from '@heroicons/react/20/solid';
+
+/* Component Imports */
 import Layout from 'components/layout/Layout';
 import Heading from 'components/ui/Heading';
 import SearchForm from 'components/ui/SearchForm';
@@ -14,11 +22,37 @@ import CardProperties from 'components/ui/CardProperties';
 import SearchLayout from 'components/layout/SearchLayout';
 import Dropdown from 'components/ui/Dropdown';
 
-import 'styles/pages/Search.css';
+const ListingSearch = () => {
 
-const Search = () => {
+    /* useState */
+    const [rendered, setIsRendered] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterOption, setFilterOption] = useState('all'); // Default filter option is 'all'
+
+    /* useContext */
+    const { searchKeyword, setSearchKeyword } = useContext(SearchContext);
+
+    /* useNavigate */
+    const navigate = useNavigate();
+
+    /* useLocation */
+    const location = useLocation();
+
+    /* Functions */
+    const updateQueryParams = () => {
+        const url = new URL(window.location);
+        url.searchParams.set('key', 'a');
+        window.history.pushState(null, '', url.toString());
+    };
+
+    const search = () => {
+        updateQueryParams();
+    };
+
+    /* useEffect */
+    useEffect(() => {
+        setIsRendered(true);
+    }, []);
 
     const handleSearch = (event) => {
         setSearchQuery(event.target.value);
@@ -93,15 +127,16 @@ const Search = () => {
     return (
         <SearchLayout>
             <div className="mx-auto max-w-7xl">
-                <Heading
-                    title="Search Properties"
-                />
+                <Heading title="Search Properties" />
             </div>
             <div className="searchbar-container sm:col-span-1 md:col-span-12 flex items-center sticky top-0 z-50 gap-x-6 py-8">
                 <div className="mx-auto w-full max-w-7xl">
                     <div className="grid grid-cols-1 md:grid-cols-12 items-center justify-between gap-x-2">
                         <div className="col-span-1 md:col-span-7">
-                            <SearchForm></SearchForm>
+                            <SearchForm
+                                searchKeyword={searchKeyword}
+                                setSearchKeyword={setSearchKeyword}
+                                search={search} />
                         </div>
                         <div className="col-span-1 mt-4 md:col-span-5 md:mt-0 flex gap-x-2 flex-grow">
                             <Dropdown title="Property Type">
@@ -244,6 +279,7 @@ const Search = () => {
             </div>
             <div className="mx-auto max-w-7xl">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-x-12 pb-12 border-b border-gray-200">
+
                     {/* 4 Column Section */}
                     <div className="sm:col-span-1 md:col-span-8">
                         <div className="grid grid-cols-1 gap-y-8">
@@ -255,6 +291,7 @@ const Search = () => {
                             <CardProperties />
                         </div>
                     </div>
+
                     {/* 8 Column Section */}
                     <div className="sm:col-span-1 md:col-span-4 md:pl-8 md:border-l border-gray-300">
                         <div className="flex flex-col md:sticky md:top-32 p-6 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5">
@@ -325,4 +362,4 @@ const Search = () => {
     );
 };
 
-export default Search;
+export default ListingSearch;

@@ -53,11 +53,6 @@ function FileSelector({
         setSelectedFiles([...initialImages]);
     };
 
-    useEffect(() => {
-        console.log(selectedFiles);
-    }, [selectedFiles])
-
-
     if (!selectedFiles || !setSelectedFiles) {
         throw new Error('\'selectedFiles\' and \'setSelectedFiles\'  must be specified');
     }
@@ -70,7 +65,7 @@ function FileSelector({
                 <input
                     type='file' multiple
                     accept='.pdf,.docx,.txt'
-                    name='myImage'
+                    name='img'
                     onChange={(e) => {
                         updateSelectedFiles(
                             selectedFiles, [...e.target.files]);

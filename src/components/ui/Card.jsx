@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
+
+/* Icon Imports */
 import { HeartIcon } from '@heroicons/react/24/outline';
 
 /* Component Imports */
-import ButtonFilled from 'components/ui/ButtonFilled';
 import UserIconWithTag from './UserIconWithTag';
 import Badge from './Badge';
 import ButtonFavorite from './ButtonFavorite';
@@ -34,6 +35,7 @@ function Card(props) {
             navigate('/login');
             return;
         }
+
         if (!isFavorite) {
             Axios.post('api/favourite/create',
                 {
@@ -91,7 +93,7 @@ function Card(props) {
                     <div className="flex justify-center relative rounded-lg overflow-hidden h-52">
                         <div className="transition-transform duration-500 transform ease-in-out hover:scale-110 w-full
                             d-flex align-items-center justify-content-center">
-                            <img src={props.data?.propertyImages[0]?.imageUrl} alt={props.data?.title} className='w-full h-full object-content object-cover'/>
+                            <img src={props.data?.propertyImages[0]?.imageUrl} alt={props.data?.title} className='w-full h-full object-content object-cover' />
                         </div>
                         <span className="absolute top-0 left-0 inline-flex mt-3 ml-3">
                             <Badge status="danger">
@@ -99,7 +101,7 @@ function Card(props) {
                             </Badge>
                         </span>
                         {
-                            props?.userType !== 'RENTER' &&
+                            props?.userType !== 'renter' &&
                             <div className="absolute top-0 right-0 inline-flex mt-3 mr-3 w-9">
                                 <ButtonFavorite status={isFavorite} handleClick={addToFavorite} />
                             </div>

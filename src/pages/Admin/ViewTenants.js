@@ -14,6 +14,10 @@ import DataTableComponent from 'components/Admin/DataTableComponent';
 import axios from 'axios';
 
 function ViewTenants() {
+
+    /* useState */
+    const [modal, setModal] = useState(false);
+
     const session = {
         // Replace with your session data
         role: 'admin', // Example role
@@ -136,7 +140,6 @@ function ViewTenants() {
                     </div>
                 </div>
             </div>
-
         </AdminLayout>
     );
 }

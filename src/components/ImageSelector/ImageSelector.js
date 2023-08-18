@@ -94,7 +94,7 @@ function ImageSelector({
                     </div>
                     <div className='imgup_footer'>
                         <button
-                            onClick={() => setSelectedImages(null)}
+                            onClick={() => setSelectedImages([])}
                             className="inline-flex w-full items-center justify-center rounded-md
                                 bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">
                             Clear All

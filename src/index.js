@@ -7,6 +7,7 @@ import reportWebVitals from './reportWebVitals';
 import { EmailContextProvider } from 'contexts/EmailContext';
 import { AuthContextProvider } from 'contexts/AuthContext';
 import { ResetPasswordContextProvider } from 'contexts/ResetPasswordContext';
+import { SearchContextProvider } from 'contexts/SearchContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -14,7 +15,9 @@ root.render(
     <AuthContextProvider>
         <EmailContextProvider>
             <ResetPasswordContextProvider>
-                <App />
+                <SearchContextProvider>
+                    <App />
+                </SearchContextProvider>
             </ResetPasswordContextProvider>
         </EmailContextProvider>
     </AuthContextProvider>

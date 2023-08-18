@@ -17,6 +17,7 @@ import { CircularProgress } from '@mui/material';
 function RenterProperties() {
 
     /* useState */
+    const [rendered, setRendered] = useState(false);
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState();
@@ -24,14 +25,13 @@ function RenterProperties() {
     /* useContext */
     const { auth } = useContext(AuthContext);
 
-    /* useEffect */
-    useEffect(() => {
-        Axios.get(`/api/renter/${auth?.id}/properties`)
+    /* Functions */
+    const deleteProperty = (id) => {
+        Axios.delete(`/api/renter/${auth?.id}/property/delete/${id}`)
             .then(res => {
                 if (res.status === 200) {
-                    setProperties(res.data);
+                    window.location.reload();
                 }
-                setLoading(false);
             })
             .catch(err => {
                 if (err.response.status === 404) {
@@ -40,9 +40,34 @@ function RenterProperties() {
                 else if (err.response.status === 500) {
                     setError(err.response.data);
                 }
-                setLoading(false);
             })
-    }, [auth]);
+    };
+
+    /* useEffect */
+    useEffect(() => {
+        setRendered(true);
+    }, []);
+
+    useEffect(() => {
+        if (rendered && auth) {
+            Axios.get(`/api/renter/${auth?.id}/properties`)
+                .then(res => {
+                    if (res.status === 200) {
+                        setProperties(res.data);
+                    }
+                    setLoading(false);
+                })
+                .catch(err => {
+                    if (err.response.status === 404) {
+                        setError(err.response.data);
+                    }
+                    else if (err.response.status === 500) {
+                        setError(err.response.data);
+                    }
+                    setLoading(false);
+                })
+        }
+    }, [rendered, auth]);
 
     return (
         <Layout>
@@ -57,7 +82,8 @@ function RenterProperties() {
                             properties.map((property, index) => (
                                 <CardProperties
                                     key={index}
-                                    data={property} />
+                                    data={property}
+                                    deleteProperty={deleteProperty} />
                             ))
                         )
                     }

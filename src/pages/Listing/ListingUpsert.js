@@ -48,6 +48,7 @@ function ListingUpsert() {
     const err = {};
 
     /* useState */
+    const [rendered, setRendered] = useState(false);
     const [data, setData] = useState(initData);
     const [error, setError] = useState({});
     const [loading, setLoading] = useState(false);
@@ -120,7 +121,7 @@ function ListingUpsert() {
         if (data['furnishment'].length === 0) {
             err['furnishment'] = 'Please select Furnishment Status'
         }
-        if (data['tenantType'].length === 0) {
+        if (!data['tenantType']) {
             err['tenantType'] = 'Please select Tenant Type'
         }
         if (selectedAmenities.length + existingAmenities.length === 0) {
@@ -176,7 +177,9 @@ function ListingUpsert() {
             // Update the Data Object with the Uploaded Image URLs
             const updatedData = {
                 ...data,
-                postType: paramUser === 'tenant' ? 'ROOMMATE_FINDING' : paramUser === 'renter' && 'ROOM_RENTAL',
+                postType: paramUser === 'tenant'
+                    ? 'ROOMMATE_FINDING'
+                    : paramUser === 'renter' && 'ROOM_RENTAL',
                 propertyImageURLs: uploadedImageURLs,
                 propertyDocURLs: uploadedFileURLs,
                 propertyAmenityIDs: selectedAmenities,
@@ -185,9 +188,8 @@ function ListingUpsert() {
 
             await Axios.post(`/api/${paramUser}/${auth?.id}/property/create`,
                 updatedData,
-                {
-                    headers: { 'Content-Type': 'application/json' }
-                })
+                { headers: { 'Content-Type': 'application/json' } }
+            )
                 .then(res => {
                     if (res.status === 201) {
                         setData(res.data);
@@ -217,7 +219,14 @@ function ListingUpsert() {
                     setData(res.data);
                     setSelectedImages(res.data?.propertyImages);
                     setSelectedDocs(res.data?.propertyDocs);
-                    // setSelectedAmenities(res.data?.)
+                    setSelectedAmenities(
+                        res.data?.propertyAmenities.map(item => {
+                            return item.amenity.id;
+                        }))
+                    setSelectedFacilities(
+                        res.data?.propertyFacilities.map(item => {
+                            return item.facility.id;
+                        }))
                 }
                 setLoading(false);
             })
@@ -232,7 +241,7 @@ function ListingUpsert() {
             })
     };
 
-    const update = () => {
+    const update = async () => {
         // Axios.put(`/api/property/update/${propertyId}`)
         //     .then(res => {
         //         if (res.status === 200) {
@@ -249,7 +258,48 @@ function ListingUpsert() {
         //         }
         //         setLoading(false);
         //     })
-        console.log(data);
+        try {
+            // Upload Images to Firebase Storage
+            const uploadedImageURLs = await uploadFilesUUID(
+                firebaseStorageRefs.propertyImages, selectedImages);
+
+            // Upload Files to Firebase Storage
+            const uploadedFileURLs = await uploadFiles(
+                firebaseStorageRefs.propertyDocs, selectedDocs);
+
+            // Update the Data Object with the Uploaded Image URLs
+            const updatedData = {
+                ...data,
+                propertyImageURLs: uploadedImageURLs,
+                propertyDocURLs: uploadedFileURLs,
+                propertyAmenityIDs: selectedAmenities,
+                propertyFacilityIDs: selectedFacilities
+            };
+
+            // await Axios.put(`/api/${paramUser}/${auth?.id}/property/update/${propertyId}`,
+            //     updatedData,
+            //     { headers: { 'Content-Type': 'application/json' } }
+            // )
+            //     .then(res => {
+            //         if (res.status === 201) {
+            //             setData(res.data);
+            //         }
+            //         setLoading(false);
+            //     })
+            //     .catch(err => {
+            //         if (err.response.status === 404) {
+            //             setError(err.response.data);
+            //         }
+            //         else if (err.response.status === 500) {
+            //             setError(err.response.data);
+            //         }
+            //         setLoading(false);
+            //     });
+            console.log(updatedData)
+        }
+        catch (error) {
+            console.error("Error updating property:", error);
+        }
     };
 
     const submit = () => {
@@ -264,6 +314,10 @@ function ListingUpsert() {
     };
 
     /* useEffect */
+    useEffect(() => {
+        setRendered(true);
+    }, []);
+
     useEffect(() => {
         if (paramUpsert === 'create') {
             setData(initData);
@@ -348,7 +402,7 @@ function ListingUpsert() {
                             <div className="col-span-1 md:col-span-12">
                                 <FormRadioOption
                                     name='Room Type'
-                                    options={auth?.userType === 'RENTER' ? { 'Single': 'SINGLE', 'Common': 'COMMON', 'Master': 'MASTER', 'Whole Unit': 'WHOLE_UNIT' } : { 'Single': 'SINGLE', 'Common': 'COMMON', 'Master': 'MASTER' }}
+                                    options={auth?.userType === 'renter' ? { 'Single': 'SINGLE', 'Common': 'COMMON', 'Master': 'MASTER', 'Whole Unit': 'WHOLE_UNIT' } : { 'Single': 'SINGLE', 'Common': 'COMMON', 'Master': 'MASTER' }}
                                     selected={data['roomType']}
                                     setSelected={(e) => setData({ ...data, roomType: e.target.value })} />
                                 <FormError nbsp>{error?.roomType}</FormError>
@@ -401,7 +455,7 @@ function ListingUpsert() {
                             <div className="col-span-1 md:col-span-12">
                                 <FormRadioOption
                                     name='Tenant Type'
-                                    options={auth?.userType === 'RENTER'
+                                    options={auth?.userType === 'renter'
                                         ? { 'Male': 'MALE', 'Female': 'FEMALE', 'Couple': 'COUPLE', 'Family': 'FAMILY' }
                                         : { 'Male': 'MALE', 'Female': 'FEMALE' }}
                                     selected={data['tenantType'] ? data['tenantType'] : ''}
@@ -469,37 +523,6 @@ function ListingUpsert() {
                                 </div>
                             }
 
-                            <div onClick={() => setToggleAmenity(!toggleAmenity)}>
-                                <div className='font-semibold cursor-pointer'>
-                                    {
-                                        selectedAmenities.length === 0
-                                            ? '0 amenity selected'
-                                            : `${selectedAmenities.length} amenities selected`
-                                    }
-                                </div>
-                            </div>
-                            <div className="col-span-1 md:col-span-12 mt-1">
-                                {toggleAmenity && (
-                                    <div className="border-gray-200 border border-solid">
-                                        {amenities.map((amenity, index) => (
-                                            <label key={index} className="block">
-                                                <input
-                                                    type='checkbox'
-                                                    className='m-3 cursor-pointer'
-                                                    name={amenity.amenityName}
-                                                    value={amenity.id}
-                                                    onChange={() => selectedAmenities.includes(amenity.id)
-                                                        ? setSelectedAmenities(
-                                                            selectedAmenities.filter(item => item !== amenity.id))
-                                                        : setSelectedAmenities([...selectedAmenities, amenity.id])} />
-                                                {amenity.amenityName}
-                                            </label>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            <FormError nbsp>{error?.amenities}</FormError>
-
                             <div className="col-span-1 md:col-span-12 mt-1">
                                 <label className="block text-sm font-medium leading-6 text-gray-900">
                                     Amenities
@@ -538,6 +561,7 @@ function ListingUpsert() {
                                     </div>
                                 )}
                             </div>
+                            <FormError nbsp>{error?.amenities}</FormError>
 
                             <div className="col-span-1 md:col-span-12 mt-1">
                                 <label className="block text-sm font-medium leading-6 text-gray-900">

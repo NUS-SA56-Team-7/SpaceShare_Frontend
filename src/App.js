@@ -22,20 +22,22 @@ import Login from 'pages/Auth/Login';
 /* Listing */
 import ListingUpsert from 'pages/Listing/ListingUpsert';
 import ListingDetail from 'pages/Listing/ListingDetail';
+import ListingSearch from 'pages/Listing/ListingSearch';
+
+/* Profile */
+import Profile from 'pages/Profile/Profile';
 
 /* Renter */
 import RenterProperties from 'pages/Renter/RenterProperties';
 
 /* Tenant */
 import Favorites from 'pages/Tenant/Favorites';
+import RecentSearches from 'pages/Tenant/RecentSearches';
 
 /* Error Pages */
 import NotFound404 from 'pages/Error/NotFound404';
 
-import Profile from 'pages/Profile';
-import Profile2 from 'pages/Profile/Profile';
 import Forms from 'pages/Forms';
-import Search from 'pages/Search';
 
 /* Admin */
 import Dashboard from 'pages/Admin/Dashboard';
@@ -76,14 +78,18 @@ function App() {
                     <Route path='/' element={<Landing />} />
                     <Route path='/listing/:id' element={<ListingDetail />} />
                     <Route path='/:user/listing/:upsert' element={<ListingUpsert />} />
+                    <Route path='/search' element={<ListingSearch />} />
 
-                    <Route path='resetpassword/:id/success' element={<ResetPasswordSuccess />} />
+                    {/* Profile */}
+                    <Route path='/profile' element={<Profile />} />
+                    <Route path='/profile/view/:user/:id' element={<Profile />} />
 
                     {/* Renter */}
                     <Route path='/renter/properties' element={<RenterProperties />} />
 
                     {/* Tenant */}
                     <Route path='/tenant/favorites' element={<Favorites />} />
+                    <Route path='/tenant/recents' element={<RecentSearches />} />
 
                     {/* Authentication */}
                     <Route path='/login' element={<UserTypeSelect />} />
@@ -92,6 +98,7 @@ function App() {
                     <Route path='/resetpassword/:user' element={<ResetPasswordEmail />} />
                     <Route path='/resetpassword/:user/:id/otp' element={<ResetPasswordOTP />} />
                     <Route path='/resetpassword/:user/:id/submit' element={<ResetPasswordSubmit />} />
+                    <Route path='/resetpassword/:user/:id/success' element={<ResetPasswordSuccess />} />
 
                     {/* Authorization Roles */}
                     {/* <Route path="/dashboard"
@@ -104,14 +111,10 @@ function App() {
                         <Route path='/listing' element={<Listing />} />
                     </Route> */}
 
-
                     {/* Default Routes */}
                     <Route path='*' element={<NotFound404 />} />
 
-                    <Route path='/profile' element={<Profile />} />
-                    <Route path='/profile2' element={<Profile2 />} />
                     <Route path='/forms' element={<Forms />} />
-                    <Route path='/search' element={<Search />} />
 
                     {/* Authentication */}
                     <Route path='/login' element={<UserTypeSelect />} />

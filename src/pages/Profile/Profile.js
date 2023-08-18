@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
+
+/* Icon Imports */
 import { CalendarIcon, HeartIcon, PencilIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 
-/* CSS Imports */
-import 'styles/pages/Profile.css';
-
-/* Layout Imports */
-import AuthChecker from 'components/layout/AuthChecker';
+/* Context Imports */
+import AuthContext from 'contexts/AuthContext';
 
 /* Component Imports */
 import Layout from 'components/layout/Layout';
@@ -14,21 +13,23 @@ import Heading from 'components/ui/Heading';
 import Badge from 'components/ui/Badge';
 import ButtonFilled from 'components/ui/ButtonFilled';
 import ButtonOutlined from 'components/ui/ButtonOutlined';
-import FormInputText from 'components/form/FormInputText';
-import FormInputPassword from 'components/form/FormInputPassword';
-import FormText from 'components/form/FormText';
 import CardFavorite from 'components/ui/CardFavorite';
 import CardAppointment from 'components/ui/CardAppointment';
-import Modal from 'components/ui/Modal';
+import FormInputText from 'components/form/FormInputText';
+import FormInputDate from 'components/form/FormInputDate';
+import FormError from 'components/form/FormError';
 
-/* Context Imports */
-import AuthContext from 'contexts/AuthContext';
-
-/* Package Imports */
-import AvatarEditor from 'react-avatar-editor';
+/* Utility Imports */
+import Axios from 'utils/Axios';
 
 /* Asset Imports */
 import avatar from 'assets/images/avatar.png';
+
+/* Function Imports */
+import formatPrettyDate from 'functions/formatPrettyDate';
+
+/* Page Imports */
+import NotFound404 from '../Error/NotFound404';
 
 function Profile() {
 
@@ -36,76 +37,90 @@ function Profile() {
     const navigate = useNavigate();
 
     /* useState */
-    const [modal, setModal] = useState(false);
+    const [rendered, setRendered] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [data, setData] = useState({});
+    const [type, setType] = useState();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState();
 
     /* useContext */
-    const { auth } = useContext(AuthContext);
+    const { auth, setAuth } = useContext(AuthContext);
+
+    /* useParams */
+    const { user: paramUser, id: paramId } = useParams();
+
+    /* useLocation */
+    const location = useLocation();
 
     /* useEffect */
     useEffect(() => {
-        console.log(auth);
+        setRendered(true);
     }, []);
 
-    const userDetail = [
-        {
-            imgUrl: 'https://i.pinimg.com/originals/50/28/ce/5028ce929cd06b95691bd55db694a37b.jpg',
-            userName: 'Winter Winter',
-            status: 1
-        },
-    ];
-
-    const [isEditing, setIsEditing] = useState(false);
-    const [firstName, setFirstName] = useState('Winter');
-    const [lastName, setLastName] = useState('Winter');
-    const [email, setEmail] = useState('winter@email.com');
-    const [phone, setPhone] = useState('0912345678');
-    const [address, setAddress] = useState('101, West Coast Vale, 13-02, Parc Riviera, 126753');
-    const [dob, setDob] = useState('06/08/2000');
-
-    const handleEditClick = () => {
-        setIsEditing(true);
-    };
-
-    const handleSaveClick = () => {
-        setIsEditing(false);
-    };
-
-    const handleCancelClick = () => {
-        setFirstName('Winter');
-        setLastName('Winter');
-        setEmail('winter@email.com');
-        setPhone('0912345678');
-        setAddress('101, West Coast Vale, 13-02, Parc Riviera, 126753');
-        setDob('06/08/2000');
-        setIsEditing(false);
-    };
-
-    // Image Upload Testing
-    const [userImgFile, setUserImgFile] = useState(null);
-    const [userImgUrl, setUserImgUrl] = useState(userDetail[0].imgUrl);
-
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setUserImgFile(file);
-
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setUserImgUrl(reader.result);
-            };
-            reader.readAsDataURL(file);
+    useEffect(() => {
+        if (rendered) {
+            if (location.pathname === '/profile') setType('self');
+            if (location.pathname.startsWith('/profile/view')) setType('other');
         }
-    };
+    }, [rendered]);
 
-    const handleImageUpdate = () => {
-        if (userImgFile) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setUserImgUrl(reader.result);
-                setUserImgFile(null);
-            };
-            reader.readAsDataURL(userImgFile);
+    useEffect(() => {
+        if (rendered && !auth && type === 'self') navigate('/login');
+    }, [rendered, auth, type]);
+
+    useEffect(() => {
+        console.log(data);
+    }, [data]);
+
+
+    useEffect(() => {
+        if (type === 'self') {
+            if (rendered && auth) {
+                setData(auth);
+            }
         }
+        else if (type === 'other') {
+            Axios.get(`/api/${paramUser}/${paramId}`,
+                data,
+                { headers: { 'Content-Type': 'application/json' } }
+            )
+                .then(res => {
+                    if (res.status === 200) {
+                        setData(res.data);
+                    }
+                })
+                .catch(err => {
+                    if (err.response.status === 404 || err.response.status === 400) {
+                        setError('404');
+                    }
+                    else if (err.response.status === 500) {
+                        setError(err.response.data);
+                    }
+                });
+        }
+    }, [type, rendered, auth]);
+
+    const saveProfile = () => {
+        Axios.put(`/api/${auth?.userType}/update/${auth?.id}`,
+            data,
+            { headers: { 'Content-Type': 'application/json' } }
+        )
+            .then(res => {
+                if (res.status === 200) {
+                    setData(res.data);
+                    sessionStorage.setItem('auth', JSON.stringify({ ...res.data, userType: auth?.userType }));
+                    window.location.reload();
+                }
+            })
+            .catch(err => {
+                if (err.response.status === 404) {
+                    setError(err.response.data);
+                }
+                else if (err.response.status === 500) {
+                    setError(err.response.data);
+                }
+            });
     };
 
     const properties = [
@@ -129,285 +144,240 @@ function Profile() {
         }
     ];
 
-    return (
-        <AuthChecker>
+    if (error === '404' && rendered) {
+        return <NotFound404 />
+    }
+    else {
+        return (
             <Layout>
-                {modal &&
-                    <Modal>
-                        <button className='btn btn-primary' onClick={() => setModal(false)}>Close</button>
-                        <AvatarEditor
-                            image='https://musicart.xboxlive.com/7/4d4d6500-0000-0000-0000-000000000002/504/image.jpg?w=1920&h=1080'
-                            width={400}
-                            height={400}
-                            border={20}
-                            borderRadius={200}
-                            color={[255, 255, 255, 0.6]} // RGBA
-                            scale={1}
-                            rotate={0}
-                            style={{ borderRadius: '50%' }}
-                        />
-                    </Modal>
-                }
-                <div className='mb-10'>
-                    <Heading
-                        title='My Profile'
-                    />
+                <div className="mb-10">
+                    <Heading title="My Profile" />
                 </div>
-                <div className='grid grid-cols-1 md:grid-cols-12 gap-12 rounded-lg p-8 py-0 border border-gray-300'>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-12 rounded-lg p-8 py-0 border border-gray-300">
 
                     {/* 4 column section */}
-                    <div className='sm:col-span-1 md:col-span-4 pr-8 border-r border-gray-300'>
-                        <div className='profile mx-auto max-w-s flow-root px-8 py-0'>
-                            <ul role='list' className='my-4 divide-y divide-none align-items-center justify-content-center'>
-                                <li className='py-2'>
-                                    <div className="relative inline-block w-full"
-                                        onClick={() => setModal(true)}>
-                                        <div className="relative aspect-square pt-[100%]">
+                    <div className="sm:col-span-1 md:col-span-4 md:pr-8 md:border-r border-gray-300">
+                        <div className="mx-auto max-w-xs flow-root pt-8">
+                            <ul role="list" className="-my-6 divide-y divide-none">
+                                <li className="py-2">
+                                    <div className="relative inline-block w-full">
+                                        <div className="relative aspect-square mt-4 pt-[100%]">
                                             <img
                                                 className="absolute inset-0 w-full h-full object-cover object-center rounded-full"
-                                                src={auth?.photoUrl ? auth.photoUrl : avatar}
+                                                src={data?.photoUrl ? data.photoUrl : avatar}
                                                 alt="profile-img"
                                             />
                                         </div>
                                     </div>
                                 </li>
-                                <li className='py-2'>
-                                    <p className='text-3xl font-normal text-gray-800 line-clamp-1'>
+                                <li className="py-2">
+                                    <p className="text-3xl font-normal text-gray-800 line-clamp-1">
                                         {auth?.firstName} {auth?.lastName}
                                     </p>
                                 </li>
-                                <li className='py-2'>
-                                    <ButtonOutlined
-                                        action={isEditing ? handleCancelClick : handleEditClick}
-                                    >
-                                        <PencilIcon className='-ml-0.5 mr-1.5 h-5 w-5 text-gray-400' aria-hidden='true' />
-                                        {isEditing ? 'Stop Editing...' : 'Edit Profile'}
-                                    </ButtonOutlined>
-                                </li>
-                                <li className='py-2'>
-                                    <div className='flex flex-col p-6 justify-between rounded-lg bg-white border border-gray-300'>
+                                <li className="py-2">
+                                    <div className="flex flex-col p-6 justify-between rounded-lg bg-white border border-gray-300">
                                         <div>
-                                            <p className='text-sm font-semibold mb-1 text-gray-900'>
+                                            <p className="text-sm font-semibold mb-1 text-gray-900">
                                                 User Type:
-                                                <span className='ml-4 text-sm font-medium leading-6 text-gray-600'>
-                                                    {auth?.userType === 'RENTER' && 'Renter'}
-                                                    {auth?.userType === 'TENANT' && 'Tenant'}
+                                                <span className="ml-4 text-sm font-medium leading-6 text-gray-600">
+                                                    {auth?.userType === 'renter' ? 'Renter' : auth?.userType === 'tenant' && 'Tenant'}
                                                 </span>
                                             </p>
                                         </div>
-                                        <div>
-                                            <p className='text-sm font-semibold mb-1 text-gray-900'>
+                                        <div className='mt-2'>
+                                            <p className="text-sm font-semibold mb-1 text-gray-900">
                                                 Joined On:
-                                                <span className='ml-4 text-sm font-medium leading-6 text-gray-600'>
-                                                    06/08/2000
+                                                <span className="ml-4 text-sm font-medium leading-6 text-gray-600">
+                                                    {auth?.createdAt && formatPrettyDate(auth?.createdAt)}
                                                 </span>
                                             </p>
                                         </div>
-                                        <div className='flex'>
-                                            <p className='text-sm font-semibold mb-1 text-gray-900 mr-4'>
+                                        <div className="flex mt-2">
+                                            <p className="text-sm font-semibold mb-1 text-gray-900 mr-4">
                                                 Account Status:
                                             </p>
-                                            {userDetail[0].status === 0 ? (
-                                                <Badge status='success'>
-                                                    Active
-                                                </Badge>
-                                            ) : (
-                                                <Badge status='danger'>
-                                                    Inactive
-                                                </Badge>
-                                            )}
+                                            {
+                                                auth?.status === 'ACTIVE'
+                                                    ? (
+                                                        <Badge status="success">
+                                                            Active
+                                                        </Badge>
+                                                    )
+                                                    : auth?.status === 'INACTIVE' && (
+                                                        <Badge status="danger">
+                                                            Inactive
+                                                        </Badge>
+                                                    )
+                                            }
                                         </div>
                                     </div>
                                 </li>
-                                {/* <li className='py-2'>
-                                    <div>
-                                        <div className='relative flex rounded-full'>
-                                            <span className='absolute -inset-1.5' />
-                                            <img
-                                                className='w-full rounded-full'
-                                                src={userImgUrl}
-                                                alt='profile-img'
-                                            />
-                                        </div>
-                                        <input
-                                            type='file'
-                                            accept='image/*'
-                                            onChange={handleImageChange}
-                                            className='mt-2'
-                                        />
-                                        <button
-                                            className='mt-2 px-4 py-2 bg-blue-500 text-white rounded-md'
-                                            onClick={handleImageUpdate}
-                                            disabled={!userImgFile}
-                                        >
-                                            Update Image
-                                        </button>
-                                    </div>
-                                </li> */}
                             </ul>
                         </div>
                     </div>
 
                     {/* 8 column section */}
-                    <div className='sm:col-span-1 md:col-span-8 pt-8'>
-                        <section className='pb-5 border-b border-gray-200 mb-5'>
-                            <div className='flex items-center mb-4'>
-                                <UserCircleIcon className='-ml-0.5 mr-1.5 h-5 w-5' aria-hidden='true' />
-                                <p className='text-xl font-semibold'>
+                    <div className="sm:col-span-1 md:col-span-8 pt-8">
+                        <section className="pb-5 border-b border-gray-200 mb-5">
+                            <div className="flex items-center mb-4">
+                                <UserCircleIcon className="-ml-0.5 mr-1.5 h-6 w-6" aria-hidden="true" />
+                                <p className="text-xl font-semibold">
                                     User Detail
                                 </p>
                             </div>
-                            <div className='flex flex-col p-6 md:top-6 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5'>
-                                <article>
-                                    {!isEditing ? (
-                                        <div className='grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6'>
-                                            <div className='sm:col-span-6'>
-                                                <div className='grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8'>
-                                                    <div className='flex flex-col gap-x-6 gap-y-8'>
-                                                        <div className='sm:col-span-4'>
-                                                            <FormText
-                                                                title='First Name'
-                                                                content={firstName}
-                                                            />
-                                                        </div>
-                                                        <div className='sm:col-span-4'>
-                                                            <FormText
-                                                                title='Last Name'
-                                                                content={lastName}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                            <div className='sm:col-span-4'>
-                                                <FormText
-                                                    title='Email'
-                                                    content={email}
-                                                />
-                                            </div>
-                                            <div className='sm:col-span-4'>
-                                                <FormText
-                                                    title='Phone'
-                                                    content={phone}
-                                                />
-                                            </div>
-                                            <div className='sm:col-span-4'>
-                                                <FormText
-                                                    title='Address'
-                                                    content={address}
-                                                />
-                                            </div>
-                                            <div className='sm:col-span-4'>
-                                                <FormText
-                                                    title='Date of Birth'
-                                                    content={dob}
-                                                />
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className='grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6'>
-                                            <div className='sm:col-span-6'>
-                                                <div className='grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8'>
-                                                    <div className='flex flex-col gap-x-6 gap-y-8'>
-                                                        <div className='sm:col-span-4'>
-                                                            <FormInputText
-                                                                label='First Name'
-                                                                autoFocus
-                                                                value={firstName}
-                                                                onChange={(e) => setFirstName(e.target.value)}
-                                                            />
-                                                        </div>
-                                                        <div className='sm:col-span-4'>
-                                                            <FormInputText
-                                                                label='Last Name'
-                                                                autoFocus
-                                                                value={lastName}
-                                                                onChange={(e) => setLastName(e.target.value)}
-                                                            />
+                            <div className="grid grid-cols-1 md:grid-cols-12 p-6 md:top-6 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5">
+                                <article className='col-span-1 md:col-span-10 gap-x-6 gap-y-8'>
+                                    {!isEditing
+                                        ? (
+                                            <div>
+                                                <div>
+                                                    <div className="gap-x-6 gap-y-8">
+                                                        <div className="flex flex-col gap-x-6 gap-y-8">
+                                                            <div className="sm:col-span-4">
+                                                                <FormInputText
+                                                                    label='First Name'
+                                                                    disabled
+                                                                    value={data?.firstName ? data.firstName : ''}
+                                                                />
+                                                            </div>
+                                                            <div className="sm:col-span-4">
+                                                                <FormInputText
+                                                                    label='Last Name'
+                                                                    disabled
+                                                                    value={data?.lastName ? data.lastName : ''}
+                                                                />
+                                                            </div>
+                                                            <div className="sm:col-span-4">
+                                                                <FormInputText
+                                                                    label='Email'
+                                                                    disabled
+                                                                    value={data?.email ? data.email : ''}
+                                                                />
+                                                            </div>
+                                                            <div className="sm:col-span-4">
+                                                                <FormInputText
+                                                                    label='Phone'
+                                                                    disabled
+                                                                    value={data?.phone ? data.phone : ''}
+                                                                />
+                                                            </div>
+                                                            <div className="sm:col-span-4">
+                                                                <FormInputText
+                                                                    label='Address'
+                                                                    disabled
+                                                                    value={data?.address ? data.address : ''}
+                                                                />
+                                                            </div>
+                                                            <div className="sm:col-span-4">
+                                                                <FormInputText
+                                                                    label='Date of Birth'
+                                                                    disabled
+                                                                    value={data?.dateOfBirth ? data.dateOfBirth : ''}
+                                                                />
+                                                                <FormError nbsp></FormError>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div className="sm:col-span-3 flex gap-x-4 mb-4">
+                                                    <ButtonFilled onClick={() => setIsEditing(true)} >
+                                                        <PencilIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                        Edit Profile
+                                                    </ButtonFilled>
+                                                </div>
                                             </div>
-                                            <div className='sm:col-span-4'>
-                                                <FormInputText
-                                                    label='Email'
-                                                    autoFocus
-                                                    value={email}
-                                                    onChange={(e) => setEmail(e.target.value)}
-                                                />
+                                        )
+                                        : (
+                                            <div>
+                                                <div>
+                                                    <div className="grid grid-cols-1 gap-x-6 gap-y-8">
+                                                        <div className="flex flex-col gap-x-6 gap-y-8">
+                                                            <div className="col-span-1">
+                                                                <FormInputText
+                                                                    label='First Name'
+                                                                    autoFocus
+                                                                    value={data?.firstName ? data.firstName : ''}
+                                                                    onChange={(e) => setData({ ...data, firstName: e.target.value })}
+                                                                />
+                                                            </div>
+                                                            <div className="col-span-1">
+                                                                <FormInputText
+                                                                    label='Last Name'
+                                                                    value={data?.lastName ? data.lastName : ''}
+                                                                    onChange={(e) => setData({ ...data, lastName: e.target.value })}
+                                                                />
+                                                            </div>
+                                                            <div className="col-span-1">
+                                                                <FormInputText
+                                                                    label='Email'
+                                                                    disabled
+                                                                    value={data?.email ? data.email : ''}
+                                                                />
+                                                            </div>
+                                                            <div className="col-span-1">
+                                                                <FormInputText
+                                                                    label='Phone'
+                                                                    value={data?.phone ? data.phone : ''}
+                                                                    onChange={(e) => setData({ ...data, phone: e.target.value })}
+                                                                />
+                                                            </div>
+                                                            <div className="col-span-1">
+                                                                <FormInputText
+                                                                    label='Address'
+                                                                    value={data?.address ? data.address : ''}
+                                                                    onChange={(e) => setData({ ...data, address: e.target.value })}
+                                                                />
+                                                            </div>
+                                                            <div className="col-span-1">
+                                                                <FormInputDate
+                                                                    label='Date of Birth'
+                                                                    value={data?.dateOfBirth ? data.dateOfBirth : ''}
+                                                                    onChange={(e) => setData({ ...data, dateOfBirth: e.target.value })}
+                                                                />
+                                                                <FormError nbsp></FormError>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-x-4 mb-4">
+                                                    <ButtonOutlined onClick={() => setIsEditing(false)}>
+                                                        Cancel
+                                                    </ButtonOutlined>
+                                                    <ButtonFilled onClick={saveProfile}>
+                                                        Save Profile
+                                                    </ButtonFilled>
+                                                </div>
                                             </div>
-                                            <div className='sm:col-span-4'>
-                                                <FormInputText
-                                                    label='Phone'
-                                                    autoFocus
-                                                    value={phone}
-                                                    onChange={(e) => setPhone(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className='sm:col-span-4'>
-                                                <FormInputText
-                                                    label='Address'
-                                                    autoFocus
-                                                    value={address}
-                                                    onChange={(e) => setAddress(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className='sm:col-span-4'>
-                                                <FormInputText
-                                                    label='Date of Birth'
-                                                    autoFocus
-                                                    value={dob}
-                                                    onChange={(e) => setDob(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className='sm:col-span-4'>
-                                                <FormInputPassword
-                                                    label='Password'
-                                                />
-                                            </div>
-                                            <div className='sm:col-span-3 flex gap-x-4'>
-                                                <ButtonFilled
-                                                    onClick={handleSaveClick}
-                                                >
-                                                    Save Profile
-                                                </ButtonFilled>
-                                                <ButtonOutlined
-                                                    action={handleCancelClick}
-                                                >
-                                                    Cancel
-                                                </ButtonOutlined>
-                                            </div>
-                                        </div>
-                                    )
+                                        )
                                     }
                                 </article >
                             </div >
                         </section >
-                        <section className='pb-5 border-b border-gray-200 mb-5'>
-                            <div className='flex items-center justify-between mb-4'>
-                                <div className='flex items-center '>
-                                    <HeartIcon className='-ml-0.5 mr-1.5 h-5 w-5' aria-hidden='true' />
-                                    <p className='text-xl font-semibold'>
+                        <section className="pb-5 border-b border-gray-200 mb-5">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center ">
+                                    <HeartIcon className="-ml-0.5 mr-1.5 h-6 w-6" aria-hidden="true" />
+                                    <p className="text-xl font-semibold">
                                         Favorites
                                     </p>
                                 </div>
                                 <a
-                                    href='#'
+                                    href="#"
                                     onClick={(e) => {
                                         e.preventDefault();
                                         navigate('/favorite');
                                     }}
-                                    className='text-sm font-semibold leading-6 txt-primary hover:txt-primary-hover mr-6'
+                                    className="text-sm font-semibold leading-6 txt-primary hover:txt-primary-hover mr-6"
                                 >
                                     View All
-                                    <span aria-hidden='true'>
+                                    <span aria-hidden="true">
 
                                     </span>
                                 </a>
                             </div>
-                            <div className='flex flex-col py-6 md:top-6 max-h-96 overflow-y-auto rounded-lg'>
-                                <div className='grid grid-cols-1 md:grid-cols-2 gap-6 w-full flex-grow'>
+                            <div className="flex flex-col py-6 md:top-6 max-h-96 overflow-y-auto rounded-lg">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full flex-grow">
                                     {properties.map((property, index) => (
                                         <CardFavorite
                                             key={index}
@@ -420,31 +390,31 @@ function Profile() {
                                 </div>
                             </div>
                         </section>
-                        <section className='pb-5 mb-5'>
-                            <div className='flex items-center mb-4'>
-                                <CalendarIcon className='-ml-0.5 mr-1.5 h-5 w-5' aria-hidden='true' />
-                                <p className='text-xl font-semibold'>
+                        <section className="pb-5 mb-5">
+                            <div className="flex items-center mb-4">
+                                <CalendarIcon className="-ml-0.5 mr-1.5 h-6 w-6" aria-hidden="true" />
+                                <p className="text-xl font-semibold">
                                     Appointments
                                 </p>
                             </div>
-                            <div className='flex flex-col py-6 md:top-6 rounded-lg'>
-                                <div className='grid grid-cols-1 md:grid-cols-2 gap-6 w-full flex-grow'>
+                            <div className="flex flex-col py-6 md:top-6 rounded-lg">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full flex-grow">
                                     <CardAppointment
-                                        title='House Meeting'
+                                        title="House Meeting"
                                         status={0}
-                                        date='12/08/2023'
+                                        date="12/08/2023"
                                     >
                                     </CardAppointment>
                                     <CardAppointment
-                                        title='Owner Meeting'
+                                        title="Owner Meeting"
                                         status={2}
-                                        date='08/08/2023'
+                                        date="08/08/2023"
                                     >
                                     </CardAppointment>
                                     <CardAppointment
-                                        title='Room Tour'
+                                        title="Room Tour"
                                         status={1}
-                                        date='06/08/2023'
+                                        date="06/08/2023"
                                     >
                                     </CardAppointment>
                                 </div>
@@ -452,9 +422,9 @@ function Profile() {
                         </section>
                     </div>
                 </div>
-            </Layout >
-        </AuthChecker>
-    );
+            </Layout>
+        );
+    }
 };
 
 export default Profile;

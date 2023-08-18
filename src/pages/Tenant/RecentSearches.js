@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 
 /* Component Imports */
 import Layout from 'components/layout/Layout';
@@ -13,9 +14,8 @@ import AuthContext from 'contexts/AuthContext';
 
 /* Utility Imports */
 import Axios from 'utils/Axios';
-import { useNavigate } from 'react-router';
 
-function Favorites() {
+function RecentSearches() {
 
     /* useState */
     const [properties, setProperties] = useState([]);
@@ -42,7 +42,7 @@ function Favorites() {
     useEffect(() => {
         if (!rendered) return;
         setLoading(true);
-        Axios.get(`/api/tenant/${auth?.id}/favourites`)
+        Axios.get(`/api/tenant/${auth?.id}/recents`)
             .then(res => {
                 if (res.status === 200) {
                     setProperties(res.data);
@@ -83,7 +83,7 @@ function Favorites() {
 
     return (
         <Layout>
-            <Heading title="My Favorites" />
+            <Heading title="My Recent Searches" />
             <section className='py-10 border-b border-gray-200 mb-24'>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full flex-grow">
                     {
@@ -104,4 +104,4 @@ function Favorites() {
     );
 }
 
-export default Favorites;
+export default RecentSearches;

@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 
+/* Icon Imports */
 import UserIconWithTag from './UserIconWithTag';
-import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
+import SmsIcon from '@mui/icons-material/Sms';
+import CommentForm from './CommentForm';
 
 function Comment({ userPhotoUrl, username, date, text }) {
+
+    /* useState */
+    const [isReplied, setIsReplied] = useState(false);
+    const [newReply, setNewReply] = useState('');
+
+    /* Functions */
+    const submitReply = () => {
+        console.log('Reply');
+    };
 
     return (
         <div>
@@ -30,11 +41,19 @@ function Comment({ userPhotoUrl, username, date, text }) {
                 <div className="flex items-center mt-4 space-x-4">
                     <button
                         type="button"
-                        className="flex items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
-                        <ChatBubbleLeftEllipsisIcon className='mr-1 w-4 h-4' />
+                        className="flex items-center text-sm text-gray-500
+                            hover:underline dark:text-gray-400"
+                        onClick={() => setIsReplied(!isReplied)}>
+                        <SmsIcon style={{ fontSize: '18px', marginRight: '5px' }} />
                         Reply
                     </button>
                 </div>
+                {
+                    isReplied &&
+                    <CommentForm
+                        comment={newReply} setComment={setNewReply}
+                        handleSubmit={submitReply} type='reply' />
+                }
             </article>
         </div>
     );

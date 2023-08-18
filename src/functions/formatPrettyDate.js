@@ -6,7 +6,7 @@ function formatPrettyDate(inputDate) {
 
     const parts = inputDate.split('-');
     const year = parts[0];
-    const monthIndex = parseInt(parts[1]) - 1; // Months are zero-based in JavaScript
+    const monthIndex = parseInt(parts[1]) - 1;
     const day = parts[2];
 
     return `${day} ${months[monthIndex]} ${year}`;

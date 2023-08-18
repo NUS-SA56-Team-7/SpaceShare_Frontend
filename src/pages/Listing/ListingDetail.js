@@ -27,11 +27,14 @@ import Axios from 'utils/Axios';
 
 /* Icon Imports */
 import { HeartIcon, CalendarIcon, CheckIcon } from '@heroicons/react/24/outline';
-import axios from 'axios';
+
+/* Function Imports */
+import formatPrettyDateTime from 'functions/formatPrettyDateTime';
 
 function ListingDetail() {
 
     /* useState */
+    const [rendered, setRendered] = useState(false);
     const [data, setData] = useState({});
     const [error, setError] = useState();
     const [loading, setLoading] = useState(false);
@@ -51,15 +54,20 @@ function ListingDetail() {
     /* Functions */
     const addToFavorite = (e) => {
         e.stopPropagation();
+
+        if (!auth) {
+            navigate('/login');
+            return;
+        }
+
         if (!isFavorite) {
-            Axios.post('api/favourite/create',
+            Axios.post('/api/favourite/create',
                 {
                     tenantId: auth?.id,
                     propertyId: parseInt(propertyId)
                 },
-                {
-                    headers: { 'Content-Type': 'application/json' }
-                })
+                { headers: { 'Content-Type': 'application/json' } }
+            )
                 .then(res => {
                     if (res.status === 201) {
                         setIsFavorite(true);
@@ -98,27 +106,33 @@ function ListingDetail() {
 
     /* useEffect */
     useEffect(() => {
-        setLoading(true);
-        Axios.get(`/api/property/${propertyId}`)
-            .then(res => {
-                if (res.status === 200) {
-                    setData(res.data);
-                }
-                setLoading(false);
-            })
-            .catch(err => {
-                if (err.response.status === 404) {
-                    setError(err.response.data);
-                }
-                else if (err.response.status === 500) {
-                    setError(err.response.data);
-                }
-                setLoading(false);
-            })
+        setRendered(true);
     }, []);
 
     useEffect(() => {
-        Axios.patch(`api/property/${propertyId}/views`)
+        if (rendered) {
+            setLoading(true);
+            Axios.get(`/api/property/${propertyId}`)
+                .then(res => {
+                    if (res.status === 200) {
+                        setData(res.data);
+                    }
+                    setLoading(false);
+                })
+                .catch(err => {
+                    if (err.response.status === 404) {
+                        setError(err.response.data);
+                    }
+                    else if (err.response.status === 500) {
+                        setError(err.response.data);
+                    }
+                    setLoading(false);
+                })
+        }
+    }, [rendered]);
+
+    useEffect(() => {
+        Axios.patch(`/api/property/${propertyId}/views`)
             .then(res => {
                 if (res.status === 200) {
                     // setData(res.data);
@@ -136,7 +150,7 @@ function ListingDetail() {
     }, []);
 
     useEffect(() => {
-        if (auth?.id) {
+        if (rendered && auth?.userType === 'tenant') {
             Axios.get(`/api/tenant/${auth?.id}/favourites/id`)
                 .then(res => {
                     if (res.status === 200) {
@@ -152,24 +166,43 @@ function ListingDetail() {
                     }
                 })
         }
-    }, [auth]);
+    }, [rendered, auth]);
 
     useEffect(() => {
-        Axios.get(`api/property/${parseInt(propertyId)}/comments`)
-            .then(res => {
-                if (res.status === 200) {
-                    setComments(res.data);
-                }
-            })
-            .catch(err => {
-                if (err.response.status === 404) {
+        if (rendered && auth?.userType === 'tenant') {
+            Axios.post(`/api/tenant/${auth?.id}/recent/create`,
+                {
+                    propertyId: propertyId
+                },
+                { headers: { 'Content-Type': 'application/json' } }
+            )
+                .then(res => {
+                    console.log(res?.data);
+                })
+                .catch(err => {
                     setError(err.response.data);
-                }
-                else if (err.response.status === 500) {
-                    setError(err.response.data);
-                }
-            })
-    }, []);
+                })
+        }
+    }, [rendered, auth]);
+
+    useEffect(() => {
+        if (rendered) {
+            Axios.get(`/api/property/${parseInt(propertyId)}/comments`)
+                .then(res => {
+                    if (res.status === 200) {
+                        setComments(res.data);
+                    }
+                })
+                .catch(err => {
+                    if (err.response.status === 404) {
+                        setError(err.response.data);
+                    }
+                    else if (err.response.status === 500) {
+                        setError(err.response.data);
+                    }
+                })
+        }
+    }, [rendered]);
 
     const propertyAmenities = [
         'Shower',
@@ -248,36 +281,40 @@ function ListingDetail() {
                                         </div>
                                     </li>
 
-                                    <li className="flex flex-col md:flex-row py-6 justify-around">
-                                        <span className="flex-1">
-                                            <ButtonOutlined onClick={addToFavorite}>
-                                                {isFavorite
-                                                    ? (
-                                                        <div className="flex items-center">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="rgb(220, 38, 38)" className="-ml-0.5 mr-1.5 h-5 w-5">
-                                                                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                                                            </svg>
-                                                            <span className="text-red-600">
-                                                                Saved
-                                                            </span>
-                                                        </div>
-                                                    )
-                                                    : (
-                                                        <div className="flex items-center">
-                                                            <HeartIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-                                                            Save
-                                                        </div>
-                                                    )}
-                                            </ButtonOutlined>
-                                        </span>
+                                    {
+                                        auth?.userType === 'tenant' &&
+                                        <li className="flex flex-col md:flex-row py-6 justify-around">
+                                            <span className="flex-1">
+                                                <ButtonOutlined onClick={addToFavorite}>
+                                                    {isFavorite
+                                                        ? (
+                                                            <div className="flex items-center">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="rgb(220, 38, 38)" className="-ml-0.5 mr-1.5 h-5 w-5">
+                                                                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                                                                </svg>
+                                                                <span className="text-red-600">
+                                                                    Saved
+                                                                </span>
+                                                            </div>
+                                                        )
+                                                        : (
+                                                            <div className="flex items-center">
+                                                                <HeartIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+                                                                Save
+                                                            </div>
+                                                        )}
+                                                </ButtonOutlined>
+                                            </span>
 
-                                        <span className="ml-0 mt-3 flex-1 md:ml-3 md:mt-0">
-                                            <ButtonOutlined action="">
-                                                <CalendarIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
-                                                Appointment
-                                            </ButtonOutlined>
-                                        </span>
-                                    </li>
+                                            <span className="ml-0 mt-3 flex-1 md:ml-3 md:mt-0">
+                                                <ButtonOutlined action="">
+                                                    <CalendarIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                    Appointment
+                                                </ButtonOutlined>
+                                            </span>
+                                        </li>
+                                    }
+
                                     <li className="flex flex-col pt-2 pb-6">
                                         <UserIconWithTag
                                             userPhotoUrl={data?.renter?.photoUrl}
@@ -295,18 +332,21 @@ function ListingDetail() {
 
                 <div className="my-8 pb-8 border-b border-gray-200">
                     <Heading title="Location" />
-                    <GoogleMap
-                        apiKey={process.env.REACT_APP_GOOGLE_API_KEY}
-                        query={`Singapore ${data['postalCode'] && data['postalCode']}`}
-                        zoom={17} />
+                    {
+                        rendered &&
+                        <GoogleMap
+                            apiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+                            query={`Singapore ${data['postalCode'] && data['postalCode']}`}
+                            zoom={17} />
+                    }
                 </div>
 
                 <div className="my-8 pb-8 border-b border-gray-200">
-                    <Heading
-                        title="Comments"
-                    />
+                    <Heading title="Comments" />
                     <div className='my-6'>
-                        <CommentForm comment={newComment} setComment={setNewComment} handleSubmit={submitComment} />
+                        <CommentForm
+                            comment={newComment} setComment={setNewComment}
+                            handleSubmit={submitComment} type='comment' />
                         {
                             (comments.length === 0)
                                 ? <p>There are no comments yet</p>
@@ -315,8 +355,8 @@ function ListingDetail() {
                                         key={index}
                                         userPhotoUrl='https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/b2a0f028-f3a9-4fd5-92a2-f75d028c884e/d32mwam-ac62a6e4-de96-46a1-b4ec-15b1138b8937.jpg/v1/fill/w_1280,h_960,q_75,strp/tom_cruise_as_a_na_vi_by_scribblingangel_d32mwam-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9OTYwIiwicGF0aCI6IlwvZlwvYjJhMGYwMjgtZjNhOS00ZmQ1LTkyYTItZjc1ZDAyOGM4ODRlXC9kMzJtd2FtLWFjNjJhNmU0LWRlOTYtNDZhMS1iNGVjLTE1YjExMzhiODkzNy5qcGciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.FO7FSE9cAxLV7i9AjryAmESe-tlQkH23L00p-VKP8Ww'
                                         username='Stephen Phyo'
-                                        date="01/01/2000"
-                                        text="Comment 01"
+                                        date={formatPrettyDateTime(comment.commentAt)}
+                                        text={comment.comment}
                                     />
                                 ))
                         }

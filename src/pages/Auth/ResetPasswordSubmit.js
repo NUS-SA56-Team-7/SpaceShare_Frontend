@@ -64,16 +64,15 @@ function ResetPasswordSubmit() {
         if (Object.keys(err).length !== 0) {
             setError(err);
         } else {
-            // navigate(`/resetpassword/${params.id}/success`);
             Axios.patch(`/accounts/resetpassword/${params.id}/reset`,
                 {
                     password: password,
-                    token: location?.state.token
                 },
                 { headers: { 'Content-Type': 'application/json' } }
             )
                 .then(res => {
-                    if (res.status === 200) navigate(`/resetpassword/${params.id}/success`)
+                    if (res.status === 200)
+                        navigate(`/resetpassword/${params.id}/success`)
                 })
                 .catch(err => {
                     console.log(err);

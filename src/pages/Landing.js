@@ -9,6 +9,7 @@ import Loader from 'components/Loader/Loader';
 
 /* Context Imports */
 import AuthContext from 'contexts/AuthContext';
+import SearchContext from 'contexts/SearchContext';
 
 /* Utility Imports */
 import Axios from 'utils/Axios';
@@ -19,21 +20,34 @@ function Landing() {
     const navigate = useNavigate();
 
     /* useState */
+    const [rendered, setRendered] = useState(false);
     const [properties, setProperties] = useState([]);
+    const [favorites, setFavorites] = useState([]);
     const [error, setError] = useState();
     const [loading, setLoading] = useState(false);
-    const [favorites, setFavorites] = useState([]);
 
     /* useContext */
     const { auth } = useContext(AuthContext);
+    const { searchKeyword, setSearchKeyword } = useContext(SearchContext);
+
+    /* Functions */
+    const search = () => {
+        navigate('/search');
+    };
 
     /* useEffect */
     useEffect(() => {
+        setRendered(true);
+    }, []);
+
+    useEffect(() => {
+        if (!rendered) return;
+
         setLoading(true);
         Axios.get('/api/property')
             .then(res => {
                 if (res.status === 200) {
-                    setProperties(res.data);
+                    setProperties(res.data.data.content);
                 }
                 setLoading(false);
             })
@@ -46,9 +60,11 @@ function Landing() {
                 }
                 setLoading(false);
             })
-    }, []);
+    }, [rendered]);
 
     useEffect(() => {
+        if (!rendered) return;
+
         if (auth?.id) {
             Axios.get(`/api/tenant/${auth?.id}/favourites/id`)
                 .then(res => {
@@ -65,11 +81,7 @@ function Landing() {
                     }
                 })
         }
-    }, [auth]);
-
-    useEffect(() => {
-        console.log(favorites.indexOf(1) !== -1);
-    }, [favorites]);
+    }, [rendered, auth]);
 
     if (loading) {
         return <Loader />
@@ -77,11 +89,12 @@ function Landing() {
     else {
         return (
             <Layout>
-                <SearchForm>
+                <SearchForm
+                    searchKeyword={searchKeyword}
+                    setSearchKeyword={setSearchKeyword}
+                    search={search} />
 
-                </SearchForm>
-
-                <section className='pb-10 border-b border-gray-200 mt-4 mb-4'>
+                <section className='pb-10 border-b border-gray-200 mt-6 mb-4'>
                     <div className='mx-auto lg:mx-0 pb-8 mb-4 border-b border-gray-200'>
                         <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>
                             Latest Rental Properties
@@ -118,7 +131,7 @@ function Landing() {
                 </section>
 
                 {
-                    auth?.userType === 'TENANT' &&
+                    auth?.userType === 'tenant' &&
                     <section>
                         <div className='mx-auto lg:mx-0 pb-8 mb-4 border-b border-gray-200'>
                             <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mt-2'>
