@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { useState, useEffect } from 'react';
-import Axios from 'utils/Axios';
 
 import AdminLayout from 'components/Admin/AdminLayout';
 import ButtonFilled from 'components/ui/ButtonFilled';
@@ -11,6 +10,7 @@ import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
+import axios from 'axios';
 
 function ViewScamReports() {
     const session = {
@@ -74,32 +74,18 @@ function ViewScamReports() {
     ];
 
     const [data, setData] = useState([]);
-
-    // useEffect(() => {
-    //     fetch('https://localhost:7286/api/Scam')
-    //         .then(response => response.json())
-    //         .then(data => setData(data))
-    //         .catch(error => console.error('Error fetching data:', error));
-    // }, []);
+    const [loading, setLoading] = useState([]);
 
     useEffect(() => {
-        Axios.get('https://localhost:7286/api/Scam')
-            .then(res => {
-                setData(res.data);
-                // if (res.status === 200) {
-                //     setData(res.data);
-                // }
-                // setLoading(false);
+        axios.get('http://localhost:8000/api/scamreport')
+            .then(response => {
+                setData(response.data);
+                setLoading(false);
             })
-            .catch(err => {
-                if (err.response.status === 404) {
-                    console.log(err.response.data);
-                }
-                else if (err.response.status === 500) {
-                    console.log(err.response.data);
-                }
-                // setLoading(false);
-            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                setLoading(false);
+            });
     }, []);
 
     const approveData = (id) => {
@@ -123,10 +109,17 @@ function ViewScamReports() {
                         {/* Card Content */}
                         <div className="w-full">
 
-                            <DataTableComponent
-                                columns={columns}
-                                data={data}
-                            />
+                            {/* Data Table */}
+                            {loading ? (
+                                <p>Loading......</p>
+                            ) : (
+
+                                <DataTableComponent
+                                    columns={columns}
+                                    data={data}
+                                    pagination
+                                />
+                            )}
 
                         </div>
                     </div>

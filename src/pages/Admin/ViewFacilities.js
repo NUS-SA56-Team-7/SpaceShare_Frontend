@@ -1,4 +1,6 @@
-import { React, useState, useEffect} from 'react';
+import React from 'react';
+
+import { useState, useEffect } from 'react';
 
 import AdminLayout from 'components/Admin/AdminLayout';
 import ButtonFilled from 'components/ui/ButtonFilled';
@@ -9,6 +11,7 @@ import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
+import axios from 'axios';
 
 function ViewFacilities() {
     const session = {
@@ -52,12 +55,18 @@ function ViewFacilities() {
     ];
 
     const [data, setData] = useState([]);
+    const [loading, setLoading] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/facility/')
-            .then(response => response.json())
-            .then(data => setData(data))
-            .catch(error => console.error('Error fetching data:', error));
+        axios.get('http://localhost:8000/api/facility')
+            .then(response => {
+                setData(response.data);
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                setLoading(false);
+            });
     }, []);
 
     const updateData = (id) => {
@@ -89,10 +98,17 @@ function ViewFacilities() {
                         {/* Card Content */}
                         <div className="w-full">
                             
-                            <DataTableComponent
-                                columns={columns}
-                                data={data}
-                            />
+                            {/* Data Table */}
+                            {loading ? (
+                                <p>Loading......</p>
+                            ) : (
+
+                                <DataTableComponent
+                                    columns={columns}
+                                    data={data}
+                                    pagination
+                                />
+                            )}
 
                         </div>
                     </div>

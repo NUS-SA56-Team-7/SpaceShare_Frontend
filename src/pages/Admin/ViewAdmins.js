@@ -11,6 +11,7 @@ import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
+import axios from 'axios';
 
 function ViewAdmins() {
     const session = {
@@ -56,12 +57,18 @@ function ViewAdmins() {
     ];
 
     const [data, setData] = useState([]);
+    const [loading, setLoading] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/admin')
-            .then(response => response.json())
-            .then(data => setData(data))
-            .catch(error => console.error('Error fetching data:', error));
+        axios.get('http://localhost:8000/api/admin')
+            .then(response => {
+                setData(response.data);
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                setLoading(false);
+            });
     }, []);
 
     const updateData = (id) => {
@@ -94,10 +101,17 @@ function ViewAdmins() {
                         {/* Card Content */}
                         <div className="w-full">
 
-                            {/* Data Table Test */}
-                            <DataTableComponent
-                                columns={columns}
-                                data={data} />
+                            {/* Data Table */}
+                            {loading ? (
+                                <p>Loading......</p>
+                            ) : (
+
+                                <DataTableComponent
+                                    columns={columns}
+                                    data={data}
+                                    pagination
+                                />
+                            )}
 
                         </div>
                     </div>
