@@ -40,6 +40,7 @@ import NotFound404 from 'pages/Error/NotFound404';
 import Forms from 'pages/Forms';
 
 /* Admin */
+import AdminLogin from 'pages/Admin/AdminLogin';
 import Dashboard from 'pages/Admin/Dashboard';
 import ViewAdmins from 'pages/Admin/ViewAdmins';
 import ViewAmenities from 'pages/Admin/ViewAmenities';
@@ -125,6 +126,7 @@ function App() {
                     <Route path='/resetpassword/:user/:id/submit' element={<ResetPasswordSubmit />} />
 
                     {/* Admin */}
+                    <Route path='/admin/login' element={<AdminLogin />} />
                     <Route path='/admin/dashboard' element={<Dashboard />} />
                     <Route path='/admin/adminlist' element={<ViewAdmins />} />
                     <Route path='/admin/amenities' element={<ViewAmenities />} />

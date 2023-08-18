@@ -6,8 +6,14 @@ import AdminLayout from 'components/Admin/AdminLayout';
 import ButtonFilled from 'components/ui/ButtonFilled';
 import ButtonOutlined from 'components/ui/ButtonOutlined';
 import Heading from 'components/ui/Heading';
+import FormInputText from 'components/form/FormInputText';
+import FormError from 'components/form/FormError';
 
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+
+// Modal Import
+import UpSertModal from 'components/Admin/Modal/UpSertModal';
+import ConfirmModal from 'components/Admin/Modal/ConfirmModal';
 
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
@@ -38,13 +44,13 @@ function ViewFacilities() {
             cell: (row) => (
                 <div className="w-full flex gap-1">
                     <ButtonOutlined
-                        onClick={() => updateData(row.id)}
+                        onClick={() => setApproveModalOpen(true)}
                     >
                         <PencilIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-blue-500" aria-hidden="true" />
                         <span className="text-blue-500">Update</span>
                     </ButtonOutlined>
                     <ButtonOutlined
-                        onClick={() => deleteData(row.id)}
+                        onClick={() => setRejectModalOpen(true)}
                     >
                         <TrashIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-500" aria-hidden="true" />
                         <span className="text-red-500">Delete</span>
@@ -77,6 +83,11 @@ function ViewFacilities() {
         alert(`Delete Modal: ${id}`);
     };
 
+    // Modal Methods
+    const [modalOpen, setModalOpen] = useState(false);
+    const [approveModalOpen, setApproveModalOpen] = useState(false);
+    const [rejectModalOpen, setRejectModalOpen] = useState(false);
+
     return (
         <AdminLayout session={session}>
             <div className="flex justify-between mb-10">
@@ -85,7 +96,7 @@ function ViewFacilities() {
                 />
                 <div>
                     <ButtonFilled
-                        onClick={() => console.log('open modal')}
+                        onClick={() => setModalOpen(true)}
                     >
                         <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
                         Create New Facility
@@ -97,7 +108,7 @@ function ViewFacilities() {
                     <div className="p-8 bg-white shadow-lg rounded-lg ring-1 ring-gray-900/5">
                         {/* Card Content */}
                         <div className="w-full">
-                            
+
                             {/* Data Table */}
                             {loading ? (
                                 <p>Loading......</p>
@@ -115,6 +126,49 @@ function ViewFacilities() {
                 </div>
             </div>
 
+            {/* Approve Modal */}
+            <ConfirmModal
+                action="approve"
+                open={approveModalOpen}
+                onClose={() => setApproveModalOpen(false)}
+                title="Confirm Approval"
+                confirmText="Approve"
+                onConfirm={updateData}
+            />
+
+            {/* Reject Modal */}
+            <ConfirmModal
+                action="reject"
+                open={rejectModalOpen}
+                onClose={() => setRejectModalOpen(false)}
+                title="Confirm Rejection"
+                confirmText="Reject"
+                onConfirm={deleteData}
+            />
+
+            <UpSertModal
+                title="Create New Item"
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onSubmit={console.log('added new')}
+            >
+                <FormInputText
+                    label='Enter Name'
+                    autoFocus
+                    value={0}
+                    onChange={0}
+                    onKeyPress={0}
+                />
+                <FormError nbsp>GG</FormError>
+                <FormInputText
+                    label='Enter Id'
+                    autoFocus
+                    value={0}
+                    onChange={0}
+                    onKeyPress={0}
+                />
+                <FormError nbsp>GG</FormError>
+            </UpSertModal>
         </AdminLayout>
     );
 }

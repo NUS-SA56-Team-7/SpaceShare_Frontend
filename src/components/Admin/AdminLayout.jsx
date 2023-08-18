@@ -26,7 +26,7 @@ function AdminLayout({ session, children }) {
                     <a href="#"
                         onClick={(e) => {
                             e.preventDefault();
-                            navigate('/landing');
+                            navigate('/admin/dashboard');
                         }}>
                         <span className="sr-only">SpaceShare</span>
                         <img

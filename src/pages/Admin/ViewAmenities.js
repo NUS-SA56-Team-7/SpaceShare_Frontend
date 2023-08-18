@@ -11,6 +11,7 @@ import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 // Modal Import
 import AdminDeleteModal from 'components/Admin/AdminDeleteModal';
+import UpSertModal from 'components/Admin/Modal/UpSertModal';
 
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
@@ -137,6 +138,7 @@ function ViewAmenities() {
                     isOpen={modalIsOpen} setOpen={setModalIsOpen}
                 />
             )}
+            <UpSertModal />
         </AdminLayout>
     );
 }

@@ -8,6 +8,9 @@ import ButtonOutlined from 'components/ui/ButtonOutlined';
 import Heading from 'components/ui/Heading';
 import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
+// Modal Import
+import ConfirmModal from 'components/Admin/Modal/ConfirmModal';
+
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
 import axios from 'axios';
@@ -96,6 +99,9 @@ function ViewScamReports() {
         alert(`Decline Modal: ${id}`);
     };
 
+    // Modal Methods
+    const [modalOpen, setModalOpen] = useState(false);
+
     return (
         <AdminLayout session={session}>
             <div className="mb-10">
@@ -125,6 +131,15 @@ function ViewScamReports() {
                     </div>
                 </div>
             </div>
+
+            {/* Modal Components */}
+            <ConfirmModal
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                title="Confirm Deletion"
+                confirmText="Delete"
+                onConfirm={console.log('confirm')}
+            />
 
         </AdminLayout>
     );

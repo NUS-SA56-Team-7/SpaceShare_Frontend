@@ -30,7 +30,7 @@ const CardProperties = ({ data, deleteProperty }) => {
                         <p className="text-3xl font-semibold">
                             {data?.title}
                         </p>
-                        <div className="menu relative z-30 flex gap-x-2">
+                        <div className="menu relative z-10 flex gap-x-2">
                             <div className="w-9">
                                 <button
                                     type="button"
