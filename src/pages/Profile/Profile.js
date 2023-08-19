@@ -280,7 +280,7 @@ function Profile() {
                                                     type === 'self' &&
                                                     <div className="sm:col-span-3 flex gap-x-4 mb-4">
                                                         <ButtonFilled onClick={() => setIsEditing(true)} >
-                                                            <PencilIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                            <PencilIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-white" aria-hidden="true" />
                                                             Edit Profile
                                                         </ButtonFilled>
                                                     </div>
@@ -339,7 +339,7 @@ function Profile() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-x-4 mb-4">
+                                                <div className="flex flex-col-reverse sm:flex-row gap-4 mb-4">
                                                     <ButtonOutlined onClick={() => setIsEditing(false)}>
                                                         Cancel
                                                     </ButtonOutlined>

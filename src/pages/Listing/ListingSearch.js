@@ -35,6 +35,7 @@ const ListingSearch = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterOption, setFilterOption] = useState('all');
     const [totalPages, setTotalPages] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
 
     /* useContext */
     const { searchKeyword, setSearchKeyword } = useContext(SearchContext);
@@ -62,6 +63,7 @@ const ListingSearch = () => {
                 if (res.status === 200) {
                     setProperties(res.data.content);
                     setTotalPages(res.data.totalPages);
+                    setCurrentPage(page);
                 }
                 setLoading(false);
             })
@@ -161,10 +163,10 @@ const ListingSearch = () => {
 
     return (
         <SearchLayout>
-            <div className="mx-auto max-w-7xl">
+            <div className="mx-auto max-w-7xl px-4 lg:px-8">
                 <Heading title="Search Properties" />
             </div>
-            <div className="searchbar-container sm:col-span-1 md:col-span-12 flex items-center sticky top-0 z-50 gap-x-6 py-8">
+            <div className="searchbar-container sm:col-span-1 md:col-span-12 flex items-center sticky top-[65px] z-20 gap-x-6 px-4 lg:px-8 py-8 border-b border-opacity-5">
                 <div className="mx-auto w-full max-w-7xl">
                     <div className="grid grid-cols-1 md:grid-cols-12 items-center justify-between gap-x-2">
                         <div className="col-span-1 md:col-span-7">
@@ -269,10 +271,10 @@ const ListingSearch = () => {
                     </div>
                 </div>
             </div>
-            <div className="mx-auto max-w-7xl">
+            <div className="mx-auto max-w-7xl px-4 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-x-12 pb-12 border-b border-gray-200">
 
-                    {/* 4 Column Section */}
+                    {/* 8 Column Section */}
                     <div className="sm:col-span-1 md:col-span-8">
                         <div className="grid grid-cols-1 gap-y-8">
                             {
@@ -281,10 +283,29 @@ const ListingSearch = () => {
                                 ))
                             }
                         </div>
+                        {/* Pagination */}
+                        <div className='w-full flex items-center justify-center mt-6'>
+                            <nav className='bg-white isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination'>
+                                {
+                                    Array(totalPages).fill().map((_, index) => (
+                                        <div key={index}>
+                                            <div
+                                                className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold
+                                    text-gray-900 ring-1 ring-inset ring-gray-300
+                                    focus:z-20 focus:outline-offset-0 hover:cursor-pointer hover:bg-gray-50
+                                    ${currentPage === index && 'bg-primary text-white ring-primary hover:bg-primary'}`}
+                                                onClick={() => paginate(index)}>
+                                                {index + 1}
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                            </nav>
+                        </div>
                     </div>
 
-                    {/* 8 Column Section */}
-                    <div className="sm:col-span-1 md:col-span-4 md:pl-8 md:border-l border-gray-300">
+                    {/* 4 Column Section */}
+                    <div className="hidden md:block sm:col-span-1 md:col-span-4 md:pl-8 md:border-l border-gray-300">
                         <div className="flex flex-col md:sticky md:top-32 p-6 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5">
                             <ul role="list" className="space-y-4 border-b border-gray-200 pb-6 text-sm font-medium text-gray-900">
                                 {/* Filters */}
@@ -348,20 +369,6 @@ const ListingSearch = () => {
                     </div>
                 </div>
             </div>
-
-            <ul className='flex flex-wrap gap-0 p-0'>
-                {
-                    Array(totalPages).fill().map((_, index) => (
-                        <li key={index}>
-                            <a href="#"
-                                className='no-underline px-4 py-2 bg-blue-500 text-blackrounded-md'
-                                onClick={() => paginate(index)}>
-                                {index + 1}
-                            </a>
-                        </li>
-                    ))
-                }
-            </ul>
         </SearchLayout >
     );
 };

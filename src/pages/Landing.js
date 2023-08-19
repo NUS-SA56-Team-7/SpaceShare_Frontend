@@ -112,11 +112,22 @@ function Landing() {
                     setSearchKeyword={setSearchKeyword}
                     search={search} />
 
-                <section className='pb-10 border-b border-gray-200 mt-6 mb-4'>
-                    <div className='mx-auto lg:mx-0 pb-8 mb-4 border-b border-gray-200'>
+                <section className='pb-10 border-b border-gray-200 mt-12 mb-4'>
+                    <div className='mx-auto lg:mx-0 pb-8 mb-4 border-b border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4'>
                         <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>
                             Latest Rental Properties
                         </h2>
+                        <a
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                navigate('/favorite');
+                            }}
+                            className="text-md font-semibold leading-6 txt-primary hover:txt-primary-hover"
+                        >
+                            View All
+                            <span aria-hidden="true"></span>
+                        </a>
                     </div>
                     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full'>
                         {rentalProperties.map((property, index) => (
@@ -130,11 +141,22 @@ function Landing() {
                     </div>
                 </section>
 
-                <section className='pb-10 border-b border-gray-200 mt-4 mb-4'>
-                    <div className='mx-auto lg:mx-0 pb-8 mb-4 border-b border-gray-200'>
+                <section className='pb-10 border-b border-gray-200 mt-12 mb-4'>
+                    <div className='mx-auto lg:mx-0 pb-8 mb-4 border-b border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4'>
                         <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>
                             Latest Roommate Findings
                         </h2>
+                        <a
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                navigate('/favorite');
+                            }}
+                            className="text-md font-semibold leading-6 txt-primary hover:txt-primary-hover"
+                        >
+                            View All
+                            <span aria-hidden="true"></span>
+                        </a>
                     </div>
                     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full'>
                         {roommateFindings.map((property, index) => (

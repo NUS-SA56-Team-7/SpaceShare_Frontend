@@ -18,8 +18,8 @@ const UserIconWithTag = ({ userPhotoUrl, username, userId, userType, status }) =
     };
 
     return (
-        <div className="grid grid-cols-2 my-4 items-center">
-            <div className="flex items-center hover:border hover:border-blue-500 cursor-pointer"
+        <div className="my-4 items-center">
+            <div className="flex items-center text-gray-800 hover:txt-primary cursor-pointer"
                 onClick={(e) => viewProfile(e)}>
                 <div className="relative flex rounded-full text-sm">
                     <span className="absolute -inset-1.5" />
@@ -30,7 +30,7 @@ const UserIconWithTag = ({ userPhotoUrl, username, userId, userType, status }) =
                     />
                 </div>
 
-                <p className="ml-2 text-gray-800 line-clamp-1 text-sm">
+                <p className="ml-2 hover:txt-primary line-clamp-1 text-sm">
                     {username}
                 </p>
             </div>

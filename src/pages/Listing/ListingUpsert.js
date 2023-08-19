@@ -33,6 +33,7 @@ import NotFound404 from 'pages/Error/NotFound404';
 
 /* Icon Imports */
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
+import ButtonOutlined from 'components/ui/ButtonOutlined';
 
 function ListingUpsert() {
 
@@ -421,7 +422,7 @@ function ListingUpsert() {
                             </div>
 
 
-                            <div className="col-span-1 md:col-span-6">
+                            <div className="col-span-1 md:col-span-6 md:mr-4">
                                 <FormInputNumber
                                     label='Enter Rental Fees'
                                     value={data['rentalFees']}
@@ -461,7 +462,9 @@ function ListingUpsert() {
                             </div>
 
                             <div className="col-span-1 md:col-span-12">
-                                <label htmlFor="nearby">Nearby Description</label>
+                                <label htmlFor="nearby" className='block text-sm font-medium leading-6 text-gray-900'>
+                                    Nearby Description
+                                </label>
                                 <div className="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200">
                                     <textarea
                                         // id="comment"
@@ -590,8 +593,8 @@ function ListingUpsert() {
                                         ))}
                                     </div>
                                 )}
+                                <FormError nbsp>{error?.amenities}</FormError>
                             </div>
-                            <FormError nbsp>{error?.amenities}</FormError>
 
                             <div className="col-span-1 md:col-span-12 mt-1">
                                 <label className="block text-sm font-medium leading-6 text-gray-900">
@@ -630,8 +633,8 @@ function ListingUpsert() {
                                         ))}
                                     </div>
                                 )}
+                                <FormError nbsp>{error?.facilities}</FormError>
                             </div>
-                            <FormError nbsp>{error?.facilities}</FormError>
 
                             <div className="col-span-1 md:col-span-12">
                                 <ButtonFilled
@@ -642,10 +645,10 @@ function ListingUpsert() {
                                 </ButtonFilled>
                             </div>
                             <div className="col-span-1 md:col-span-12 mt-1">
-                                <ButtonFilled
+                                <ButtonOutlined
                                     onClick={() => navigate(`/${paramUser}/properties`)}>
                                     Cancel
-                                </ButtonFilled>
+                                </ButtonOutlined>
                             </div>
 
                         </div >

@@ -87,7 +87,7 @@ function Card(props) {
     return (
         <div className="relative mx-auto w-full">
             <div className='relative inline-block duration-300 ease-in-out transition-transform
-                transform hover:-translate-y-2 w-full cursor-pointer'
+                transform hover:-translate-y-2 w-full h-full cursor-pointer'
                 onClick={() => navigate(`/listing/${props.data?.id}`)}>
                 <div className="flex flex-col shadow p-4 rounded-lg bg-white h-full">
                     <div className="flex justify-center relative rounded-lg overflow-hidden h-52">
@@ -148,20 +148,22 @@ function Card(props) {
                             {`S$ ${props?.data?.rentalFees}`}
                         </p>
                     </div>
-                    <UserIconWithTag
-                        userId={props.data?.postType === 'ROOM_RENTAL'
-                            ? props.data?.renter?.id
-                            : props.data?.postType === 'ROOMMATE_FINDING' && props.data?.tenant?.id}
-                        userType={props.data?.postType === 'ROOM_RENTAL'
-                            ? 'renter'
-                            : props.data?.postType === 'ROOMMATE_FINDING' && 'tenant'}
-                        userPhotoUrl={props.data?.postType === 'ROOM_RENTAL'
-                            ? props.data?.renter?.photoUrl
-                            : props.data?.postType === 'ROOMMATE_FINDING' && props.data?.tenant?.photoUrl}
-                        username={props.data?.postType === 'ROOM_RENTAL'
-                            ? `${props.data?.renter?.firstName} ${props.data?.renter?.lastName}`
-                            : props.data?.postType === 'ROOMMATE_FINDING' && `${props.data?.tenant?.firstName} ${props.data?.tenant?.lastName}`}>
-                    </UserIconWithTag>
+                    <div className='mt-auto'>
+                        <UserIconWithTag
+                            userId={props.data?.postType === 'ROOM_RENTAL'
+                                ? props.data?.renter?.id
+                                : props.data?.postType === 'ROOMMATE_FINDING' && props.data?.tenant?.id}
+                            userType={props.data?.postType === 'ROOM_RENTAL'
+                                ? 'renter'
+                                : props.data?.postType === 'ROOMMATE_FINDING' && 'tenant'}
+                            userPhotoUrl={props.data?.postType === 'ROOM_RENTAL'
+                                ? props.data?.renter?.photoUrl
+                                : props.data?.postType === 'ROOMMATE_FINDING' && props.data?.tenant?.photoUrl}
+                            username={props.data?.postType === 'ROOM_RENTAL'
+                                ? `${props.data?.renter?.firstName} ${props.data?.renter?.lastName}`
+                                : props.data?.postType === 'ROOMMATE_FINDING' && `${props.data?.tenant?.firstName} ${props.data?.tenant?.lastName}`}>
+                        </UserIconWithTag>
+                    </div>
                 </div>
             </div>
         </div>

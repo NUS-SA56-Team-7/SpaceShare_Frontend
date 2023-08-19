@@ -8,7 +8,7 @@ const SearchLayout = ({ children }) => {
         <div>
             <Header></Header>
             {/* Main Content */}
-            <div className="py-16 px-4 sm:py-24 lg:px-8">
+            <div className="py-16 sm:py-24">
                 {children}
             </div>
             <Footer></Footer>

@@ -39,6 +39,14 @@ body {
     background-color: var(--primary-color);
 }
 
+.border-primary {
+    border-color: var(--primary-color);
+}
+
+.ring-primary {
+    --tw-ring-color: var(--primary-color);
+}
+
 .focus\:ring-primary:focus {
     --tw-ring-opacity: 1;
     --tw-ring-color: var(--primary-color);
@@ -52,4 +60,8 @@ body {
 .hover\:border-primary:hover {
     --tw-border-opacity: 1;
     border-color: var(--primary-color);
+}
+
+.hover\:bg-primary:hover {
+    background-color: var(--primary-color-hover);
 }

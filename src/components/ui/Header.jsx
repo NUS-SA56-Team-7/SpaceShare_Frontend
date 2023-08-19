@@ -78,7 +78,7 @@ function Header() {
 
                             {/* Profile Dropdown */}
                             {auth &&
-                                <Menu as="div" className="relative ml-3 hidden md:block">
+                                <Menu as="div" className="relative ml-3 hidden md:block z-[100]">
                                     <div>
                                         <Menu.Button className="relative flex rounded-full bg-primary text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-green-700">
                                             <span className="absolute -inset-1.5" />
@@ -96,7 +96,7 @@ function Header() {
                                         leave="transition ease-in duration-75"
                                         leaveFrom="transform opacity-100 scale-100"
                                         leaveTo="transform opacity-0 scale-95">
-                                        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                        <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                                             <Menu.Item>
                                                 {({ active }) => (
                                                     <div className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer')}
@@ -193,7 +193,7 @@ function Header() {
                 </div>
             </nav>
             <Transition.Root show={open} as={Fragment}>
-                <Dialog as="div" className="relative z-10" onClose={setOpen}>
+                <Dialog as="div" className="relative z-[100]" onClose={setOpen}>
                     <Transition.Child
                         as={Fragment}
                         enter="ease-in-out duration-500"
@@ -256,7 +256,21 @@ function Header() {
                                                                 <img className="h-16 w-16 rounded-full object-cover object-center" src={auth?.photoUrl ? auth.photoUrl : avatar} alt="" />
                                                                 <div>
                                                                     <h3 className="text-base font-semibold leading-7 tracking-tight text-gray-900">{auth?.firstName} {auth?.lastName}</h3>
-                                                                    <p className="text-sm font-semibold leading-6 txt-primary">Verified</p>
+                                                                    <p className="text-sm font-semibold leading-6 txt-primary">
+                                                                        {
+                                                                            auth?.status === 'ACTIVE'
+                                                                                ? (
+                                                                                    <span className='txt-primary'>
+                                                                                        Active
+                                                                                    </span>
+                                                                                )
+                                                                                : auth?.status === 'INACTIVE' && (
+                                                                                    <span className='text-red-600'>
+                                                                                        Inactive
+                                                                                    </span>
+                                                                                )
+                                                                        }
+                                                                    </p>
                                                                 </div>
                                                                 <div className="ml-auto">
                                                                     <a
