@@ -8,6 +8,10 @@ import Heading from 'components/ui/Heading';
 /* Utility Imports */
 import Axios from 'utils/Axios';
 
+/* Report Generate Modal Import */
+import ReportGenerateModal from 'components/Admin/Modal/ReportGenerateModal';
+import { DocumentChartBarIcon } from '@heroicons/react/24/outline';
+
 function Dashboard() {
     const session = {
         // Replace with your session data
@@ -72,12 +76,23 @@ function Dashboard() {
             })
     };
 
+    // Report Generator
+    const [modalOpen, setModalOpen] = useState(false);
+
     return (
         <AdminLayout session={session}>
-            <div className="mb-10">
+            <div className="flex justify-between mb-10">
                 <Heading
                     title="Dashboard"
                 />
+                <div>
+                    <ButtonFilled
+                        onClick={() => setModalOpen(true)}
+                    >
+                        <DocumentChartBarIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
+                        Generate Reports
+                    </ButtonFilled>
+                </div>
             </div>
             <div className="grid grid-cols-12 gap-x-6 gap-y-12">
                 <div className="col-span-4">
@@ -355,6 +370,12 @@ function Dashboard() {
                     </div>
                 </div>
             </div>
+
+            {/* Report Generate Modal */}
+            <ReportGenerateModal
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+            />
 
         </AdminLayout>
     );

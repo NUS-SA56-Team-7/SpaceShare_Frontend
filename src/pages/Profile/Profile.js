@@ -146,7 +146,7 @@ function Profile() {
         return (
             <Layout>
                 <div className="mb-10">
-                    <Heading title="My Profile" />
+                    <Heading title="Profile" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12 rounded-lg p-8 py-0 border border-gray-300">
 
