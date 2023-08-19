@@ -30,9 +30,6 @@ function AdminLogin() {
     /* useLocation */
     const location = useLocation();
 
-    /* useParams */
-    const { user } = useParams();
-
     /* useContext */
     const { email: ctxEmail } = useContext(EmailContext);
     const { setAuth } = useContext(AuthContext);
@@ -75,16 +72,16 @@ function AdminLogin() {
     };
 
     const login = () => {
-        const api = `/api/auth/login/${user}`;
+        const api = `/api/auth/login/admin`;
         if (checkData()) {
             Axios.post(api, data,
                 { headers: { 'Content-Type': 'application/json' } })
                 .then(res => {
                     if (res.status === 200) {
-                        const data = { ...res.data, userType: user };
+                        const data = { ...res.data, userType: 'admin' };
                         setAuth(data);
                         sessionStorage.setItem('auth', JSON.stringify(data));
-                        navigate('/');
+                        navigate('/admin/dashboard');
                     }
                 })
                 .catch(err => {

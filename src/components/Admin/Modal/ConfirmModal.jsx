@@ -1,6 +1,6 @@
 import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline'
+import { CheckCircleIcon, XCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
 import ButtonFilled from 'components/ui/ButtonFilled'
 import ButtonOutlined from 'components/ui/ButtonOutlined'
 
@@ -39,14 +39,19 @@ export default function ConfirmModal({ action, open, onClose, title, confirmText
                                 <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                                     <div className="flex flex-col items-center">
                                         {
-                                            action === 'approve' ?
-                                                <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-green-100">
-                                                    <CheckCircleIcon className="h-14 w-14 text-green-600" aria-hidden="true" />
-                                                </div>
-                                                :
-                                                <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-red-100">
-                                                    <XCircleIcon className="h-14 w-14 text-red-600" aria-hidden="true" />
-                                                </div>
+                                            action === 'approve' ? (
+                                                    <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-green-100">
+                                                        <CheckCircleIcon className="h-14 w-14 text-green-600" aria-hidden="true" />
+                                                    </div>
+                                                ) : action === 'decline' ? (
+                                                    <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-red-100">
+                                                        <XCircleIcon className="h-14 w-14 text-red-600" aria-hidden="true" />
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-red-100">
+                                                        <TrashIcon className="h-14 w-14 text-red-600" aria-hidden="true" />
+                                                    </div>
+                                                )
                                         }
                                         <div className="mt-3 text-center">
                                             <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
@@ -54,7 +59,8 @@ export default function ConfirmModal({ action, open, onClose, title, confirmText
                                             </Dialog.Title>
                                             <div className="mt-2">
                                                 <p className="text-sm text-gray-500">
-                                                    Are you sure you want to confirm?
+                                                    Are you sure you want to {' '}
+                                                    { action === 'approve' ? 'approve?' : action === 'decline' ? 'decline?' : 'delete?' }
                                                 </p>
                                             </div>
                                         </div>

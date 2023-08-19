@@ -18,6 +18,12 @@ function AdminLayout({ session, children }) {
     /* useNavigate */
     const navigate = useNavigate();
 
+    /* Functions */
+    const logout = () => {
+        sessionStorage.removeItem('auth');
+        // setAuth(null);
+    };
+
     return (
         <div className="flex h-screen">
             {/* Sidebar */}
@@ -227,7 +233,7 @@ function AdminLayout({ session, children }) {
                                             <Menu.Item>
                                                 {({ active }) => (
                                                     <div className={classNames(active ? 'bg-gray-100 cursor-pointer' : '', 'block px-4 py-2 text-sm text-gray-700')}
-                                                        onClick={() => console.log('logout')}>
+                                                        onClick={() => logout()}>
                                                         Logout
                                                     </div>
                                                 )}

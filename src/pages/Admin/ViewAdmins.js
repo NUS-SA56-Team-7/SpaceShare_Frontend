@@ -6,12 +6,23 @@ import AdminLayout from 'components/Admin/AdminLayout';
 import ButtonFilled from 'components/ui/ButtonFilled';
 import ButtonOutlined from 'components/ui/ButtonOutlined';
 import Heading from 'components/ui/Heading';
+import FormInputText from 'components/form/FormInputText';
+import FormInputPassword from 'components/form/FormInputPassword';
+import FormError from 'components/form/FormError';
 
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
+// Modal Import
+import UpSertModal from 'components/Admin/Modal/UpSertModal';
+import ConfirmModal from 'components/Admin/Modal/ConfirmModal';
+
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
-import axios from 'axios';
+import Axios from 'utils/Axios';
+
+/* Function Imports */
+import validateEmail from 'functions/validateEmail';
+import validatePassword from 'functions/validatePassword';
 
 function ViewAdmins() {
     const session = {
@@ -19,6 +30,153 @@ function ViewAdmins() {
         userId: '123',
         username: 'John Doe'
     };
+
+    /* Initialization */
+    const initData = {
+        email: '', password: '', cfmPassword: ''
+    };
+    const err = {};
+
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState([]);
+    const [formData, setFormData] = useState(initData);
+    const [error, setError] = useState({});
+
+    /* Modal Call Functions */
+    const [createModalOpen, setCreateModalOpen] = useState(false);
+    const [updateModalOpen, setUpdateModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+    const [selectedId, setId] = useState(null);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = () => {
+        Axios.get('/api/admin')
+            .then(response => {
+                setData(response.data);
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                setLoading(false);
+            });
+    }
+
+    /* Form Check Data Functions */
+    const checkEmail = (email) => {
+        if (email.length === 0) {
+            err['email'] = 'Email address must not be empty';
+        }
+        else if (!validateEmail(email)) {
+            err['email'] = 'Enter a valid email address';
+        }
+    };
+
+    const checkPassword = (password, cfmPassword) => {
+        if (password.length === 0) {
+            err['password'] = 'Password must not be empty';
+        }
+        else if (password.length < 8 || password.length > 24) {
+            err['password'] = 'Password must be 8-24 characters';
+        }
+        else if (!validatePassword(formData['password'])) {
+            err['password'] = 'Password must contain at least one uppercase, lowercase, number and special character';
+        }
+        else if (password !== cfmPassword) {
+            err['cfmPassword'] = 'Passwords do not match';
+        }
+    };
+
+    const checkData = () => {
+        checkEmail(formData['email']);
+        checkPassword(formData['password'], formData['cfmPassword']);
+
+        if (Object.keys(err).length !== 0) {
+            setError(err);
+            return false;
+        } else {
+            setError({});
+            delete formData['cfmPassword'];
+            return true;
+        }
+    }
+
+    const updatePassword = () => {
+        checkPassword(formData['password'], formData['cfmPassword']);
+
+        if (Object.keys(err).length !== 0) {
+            setError(err);
+            return false;
+        } else {
+            setError({});
+            delete formData['cfmPassword'];
+            return true;
+        }
+    }
+
+    /* Form send Data Functions */
+    const createData = () => {
+        if(checkData()) {
+            Axios.post('/api/admin/create', formData, {
+                headers: {'Content-Type': 'application/json' }
+            })
+                .then(response => {
+                    if (response.status === 201) {
+                        setCreateModalOpen(false);
+                        fetchData();
+                    }
+                })
+                .catch(err => {
+                    console.error('Error creating data:', err);
+                    alert(err.message);
+                });
+        }
+    };
+
+    const updateData = (id) => {
+        setUpdateModalOpen(true);
+        setId(id);
+    };
+
+    const sendUpdate = () => {
+        if(updatePassword()) {
+            Axios.put(`/api/admin/update_password/${selectedId}`, formData, {
+                headers: {'Content_Type': 'application/json' }
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        setUpdateModalOpen(false);
+                        fetchData();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    alert(err.message);
+                });
+        }
+    }
+
+    const deleteData = (id) => {
+        setDeleteModalOpen(true);
+        setId(id);
+    };
+
+    const sendDelete = () => {
+        if(selectedId) {
+            Axios.delete(`/api/admin/delete/${selectedId}`)
+                .then(response => {
+                    console.log("Deleted Data successfully");
+                    setDeleteModalOpen(false);
+                    fetchData();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+    }
 
     // Mock Data
     const columns = [
@@ -54,30 +212,6 @@ function ViewAdmins() {
         }
     ];
 
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState([]);
-
-    useEffect(() => {
-        axios.get('http://localhost:8000/api/admin')
-            .then(response => {
-                setData(response.data);
-                setLoading(false);
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-                setLoading(false);
-            });
-    }, []);
-
-    const updateData = (id) => {
-        alert(`Update Modal: ${id}`);
-    };
-
-    const deleteData = (id) => {
-        alert(`Delete Modal: ${id}`);
-    };
-
-
     return (
         <AdminLayout session={session}>
             <div className="flex justify-between mb-10">
@@ -86,7 +220,7 @@ function ViewAdmins() {
                 />
                 <div>
                     <ButtonFilled
-                        onClick={() => console.log('open modal')}
+                        onClick={() => setCreateModalOpen(true)}
                     >
                         <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
                         Add New Admin
@@ -115,6 +249,68 @@ function ViewAdmins() {
                     </div>
                 </div>
             </div>
+
+                {/* Reject Modal */}
+                <ConfirmModal
+                    action="delete"
+                    open={deleteModalOpen}
+                    onClose={() => setDeleteModalOpen(false)}
+                    title="Confirm Delete"
+                    confirmText="Delete"
+                    onConfirm={sendDelete}
+                />
+
+                <UpSertModal
+                    title="Update Password"
+                    open={updateModalOpen}
+                    onClose={() => setUpdateModalOpen(false)}
+                    onSubmit={sendUpdate}
+                >
+                    <FormInputPassword
+                        label='Enter New Password'
+                        value={formData['password']}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        onKeyPress={(e) => e.key === 'Enter' && createData()}
+                    />
+                    <FormError nbsp>{'password' in error && error['password']}</FormError>
+                    <FormInputPassword
+                        label='Confirm New Password'
+                        value={formData['cfmPassword']}
+                        onChange={(e) => setFormData({ ...formData, cfmPassword: e.target.value })}
+                        onKeyPress={(e) => e.key === 'Enter' && createData()}
+                    />
+                    <FormError nbsp>{'cfmPassword' in error && error['cfmPassword']}</FormError>
+                </UpSertModal>
+
+                <UpSertModal
+                    title="Create Admin"
+                    open={createModalOpen}
+                    onClose={() => setCreateModalOpen(false)}
+                    onSubmit={createData}
+                >
+                    <FormInputText
+                        label='Enter Username'
+                        autoFocus
+                        value={formData['email'] ? formData['email'] : ''}
+                        onChange={(e) => setFormData({ ...formData, email: (e.target.value).toLowerCase() })}
+                        onKeyPress={(e) => e.key === 'Enter' && createData()}
+                    />
+                    <FormError nbsp>{'email' in error && error['email']}</FormError>
+                    <FormInputPassword
+                        label='Enter Password'
+                        value={formData['password']}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        onKeyPress={(e) => e.key === 'Enter' && createData()}
+                    />
+                    <FormError nbsp>{'password' in error && error['password']}</FormError>
+                    <FormInputPassword
+                        label='Confirm Password'
+                        value={formData['cfmPassword']}
+                        onChange={(e) => setFormData({ ...formData, cfmPassword: e.target.value })}
+                        onKeyPress={(e) => e.key === 'Enter' && createData()}
+                    />
+                    <FormError nbsp>{'cfmPassword' in error && error['cfmPassword']}</FormError>
+                </UpSertModal>
 
         </AdminLayout>
     );

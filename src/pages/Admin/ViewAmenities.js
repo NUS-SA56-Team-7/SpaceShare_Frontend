@@ -6,16 +6,18 @@ import AdminLayout from 'components/Admin/AdminLayout';
 import ButtonFilled from 'components/ui/ButtonFilled';
 import ButtonOutlined from 'components/ui/ButtonOutlined';
 import Heading from 'components/ui/Heading';
+import FormInputText from 'components/form/FormInputText';
+import FormError from 'components/form/FormError';
 
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 // Modal Import
-import AdminDeleteModal from 'components/Admin/AdminDeleteModal';
 import UpSertModal from 'components/Admin/Modal/UpSertModal';
+import ConfirmModal from 'components/Admin/Modal/ConfirmModal';
 
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
-import axios from 'axios';
+import Axios from 'utils/Axios';
 
 function ViewAmenities() {
     const session = {
@@ -24,6 +26,120 @@ function ViewAmenities() {
         userId: '123', // Example user ID
         username: 'John Doe', // Example username
     };
+
+    /* Initialization */
+    const initData = {
+        amenityName: ''
+    };
+    const err = {};
+
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState([]);
+    const [formData, setFormData] = useState(initData);
+    const [error, setError] = useState({});
+
+    // Modal Methods
+    const [createModalOpen, setCreateModalOpen] = useState(false);
+    const [updateModalOpen, setUpdateModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+    const [selectedId, setId] = useState(null);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = () => {
+        Axios.get('/api/amenity')
+            .then(response => {
+                setData(response.data);
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                setLoading(false);
+            });
+    }
+
+    /* Form Check Data Functions */
+    const checkAmenityName = (amenityName) => {
+        if (amenityName.length === 0) {
+            err['amenityName'] = 'Amenity Name must not be empty';
+        }
+    };
+
+    const checkData = () => {
+        checkAmenityName(formData['amenityName']);
+
+        if (Object.keys(err).length !== 0) {
+            setError(err);
+            return false;
+        } else {
+            setError({});
+            return true;
+        }
+    }
+
+    /* Form send Data Functions */
+    const createData = () => {
+        if(checkData()) {
+            Axios.post('/api/amenity/create', formData, {
+                headers: {'Content-Type': 'application/json'} 
+            })
+                .then(response => {
+                    if (response.status === 201) {
+                        setCreateModalOpen(false);
+                        fetchData();
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                    alert(err.message);
+                });
+        }
+    };
+
+    const updateData = (id) => {
+        setUpdateModalOpen(true);
+        setId(id);
+    };
+
+    const sendUpdate = () => {
+        if(checkData()) {
+            Axios.put(`/api/amenity/update/${selectedId}` , formData, {
+                headers: {'Content_Type' : 'application/json'}
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        setUpdateModalOpen(false);
+                        fetchData();
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                    alert(err.message);
+                });
+        }
+    }
+
+    const deleteData = (id) => {
+        setDeleteModalOpen(true);
+        setId(id);
+    };
+
+    const sendDelete = () => {
+        if(selectedId) {
+            Axios.delete(`/api/amenity/delete/${selectedId}`)
+                .then(response => {
+                    console.log("Deleted Data successfully");
+                    setDeleteModalOpen(false);
+                    fetchData();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+    }
 
     const columns = [
         {
@@ -58,42 +174,6 @@ function ViewAmenities() {
         }
     ];
 
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState([]);
-
-    useEffect(() => {
-        axios.get('http://localhost:8000/api/amenity')
-            .then(response => {
-                setData(response.data);
-                setLoading(false);
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-                setLoading(false);
-            });
-    }, []);
-
-    const updateData = (id) => {
-        alert(`Update Modal: ${id}`);
-    };
-
-    const deleteData = (id) => {
-        alert(`Delete Modal: ${id}`);
-    };
-
-    // Modal Toggle
-    const [isModalOpen, setOpen] = useState(false);
-
-    const openModal = () => {
-        setOpen(true);
-    };
-
-    const closeModal = () => {
-        setOpen(false);
-    };
-
-    const [modalIsOpen, setModalIsOpen] = useState(false);
-
     return (
         <AdminLayout session={session}>
             <div className="flex justify-between mb-10">
@@ -102,7 +182,7 @@ function ViewAmenities() {
                 />
                 <div>
                     <ButtonFilled
-                        onClick={() => console.log('open modal')}
+                        onClick={() => setCreateModalOpen(true)}
                     >
                         <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
                         Create New Amenity
@@ -132,13 +212,47 @@ function ViewAmenities() {
                 </div>
             </div>
 
-            {/* Modal Components */}
-            {isModalOpen && (
-                <AdminDeleteModal
-                    isOpen={modalIsOpen} setOpen={setModalIsOpen}
+            {/* Reject Modal */}
+            <ConfirmModal
+                action="delete"
+                open={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                title="Confirm Delete"
+                confirmText="Delete"
+                onConfirm={sendDelete}
+            />
+
+            <UpSertModal
+                title="Update Amenity"
+                open={updateModalOpen}
+                onClose={() => setUpdateModalOpen(false)}
+                onSubmit={sendUpdate}
+            >
+                <FormInputText
+                    label='Enter Amenity Name'
+                    autoFocus
+                    value={formData['amenityName'] ? formData['amenityName'] : ''}
+                    onChange={(e) => setFormData({ ...formData, amenityName: e.target.value })}
+                    onKeyPress={(e) => e.key === 'Enter' && sendUpdate()}
                 />
-            )}
-            <UpSertModal />
+                <FormError nbsp>{'amenityName' in error && error['amenityName']}</FormError>
+            </UpSertModal>
+
+            <UpSertModal
+                title="Create Amenity"
+                open={createModalOpen}
+                onClose={() => setCreateModalOpen(false)}
+                onSubmit={createData}
+            >
+                <FormInputText
+                    label='Enter Amenity Name'
+                    autoFocus
+                    value={formData['amenityName'] ? formData['amenityName'] : ''}
+                    onChange={(e) => setFormData({ ...formData, amenityName: e.target.value })}
+                    onKeyPress={(e) => e.key === 'Enter' && createData()}
+                />
+                <FormError nbsp>{'amenityName' in error && error['amenityName']}</FormError>
+            </UpSertModal>
         </AdminLayout>
     );
 }

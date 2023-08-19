@@ -3,9 +3,9 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 
 import AdminLayout from 'components/Admin/AdminLayout';
-import ButtonFilled from 'components/ui/ButtonFilled';
 import ButtonOutlined from 'components/ui/ButtonOutlined';
 import Heading from 'components/ui/Heading';
+
 import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 // Modal Import
@@ -13,7 +13,7 @@ import ConfirmModal from 'components/Admin/Modal/ConfirmModal';
 
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
-import axios from 'axios';
+import Axios from 'utils/Axios';
 
 function ViewScamReports() {
     const session = {
@@ -55,22 +55,40 @@ function ViewScamReports() {
             selector: 'actions',
             cell: (row) => (
                 <div className="w-full flex flex-col gap-1 py-2">
-                    <ButtonOutlined
-                        onClick={() => approveData(row.id)}
-                    >
-                        <CheckIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-blue-500" aria-hidden="true" />
-                        <span className='text-blue-500'>
-                            Approve
-                        </span>
-                    </ButtonOutlined>
-                    <ButtonOutlined
-                        onClick={() => declineData(row.id)}
-                    >
-                        <XMarkIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-500" aria-hidden="true" />
-                        <span className='text-red-500'>
-                            Decline
-                        </span>
-                    </ButtonOutlined>
+                    { row.approveStatus === 'PENDING' ? (
+                        <>
+                            <ButtonOutlined
+                            onClick={() => approveData(row.id)}
+                            >
+                                <CheckIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-green-700" aria-hidden="true" />
+                                <span className="text-green-700">Approve</span>
+                            </ButtonOutlined>
+                            <ButtonOutlined
+                                onClick={() => declineData(row.id)}
+                            >
+                                <XMarkIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-500" aria-hidden="true" />
+                                <span className="text-red-500">Decline</span>
+                            </ButtonOutlined>
+                        </>
+                    ) : row.approveStatus === 'APPROVED' ? (
+                        <>
+                            <ButtonOutlined
+                                onClick={() => declineData(row.id)}
+                            >
+                                <XMarkIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-500" aria-hidden="true" />
+                                <span className="text-red-500">Decline</span>
+                            </ButtonOutlined>
+                        </>
+                    ) : (
+                        <>
+                            <ButtonOutlined
+                            onClick={() => approveData(row.id)}
+                            >
+                                <CheckIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-green-700" aria-hidden="true" />
+                                <span className="text-green-700">Approve</span>
+                            </ButtonOutlined>
+                        </>
+                    )}
                 </div>
             )
         }
@@ -80,7 +98,11 @@ function ViewScamReports() {
     const [loading, setLoading] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:8000/api/scamreport')
+        fetchData();
+    }, []);
+
+    const fetchData = () => {
+        Axios.get('api/admin/scamreport')
             .then(response => {
                 setData(response.data);
                 setLoading(false);
@@ -89,18 +111,51 @@ function ViewScamReports() {
                 console.error('Error fetching data:', error);
                 setLoading(false);
             });
-    }, []);
-
-    const approveData = (id) => {
-        alert(`Approve Modal: ${id}`);
-    };
-
-    const declineData = (id) => {
-        alert(`Decline Modal: ${id}`);
-    };
+    }
 
     // Modal Methods
-    const [modalOpen, setModalOpen] = useState(false);
+    const [approveModalOpen, setApproveModalOpen] = useState(false);
+    const [declineModalOpen, setDeclineModalOpen] = useState(false);
+
+    const [selectedId, setId] = useState(null);
+
+    const approveData = (id) => {
+        setApproveModalOpen(true);
+        setId(id);
+    };
+
+    const sendApprove = () => {
+        if(selectedId) {
+            Axios.put(`/api/property/${selectedId}/approve`)
+                .then(response => {
+                    console.log("Approved Data successfully");
+                    setApproveModalOpen(false);
+                    fetchData();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+    }
+
+    const declineData = (id) => {
+        setDeclineModalOpen(true);
+        setId(id);
+    };
+
+    const sendDecline = () => {
+        if(selectedId) {
+            Axios.put(`/api/property/${selectedId}/decline`)
+                .then(response => {
+                    console.log("Declined Data successfully");
+                    setApproveModalOpen(false);
+                    fetchData();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+    }
 
     return (
         <AdminLayout session={session}>
@@ -132,13 +187,24 @@ function ViewScamReports() {
                 </div>
             </div>
 
-            {/* Modal Components */}
+            {/* Approve Modal */}
             <ConfirmModal
-                open={modalOpen}
-                onClose={() => setModalOpen(false)}
-                title="Confirm Deletion"
-                confirmText="Delete"
-                onConfirm={console.log('confirm')}
+                action="approve"
+                open={approveModalOpen}
+                onClose={() => setApproveModalOpen(false)}
+                title="Confirm Approval"
+                confirmText="Approve"
+                onConfirm={sendApprove}
+            />
+
+            {/* Decline Modal */}
+            <ConfirmModal
+                action="decline"
+                open={declineModalOpen}
+                onClose={() => setDeclineModalOpen(false)}
+                title="Confirm Decline"
+                confirmText="Decline"
+                onConfirm={sendDecline}
             />
 
         </AdminLayout>

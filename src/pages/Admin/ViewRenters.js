@@ -3,15 +3,17 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 
 import AdminLayout from 'components/Admin/AdminLayout';
-import ButtonFilled from 'components/ui/ButtonFilled';
 import ButtonOutlined from 'components/ui/ButtonOutlined';
 import Heading from 'components/ui/Heading';
 
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { TrashIcon } from '@heroicons/react/24/outline';
+
+// Modal Import
+import ConfirmModal from 'components/Admin/Modal/ConfirmModal';
 
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
-import axios from 'axios';
+import Axios from 'utils/Axios';
 
 function ViewRenters() {
     const session = {
@@ -68,12 +70,6 @@ function ViewRenters() {
             cell: (row) => (
                 <div className="w-full flex flex-col gap-1 py-2 min-w-[100px]">
                     <ButtonOutlined
-                        onClick={() => updateData(row.id)}
-                    >
-                        <PencilIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-blue-500" aria-hidden="true" />
-                        <span className="text-blue-500">Update</span>
-                    </ButtonOutlined>
-                    <ButtonOutlined
                         onClick={() => deleteData(row.id)}
                     >
                         <TrashIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-500" aria-hidden="true" />
@@ -88,7 +84,11 @@ function ViewRenters() {
     const [loading, setLoading] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:8000/api/renter')
+        fetchData();
+    }, []);
+
+    const fetchData = () => {
+        Axios.get('/api/renter')
             .then(response => {
                 setData(response.data);
                 setLoading(false);
@@ -97,15 +97,32 @@ function ViewRenters() {
                 console.error('Error fetching data:', error);
                 setLoading(false);
             });
-    }, []);
+    }
 
-    const updateData = (id) => {
-        alert(`Update Modal: ${id}`);
-    };
+    // Modal Methods
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+    const [selectedId, setId] = useState(null);
 
     const deleteData = (id) => {
-        alert(`Delete Modal: ${id}`);
+        setDeleteModalOpen(true);
+        setId(id);
     };
+
+    const sendDelete = () => {
+        if(selectedId) {
+            Axios.delete(`/api/renter/delete/${selectedId}`)
+                .then(response => {
+                    console.log("Deleted Data successfully");
+                    setDeleteModalOpen(false);
+                    fetchData();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+        console.log(selectedId);
+    }
 
     return (
         <AdminLayout session={session}>
@@ -136,6 +153,16 @@ function ViewRenters() {
                     </div>
                 </div>
             </div>
+
+            {/* Reject Modal */}
+            <ConfirmModal
+                action="delete"
+                open={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                title="Confirm Delete"
+                confirmText="Delete"
+                onConfirm={sendDelete}
+            />
 
         </AdminLayout>
     );

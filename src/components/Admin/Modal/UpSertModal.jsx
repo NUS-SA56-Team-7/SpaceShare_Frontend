@@ -73,7 +73,7 @@ const UpSertModal = ({ title, open, onClose, onSubmit, children }) => {
                                 </div>
                                 {/* Modal Footer */}
                                 <div className="flex items-center p-6 space-x-2 border-t border-gray-200">
-                                    <ButtonOutlined>
+                                    <ButtonOutlined onClick={onClose}>
                                         Cancel
                                     </ButtonOutlined>
                                     <ButtonFilled

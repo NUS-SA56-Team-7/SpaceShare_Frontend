@@ -17,7 +17,7 @@ import ConfirmModal from 'components/Admin/Modal/ConfirmModal';
 
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
-import axios from 'axios';
+import Axios from 'utils/Axios';
 
 function ViewFacilities() {
     const session = {
@@ -26,6 +26,124 @@ function ViewFacilities() {
         userId: '123', // Example user ID
         username: 'John Doe', // Example username
     };
+
+    /* Initialization */
+    const initData = {
+        facilityName: ''
+    };
+    const err = {};
+
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState([]);
+    const [formData, setFormData] = useState(initData);
+    const [error, setError] = useState({});
+
+    // Modal Methods
+    const [createModalOpen, setCreateModalOpen] = useState(false);
+    const [updateModalOpen, setUpdateModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+    const [selectedId, setId] = useState(null);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = () => {
+        Axios.get('/api/facility')
+            .then(response => {
+                setData(response.data);
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                setLoading(false);
+            });
+    }
+
+    /* Form Check Data Functions */
+    const checkFacilityName = (facilityName) => {
+        if (facilityName.length === 0) {
+            err['facilityName'] = 'Facility Name must not be empty';
+        }
+    };
+
+    const checkData = () => {
+        checkFacilityName(formData['facilityName']);
+
+        if (Object.keys(err).length !== 0) {
+            setError(err);
+            return false;
+        } else {
+            setError({});
+            return true;
+        }
+    }
+
+    /* Form send Data Functions */
+    const createData = () => {
+        if(checkData()) {
+            Axios.post('/api/facility/create', formData, {
+                headers: {'Content-Type': 'application/json'} 
+            })
+                .then(response => {
+                    if (response.status === 201) {
+                        setCreateModalOpen(false);
+                        fetchData();
+                    } else {
+                        alert(err.message);
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                    alert(err.message);
+                });
+        }
+    };
+
+    const updateData = (id) => {
+        setUpdateModalOpen(true);
+        setId(id);
+    };
+
+    const sendUpdate = () => {
+        if(checkData()) {
+            Axios.put(`/api/facility/update/${selectedId}` , formData, {
+                headers: {'Content_Type' : 'application/json'}
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        setUpdateModalOpen(false);
+                        fetchData();
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                    alert(err.message);
+                });
+        }
+    }
+
+    const deleteData = (id) => {
+        setDeleteModalOpen(true);
+        setId(id);
+    };
+
+    const sendDelete = () => {
+        if(selectedId) {
+            Axios.delete(`/api/facility/delete/${selectedId}`)
+                .then(response => {
+                    console.log("Deleted Data successfully");
+                    setDeleteModalOpen(false);
+                    fetchData();
+                })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                    alert(err.message);
+                });
+        }
+        console.log(selectedId);
+    }
 
     const columns = [
         {
@@ -44,13 +162,13 @@ function ViewFacilities() {
             cell: (row) => (
                 <div className="w-full flex gap-1">
                     <ButtonOutlined
-                        onClick={() => setApproveModalOpen(true)}
+                        onClick={() => updateData(row.id)}
                     >
                         <PencilIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-blue-500" aria-hidden="true" />
                         <span className="text-blue-500">Update</span>
                     </ButtonOutlined>
                     <ButtonOutlined
-                        onClick={() => setRejectModalOpen(true)}
+                        onClick={() => deleteData(row.id)}
                     >
                         <TrashIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-500" aria-hidden="true" />
                         <span className="text-red-500">Delete</span>
@@ -60,34 +178,6 @@ function ViewFacilities() {
         }
     ];
 
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState([]);
-
-    useEffect(() => {
-        axios.get('http://localhost:8000/api/facility')
-            .then(response => {
-                setData(response.data);
-                setLoading(false);
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-                setLoading(false);
-            });
-    }, []);
-
-    const updateData = (id) => {
-        alert(`Update Modal: ${id}`);
-    };
-
-    const deleteData = (id) => {
-        alert(`Delete Modal: ${id}`);
-    };
-
-    // Modal Methods
-    const [modalOpen, setModalOpen] = useState(false);
-    const [approveModalOpen, setApproveModalOpen] = useState(false);
-    const [rejectModalOpen, setRejectModalOpen] = useState(false);
-
     return (
         <AdminLayout session={session}>
             <div className="flex justify-between mb-10">
@@ -96,7 +186,7 @@ function ViewFacilities() {
                 />
                 <div>
                     <ButtonFilled
-                        onClick={() => setModalOpen(true)}
+                        onClick={() => setCreateModalOpen(true)}
                     >
                         <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
                         Create New Facility
@@ -126,48 +216,46 @@ function ViewFacilities() {
                 </div>
             </div>
 
-            {/* Approve Modal */}
-            <ConfirmModal
-                action="approve"
-                open={approveModalOpen}
-                onClose={() => setApproveModalOpen(false)}
-                title="Confirm Approval"
-                confirmText="Approve"
-                onConfirm={updateData}
-            />
-
             {/* Reject Modal */}
             <ConfirmModal
-                action="reject"
-                open={rejectModalOpen}
-                onClose={() => setRejectModalOpen(false)}
-                title="Confirm Rejection"
-                confirmText="Reject"
-                onConfirm={deleteData}
+                action="delete"
+                open={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                title="Confirm Delete"
+                confirmText="Delete"
+                onConfirm={sendDelete}
             />
 
             <UpSertModal
-                title="Create New Item"
-                open={modalOpen}
-                onClose={() => setModalOpen(false)}
-                onSubmit={console.log('added new')}
+                title="Update Facility"
+                open={updateModalOpen}
+                onClose={() => setUpdateModalOpen(false)}
+                onSubmit={sendUpdate}
             >
                 <FormInputText
-                    label='Enter Name'
+                    label='Enter Facility Name'
                     autoFocus
-                    value={0}
-                    onChange={0}
-                    onKeyPress={0}
+                    value={formData['facilityName'] ? formData['facilityName'] : ''}
+                    onChange={(e) => setFormData({ ...formData, facilityName: e.target.value })}
+                    onKeyPress={(e) => e.key === 'Enter' && sendUpdate()}
                 />
-                <FormError nbsp>GG</FormError>
+                <FormError nbsp>{'facilityName' in error && error['facilityName']}</FormError>
+            </UpSertModal>
+
+            <UpSertModal
+                title="Create Facility"
+                open={createModalOpen}
+                onClose={() => setCreateModalOpen(false)}
+                onSubmit={createData}
+            >
                 <FormInputText
-                    label='Enter Id'
+                    label='Enter Facility Name'
                     autoFocus
-                    value={0}
-                    onChange={0}
-                    onKeyPress={0}
+                    value={formData['facilityName'] ? formData['facilityName'] : ''}
+                    onChange={(e) => setFormData({ ...formData, facilityName: e.target.value })}
+                    onKeyPress={(e) => e.key === 'Enter' && createData()}
                 />
-                <FormError nbsp>GG</FormError>
+                <FormError nbsp>{'facilityName' in error && error['facilityName']}</FormError>
             </UpSertModal>
         </AdminLayout>
     );

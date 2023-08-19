@@ -20,7 +20,8 @@ function Dashboard() {
         username: 'John Doe', // Example username
     };
 
-    // const [loading, setLoading] = useState(false);
+    const [propertyType, setPropertyType] = useState(null);
+    const [scamreport, setScamReport] = useState(null);
     const [roomRentalByPropertyType, setRoomRentalByPropertyType] = useState(null);
     const [roomateFindingByPropertyType, setRoomateFindingByPropertyType] = useState(null);
     const [roomRentalByRoomType, setRoomRentalByRoomType] = useState(null);
@@ -31,48 +32,53 @@ function Dashboard() {
     }, []);
 
     const fetchData = () => {
-        Axios.get('/api/property/room-rental/property-type/percentages')
+        Axios.get('/api/property/property-type-reports')
             .then(res => {
-                setRoomRentalByPropertyType(res.data);
-                console.log(roomRentalByPropertyType);
-                // setLoading(false);
+                setPropertyType(res.data);
             })
             .catch(err => {
                 console.error('Error fetching data:', err);
-                // setLoading(false);
+            })
+
+        Axios.get('/api/scamreport/status')
+            .then(res => {
+                setScamReport(res.data);
+                console.log(res.data);
+            })
+            .catch(err => {
+                console.error('Error fetching data:', err);
+            })
+
+        Axios.get('/api/property/room-rental/property-type/percentages')
+            .then(res => {
+                setRoomRentalByPropertyType(res.data);
+            })
+            .catch(err => {
+                console.error('Error fetching data:', err);
             })
 
         Axios.get('/api/property/roommate-finding/property-type/percentages')
             .then(res => {
                 setRoomateFindingByPropertyType(res.data);
-                console.log(roomateFindingByPropertyType);
-                // setLoading(false);
             })
             .catch(err => {
                 console.error('Error fetching data:', err);
-                // setLoading(false);
             })
 
         Axios.get('/api/property/room-rental/room-type/percentages')
             .then(res => {
                 setRoomRentalByRoomType(res.data);
-                console.log(roomRentalByRoomType);
-                // setLoading(false);
             })
             .catch(err => {
                 console.error('Error fetching data:', err);
-                // setLoading(false);
             })
 
         Axios.get('/api/property/roommate-finding/room-type/percentages')
             .then(res => {
                 setRoommateFindingByRoomType(res.data);
-                console.log(roommateFindingByRoomType);
-                // setLoading(false);
             })
             .catch(err => {
                 console.error('Error fetching data:', err);
-                // setLoading(false);
             })
     };
 
@@ -110,7 +116,7 @@ function Dashboard() {
                                     <div>
                                         <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100">
                                             <span className='text-5xl font-semibold text-yellow-600'>
-                                                5
+                                                {propertyType !== null ? propertyType['pendingRoomRentalCount'] : 0}
                                             </span>
                                         </div>
                                         <span className='text-xl font-bold text-yellow-600'>
@@ -120,7 +126,7 @@ function Dashboard() {
                                     <div>
                                         <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-green-100">
                                             <span className='text-5xl font-semibold text-green-600'>
-                                                6
+                                                {propertyType !== null ? propertyType['approvedRoomRentalCount'] : 0}
                                             </span>
                                         </div>
                                         <span className='text-xl font-bold text-green-600'>
@@ -148,7 +154,7 @@ function Dashboard() {
                                     <div>
                                         <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100">
                                             <span className='text-5xl font-semibold text-yellow-600'>
-                                                5
+                                                {propertyType !== null ? propertyType['pendingRoommateFindingCount'] : 0}
                                             </span>
                                         </div>
                                         <span className='text-xl font-bold text-yellow-600'>
@@ -158,7 +164,7 @@ function Dashboard() {
                                     <div>
                                         <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-green-100">
                                             <span className='text-5xl font-semibold text-green-600'>
-                                                6
+                                                {propertyType !== null ? propertyType['approvedRoommateFindingCount'] : 0}
                                             </span>
                                         </div>
                                         <span className='text-xl font-bold text-green-600'>
@@ -186,7 +192,7 @@ function Dashboard() {
                                     <div>
                                         <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100">
                                             <span className='text-5xl font-semibold text-yellow-600'>
-                                                5
+                                                {scamreport !== null ? scamreport['pendingCount'] : 0}
                                             </span>
                                         </div>
                                         <span className='text-xl font-bold text-yellow-600'>
@@ -196,7 +202,7 @@ function Dashboard() {
                                     <div>
                                         <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full bg-green-100">
                                             <span className='text-5xl font-semibold text-green-600'>
-                                                6
+                                                {scamreport !== null ? scamreport['approvedCount'] : 0}
                                             </span>
                                         </div>
                                         <span className='text-xl font-bold text-green-600'>
@@ -216,9 +222,6 @@ function Dashboard() {
                             <h3 className="font-bold text-lg mb-2 text-gray-900 ">
                                 Average Room Rental By Property Type
                             </h3>
-                            <span className="font-normal text-base text-gray-500">
-                                Some more data Some more data
-                            </span>
                         </div>
                         {/* Card Content */}
                         <div className="w-full">
@@ -256,9 +259,6 @@ function Dashboard() {
                             <h3 className="font-bold text-lg mb-2 text-gray-900 ">
                                 Average Roommate Findings By Property Type
                             </h3>
-                            <span className="font-normal text-base text-gray-500">
-                                Some more data Some more data
-                            </span>
                         </div>
                         {/* Card Content */}
                         <div className="w-full">
@@ -282,7 +282,7 @@ function Dashboard() {
                                         </div>
                                     ))
                                 ) : (
-                                    <p>No rental data available.</p>
+                                    <p>No data available yet.</p>
                                 )}
                             </div>
                         </div>
@@ -296,9 +296,6 @@ function Dashboard() {
                             <h3 className="font-bold text-lg mb-2 text-gray-900 ">
                                 Average Room Rental By Room Type
                             </h3>
-                            <span className="font-normal text-base text-gray-500">
-                                Some more data Some more data
-                            </span>
                         </div>
                         {/* Card Content */}
                         <div className="w-full">
@@ -322,7 +319,7 @@ function Dashboard() {
                                         </div>
                                     ))
                                 ) : (
-                                    <p>No rental data available.</p>
+                                    <p>No data available yet.</p>
                                 )}
                             </div>
                         </div>
@@ -336,9 +333,6 @@ function Dashboard() {
                             <h3 className="font-bold text-lg mb-2 text-gray-900 ">
                                 Average Roommate Findings By Room Type
                             </h3>
-                            <span className="font-normal text-base text-gray-500">
-                                Some more data Some more data
-                            </span>
                         </div>
                         {/* Card Content */}
                         <div className="w-full">
@@ -362,7 +356,7 @@ function Dashboard() {
                                         </div>
                                     ))
                                 ) : (
-                                    <p>No rental data available.</p>
+                                    <p>No data available yet.</p>
                                 )}
                             </div>
                         </div>
