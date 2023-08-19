@@ -1,9 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-/* Icon Imports */
-import { HeartIcon } from '@heroicons/react/24/outline';
-
 /* Component Imports */
 import UserIconWithTag from './UserIconWithTag';
 import Badge from './Badge';
@@ -14,6 +11,9 @@ import AuthContext from 'contexts/AuthContext';
 
 /* Utility Imports */
 import Axios from 'utils/Axios';
+
+/* Function Imports */
+import formatPrettyDate from 'functions/formatPrettyDate';
 
 function Card(props) {
 
@@ -93,12 +93,33 @@ function Card(props) {
                     <div className="flex justify-center relative rounded-lg overflow-hidden h-52">
                         <div className="transition-transform duration-500 transform ease-in-out hover:scale-110 w-full
                             d-flex align-items-center justify-content-center">
-                            <img src={props.data?.propertyImages[0]?.imageUrl} alt={props.data?.title} className='w-full h-full object-content object-cover' />
+                            <img src={props.data?.propertyImages[0]?.imageUrl}
+                                alt={props.data?.title}
+                                className='w-full h-full object-content object-cover' />
                         </div>
-                        <span className="absolute top-0 left-0 inline-flex mt-3 ml-3">
-                            <Badge status="danger">
+                        <span className="absolute top-0 left-0 inline-flex mt-3 ml-3 gap-2">
+                            {
+                                props.data?.approveStatus === 'PENDING' &&
+                                <Badge status="warning">
+                                    Pending
+                                </Badge>
+                            }
+                            {
+                                props.data?.approveStatus === 'APPROVED' &&
+                                <Badge status="success">
+                                    Approved
+                                </Badge>
+                            }
+                            {
+                                props.data?.approveStatus === 'DECLINED' &&
+                                <Badge status="danger">
+                                    Declined
+                                </Badge>
+                            }
+                            <Badge status="primary">
                                 New
                             </Badge>
+
                         </span>
                         {
                             props?.userType !== 'renter' &&
@@ -117,19 +138,29 @@ function Card(props) {
                         </p>
                     </div>
 
-                    <div className='grid grid-cols-2 gap-4 mt-4'>
-                        <p>
-                            Available on:
+                    <div className='grid grid-cols-1 gap-4 mt-4'>
+                        <p className='text-s'>
+                            {`Available on: ${formatPrettyDate(props?.data?.availableOn && props?.data?.availableOn)}`}
                         </p>
                     </div>
                     <div className='grid grid-cols-2 gap-4 mt-4'>
-                        <p>
+                        <p className='text-green-500 font-bold'>
                             {`S$ ${props?.data?.rentalFees}`}
                         </p>
                     </div>
                     <UserIconWithTag
-                        userPhotoUrl={props.data?.renter?.photoUrl}
-                        username={props.data?.renter?.firstName}>
+                        userId={props.data?.postType === 'ROOM_RENTAL'
+                            ? props.data?.renter?.id
+                            : props.data?.postType === 'ROOMMATE_FINDING' && props.data?.tenant?.id}
+                        userType={props.data?.postType === 'ROOM_RENTAL'
+                            ? 'renter'
+                            : props.data?.postType === 'ROOMMATE_FINDING' && 'tenant'}
+                        userPhotoUrl={props.data?.postType === 'ROOM_RENTAL'
+                            ? props.data?.renter?.photoUrl
+                            : props.data?.postType === 'ROOMMATE_FINDING' && props.data?.tenant?.photoUrl}
+                        username={props.data?.postType === 'ROOM_RENTAL'
+                            ? `${props.data?.renter?.firstName} ${props.data?.renter?.lastName}`
+                            : props.data?.postType === 'ROOMMATE_FINDING' && `${props.data?.tenant?.firstName} ${props.data?.tenant?.lastName}`}>
                     </UserIconWithTag>
                 </div>
             </div>

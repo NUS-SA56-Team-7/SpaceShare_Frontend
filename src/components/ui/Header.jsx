@@ -54,13 +54,13 @@ function Header() {
                                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
                                     <div
                                         className="text-sm font-medium text-gray-700 hover:txt-primary btn cursor-pointer"
-                                        onClick={(e) => { navigate('/login') }}>
+                                        onClick={() => { navigate('/login') }}>
                                         Login
                                     </div>
                                     <span className="h-6 w-px bg-gray-200" aria-hidden="true" />
                                     <div
                                         className="text-sm font-medium text-gray-700 hover:txt-primary btn cursor-pointer"
-                                        onClick={(e) => { navigate('/register') }}>
+                                        onClick={() => { navigate('/register') }}>
                                         Register Account
                                     </div>
                                 </div>
@@ -119,7 +119,7 @@ function Header() {
                                                         </Menu.Item>
                                                         <Menu.Item>
                                                             {({ active }) => (
-                                                                <div onClick={(e) => { navigate('/renter/properties') }}
+                                                                <div onClick={(e) => { navigate('/tenant/properties') }}
                                                                     className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer')}>
                                                                     My Findings
                                                                 </div>

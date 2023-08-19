@@ -13,6 +13,7 @@ import AuthContext from 'contexts/AuthContext';
 
 /* MUI Imports */
 import { CircularProgress } from '@mui/material';
+import { useNavigate, useParams } from 'react-router';
 
 function RenterProperties() {
 
@@ -25,9 +26,15 @@ function RenterProperties() {
     /* useContext */
     const { auth } = useContext(AuthContext);
 
+    /* useParams */
+    const { user: paramUser } = useParams();
+
+    /* useNavigate */
+    const navigate = useNavigate();
+
     /* Functions */
     const deleteProperty = (id) => {
-        Axios.delete(`/api/renter/${auth?.id}/property/delete/${id}`)
+        Axios.delete(`/api/${paramUser}/${auth?.id}/property/delete/${id}`)
             .then(res => {
                 if (res.status === 200) {
                     window.location.reload();
@@ -49,8 +56,14 @@ function RenterProperties() {
     }, []);
 
     useEffect(() => {
-        if (rendered && auth) {
-            Axios.get(`/api/renter/${auth?.id}/properties`)
+        if (rendered && !auth) navigate('/');
+    }, [auth]);
+
+    useEffect(() => {
+        if (!rendered) return;
+
+        if (auth) {
+            Axios.get(`/api/${paramUser}/${auth?.id}/properties`)
                 .then(res => {
                     if (res.status === 200) {
                         setProperties(res.data);
@@ -71,7 +84,7 @@ function RenterProperties() {
 
     return (
         <Layout>
-            <Heading title='My Properties' />
+            <Heading title={paramUser === 'renter' ? 'My Room Rentals' : paramUser === 'tenant' && 'My Roommate Findings'} />
             <section className='py-10 border-b border-gray-200 mb-24'>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full flex-grow min-h-[calc((100vh-201px)-25rem)]">
                     {loading
@@ -83,7 +96,9 @@ function RenterProperties() {
                                 <CardProperties
                                     key={index}
                                     data={property}
-                                    deleteProperty={deleteProperty} />
+                                    deleteProperty={deleteProperty}
+                                    userType={paramUser}
+                                    actionOptions={true} />
                             ))
                         )
                     }

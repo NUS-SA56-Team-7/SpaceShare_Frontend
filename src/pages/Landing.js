@@ -21,7 +21,8 @@ function Landing() {
 
     /* useState */
     const [rendered, setRendered] = useState(false);
-    const [properties, setProperties] = useState([]);
+    const [rentalProperties, setRentalProperties] = useState([]);
+    const [roommateFindings, setRoommateFindings] = useState([]);
     const [favorites, setFavorites] = useState([]);
     const [error, setError] = useState();
     const [loading, setLoading] = useState(false);
@@ -44,28 +45,45 @@ function Landing() {
         if (!rendered) return;
 
         setLoading(true);
-        Axios.get('/api/property')
+        Axios.get('/api/property/search?postType=ROOM_RENTAL')
             .then(res => {
                 if (res.status === 200) {
-                    setProperties(res.data.data.content);
+                    setRentalProperties(res.data.content);
                 }
                 setLoading(false);
             })
             .catch(err => {
-                if (err.response.status === 404) {
+                if (err?.response?.status === 404) {
                     setError(err.response.data);
                 }
-                else if (err.response.status === 500) {
+                else if (err?.response?.status === 500) {
                     setError(err.response.data);
                 }
                 setLoading(false);
             })
-    }, [rendered]);
+
+        Axios.get('/api/property/search?postType=ROOMMATE_FINDING')
+            .then(res => {
+                if (res.status === 200) {
+                    setRoommateFindings(res.data.content);
+                }
+                setLoading(false);
+            })
+            .catch(err => {
+                if (err?.response?.status === 404) {
+                    setError(err.response.data);
+                }
+                else if (err?.response?.status === 500) {
+                    setError(err.response.data);
+                }
+                setLoading(false);
+            })
+    }, [rendered, auth]);
 
     useEffect(() => {
         if (!rendered) return;
 
-        if (auth?.id) {
+        if (auth) {
             Axios.get(`/api/tenant/${auth?.id}/favourites/id`)
                 .then(res => {
                     if (res.status === 200) {
@@ -101,7 +119,7 @@ function Landing() {
                         </h2>
                     </div>
                     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full'>
-                        {properties.map((property, index) => (
+                        {rentalProperties.map((property, index) => (
                             <Card
                                 key={index}
                                 data={property}
@@ -119,7 +137,7 @@ function Landing() {
                         </h2>
                     </div>
                     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full'>
-                        {properties.map((property, index) => (
+                        {roommateFindings.map((property, index) => (
                             <Card
                                 key={index}
                                 data={property}

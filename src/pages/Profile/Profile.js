@@ -63,16 +63,11 @@ function Profile() {
             if (location.pathname === '/profile') setType('self');
             if (location.pathname.startsWith('/profile/view')) setType('other');
         }
-    }, [rendered]);
+    }, [rendered, location]);
 
     useEffect(() => {
         if (rendered && !auth && type === 'self') navigate('/login');
     }, [rendered, auth, type]);
-
-    useEffect(() => {
-        console.log(data);
-    }, [data]);
-
 
     useEffect(() => {
         if (type === 'self') {
@@ -226,6 +221,7 @@ function Profile() {
                                     User Detail
                                 </p>
                             </div>
+
                             <div className="grid grid-cols-1 md:grid-cols-12 p-6 md:top-6 rounded-lg bg-white shadow-lg ring-1 ring-gray-900/5">
                                 <article className='col-span-1 md:col-span-10 gap-x-6 gap-y-8'>
                                     {!isEditing
@@ -280,12 +276,15 @@ function Profile() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="sm:col-span-3 flex gap-x-4 mb-4">
-                                                    <ButtonFilled onClick={() => setIsEditing(true)} >
-                                                        <PencilIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
-                                                        Edit Profile
-                                                    </ButtonFilled>
-                                                </div>
+                                                {
+                                                    type === 'self' &&
+                                                    <div className="sm:col-span-3 flex gap-x-4 mb-4">
+                                                        <ButtonFilled onClick={() => setIsEditing(true)} >
+                                                            <PencilIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                            Edit Profile
+                                                        </ButtonFilled>
+                                                    </div>
+                                                }
                                             </div>
                                         )
                                         : (
@@ -354,7 +353,8 @@ function Profile() {
                                 </article >
                             </div >
                         </section >
-                        <section className="pb-5 border-b border-gray-200 mb-5">
+
+                        {/* <section className="pb-5 border-b border-gray-200 mb-5">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center ">
                                     <HeartIcon className="-ml-0.5 mr-1.5 h-6 w-6" aria-hidden="true" />
@@ -419,7 +419,7 @@ function Profile() {
                                     </CardAppointment>
                                 </div>
                             </div>
-                        </section>
+                        </section> */}
                     </div>
                 </div>
             </Layout>

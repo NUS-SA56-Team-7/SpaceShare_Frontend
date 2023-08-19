@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 /* CSS Imports */
 import './App.css';
+
+/* Context Imports */
+import AuthContext from 'contexts/AuthContext';
 
 /*** Page Imports ***/
 import Register from 'pages/Auth/Register';
@@ -27,8 +30,8 @@ import ListingSearch from 'pages/Listing/ListingSearch';
 /* Profile */
 import Profile from 'pages/Profile/Profile';
 
-/* Renter */
-import RenterProperties from 'pages/Renter/RenterProperties';
+/* User */
+import MyProperties from 'pages/User/MyProperties';
 
 /* Tenant */
 import Favorites from 'pages/Tenant/Favorites';
@@ -36,6 +39,7 @@ import RecentSearches from 'pages/Tenant/RecentSearches';
 
 /* Error Pages */
 import NotFound404 from 'pages/Error/NotFound404';
+import Unauthorized403 from 'pages/Error/Unauthorized403';
 
 import Forms from 'pages/Forms';
 
@@ -52,9 +56,12 @@ import ViewTenants from 'pages/Admin/ViewTenants';
 
 function App() {
 
+    /* useState */
+    const [rendered, setRendered] = useState(false);
+
     /* Program Initialization */
     useEffect(() => {
-
+        setRendered(true);
     }, []);
 
     return (
@@ -72,7 +79,7 @@ function App() {
                     <Route path='/resetpassword/:id/success' element={<ResetPasswordSuccess />} /> */}
 
                     {/* SOMIN ROUTES --- DELETE */}
-                    <Route path='/renter/register' element={<Register />} />
+                    <Route path='/register/:user' element={<Register />} />
                     {/* <Route path='/register/success' element={<RegisterSuccess />} /> */}
 
                     {/* Listing */}
@@ -85,8 +92,8 @@ function App() {
                     <Route path='/profile' element={<Profile />} />
                     <Route path='/profile/view/:user/:id' element={<Profile />} />
 
-                    {/* Renter */}
-                    <Route path='/renter/properties' element={<RenterProperties />} />
+                    {/* User */}
+                    <Route path='/:user/properties' element={<MyProperties />} />
 
                     {/* Tenant */}
                     <Route path='/tenant/favorites' element={<Favorites />} />
@@ -113,6 +120,7 @@ function App() {
                     </Route> */}
 
                     {/* Default Routes */}
+                    <Route path='/403' element={<Unauthorized403 />} />
                     <Route path='*' element={<NotFound404 />} />
 
                     <Route path='/forms' element={<Forms />} />

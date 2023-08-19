@@ -15,12 +15,10 @@ import axios from 'axios';
 
 function ViewAdmins() {
     const session = {
-        // Replace with your session data
-        role: 'admin', // Example role
-        userId: '123', // Example user ID
-        username: 'John Doe', // Example username
+        role: 'admin',
+        userId: '123',
+        username: 'John Doe'
     };
-
 
     // Mock Data
     const columns = [

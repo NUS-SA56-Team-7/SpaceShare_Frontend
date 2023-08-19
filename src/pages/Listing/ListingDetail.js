@@ -101,7 +101,43 @@ function ListingDetail() {
     };
 
     const submitComment = () => {
-        console.log(newComment);
+        console.log('here');
+        console.log(auth?.id);
+        Axios.post('/api/comment/create',
+            {
+                tenantId: auth?.id,
+                propertyId: parseInt(propertyId),
+                comment: newComment,
+            },
+            { headers: { 'Content-Type': 'application/json' } }
+        )
+            .then(res => {
+                if (res.status === 201) {
+                    setNewComment('');
+                    Axios.get(`/api/property/${parseInt(propertyId)}/comments`)
+                        .then(res => {
+                            if (res.status === 200) {
+                                setComments(res.data);
+                            }
+                        })
+                        .catch(err => {
+                            if (err.response.status === 404) {
+                                setError(err.response.data);
+                            }
+                            else if (err.response.status === 500) {
+                                setError(err.response.data);
+                            }
+                        })
+                }
+            })
+            .catch(err => {
+                if (err.response.status === 404) {
+                    setError(err.response.data);
+                }
+                else if (err.response.status === 500) {
+                    setError(err.response.data);
+                }
+            })
     };
 
     /* useEffect */
@@ -110,25 +146,25 @@ function ListingDetail() {
     }, []);
 
     useEffect(() => {
-        if (rendered) {
-            setLoading(true);
-            Axios.get(`/api/property/${propertyId}`)
-                .then(res => {
-                    if (res.status === 200) {
-                        setData(res.data);
-                    }
-                    setLoading(false);
-                })
-                .catch(err => {
-                    if (err.response.status === 404) {
-                        setError(err.response.data);
-                    }
-                    else if (err.response.status === 500) {
-                        setError(err.response.data);
-                    }
-                    setLoading(false);
-                })
-        }
+        if (!rendered) return;
+
+        setLoading(true);
+        Axios.get(`/api/property/${propertyId}`)
+            .then(res => {
+                if (res.status === 200) {
+                    setData(res.data);
+                }
+                setLoading(false);
+            })
+            .catch(err => {
+                if (err.response.status === 404) {
+                    setError(err.response.data);
+                }
+                else if (err.response.status === 500) {
+                    setError(err.response.data);
+                }
+                setLoading(false);
+            })
     }, [rendered]);
 
     useEffect(() => {
@@ -150,7 +186,9 @@ function ListingDetail() {
     }, []);
 
     useEffect(() => {
-        if (rendered && auth?.userType === 'tenant') {
+        if (!rendered) return;
+
+        if (auth?.userType === 'tenant') {
             Axios.get(`/api/tenant/${auth?.id}/favourites/id`)
                 .then(res => {
                     if (res.status === 200) {
@@ -169,7 +207,9 @@ function ListingDetail() {
     }, [rendered, auth]);
 
     useEffect(() => {
-        if (rendered && auth?.userType === 'tenant') {
+        if (!rendered) return;
+
+        if (auth?.userType === 'tenant') {
             Axios.post(`/api/tenant/${auth?.id}/recent/create`,
                 {
                     propertyId: propertyId
@@ -186,22 +226,22 @@ function ListingDetail() {
     }, [rendered, auth]);
 
     useEffect(() => {
-        if (rendered) {
-            Axios.get(`/api/property/${parseInt(propertyId)}/comments`)
-                .then(res => {
-                    if (res.status === 200) {
-                        setComments(res.data);
-                    }
-                })
-                .catch(err => {
-                    if (err.response.status === 404) {
-                        setError(err.response.data);
-                    }
-                    else if (err.response.status === 500) {
-                        setError(err.response.data);
-                    }
-                })
-        }
+        if (!rendered) return;
+
+        Axios.get(`/api/property/${parseInt(propertyId)}/comments`)
+            .then(res => {
+                if (res.status === 200) {
+                    setComments(res.data);
+                }
+            })
+            .catch(err => {
+                if (err.response.status === 404) {
+                    setError(err.response.data);
+                }
+                else if (err.response.status === 500) {
+                    setError(err.response.data);
+                }
+            })
     }, [rendered]);
 
     const propertyAmenities = [
@@ -344,18 +384,21 @@ function ListingDetail() {
                 <div className="my-8 pb-8 border-b border-gray-200">
                     <Heading title="Comments" />
                     <div className='my-6'>
-                        <CommentForm
-                            comment={newComment} setComment={setNewComment}
-                            handleSubmit={submitComment} type='comment' />
+                        {
+                            auth?.id && auth?.userType === 'tenant' &&
+                            <CommentForm
+                                comment={newComment} setComment={setNewComment}
+                                handleSubmit={submitComment} type='comment' />
+                        }
                         {
                             (comments.length === 0)
                                 ? <p>There are no comments yet</p>
                                 : comments.map((comment, index) => (
                                     <Comment
                                         key={index}
-                                        userPhotoUrl='https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/b2a0f028-f3a9-4fd5-92a2-f75d028c884e/d32mwam-ac62a6e4-de96-46a1-b4ec-15b1138b8937.jpg/v1/fill/w_1280,h_960,q_75,strp/tom_cruise_as_a_na_vi_by_scribblingangel_d32mwam-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9OTYwIiwicGF0aCI6IlwvZlwvYjJhMGYwMjgtZjNhOS00ZmQ1LTkyYTItZjc1ZDAyOGM4ODRlXC9kMzJtd2FtLWFjNjJhNmU0LWRlOTYtNDZhMS1iNGVjLTE1YjExMzhiODkzNy5qcGciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.FO7FSE9cAxLV7i9AjryAmESe-tlQkH23L00p-VKP8Ww'
-                                        username='Stephen Phyo'
-                                        date={formatPrettyDateTime(comment.commentAt)}
+                                        userPhotoUrl={comment?.tenant?.photoUrl}
+                                        username={`${comment?.tenant?.firstName} ${comment?.tenant?.lastName}`}
+                                        date={formatPrettyDateTime(comment.commentedAt)}
                                         text={comment.comment}
                                     />
                                 ))

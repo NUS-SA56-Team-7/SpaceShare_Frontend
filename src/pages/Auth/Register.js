@@ -35,7 +35,7 @@ function Register() {
     const location = useLocation();
 
     /* useParams */
-    const { user } = useParams();
+    const { user: paramUser } = useParams();
 
     /* useState */
     const [data, setData] = useState(initData);
@@ -109,17 +109,16 @@ function Register() {
 
     const register = () => {
         if (checkData()) {
-            Axios.post('/api/renter/register', data, {
+            Axios.post(`/api/${paramUser}/register`, data, {
                 headers: { 'Content-Type': 'application/json' }
             })
                 .then(res => {
                     if (res.status === 201) {
                         setCtxEmail({ register: data['email'] });
-                        navigate('/renter/login');
+                        navigate(`/login/${paramUser}`);
                     }
                 })
                 .catch(err => {
-                    // alert(`${err.response.status}: ${err.response.data.message}`);
                     alert(err.message);
                 })
         }
@@ -215,8 +214,7 @@ function Register() {
                                 <FormError nbsp></FormError>
 
                                 <div className='mt-3 mb-4'>
-                                    <ButtonFilled
-                                    >
+                                    <ButtonFilled onClick={register}>
                                         Register
                                     </ButtonFilled>
                                 </div>

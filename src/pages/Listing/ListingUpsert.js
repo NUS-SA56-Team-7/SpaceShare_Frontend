@@ -11,6 +11,7 @@ import FormSelectOption from 'components/form/FormSelectOption';
 import ImageSelector from 'components/ImageSelector/ImageSelector';
 import FileSelector from 'components/FileSelector/FileSelector';
 import Heading from 'components/ui/Heading';
+import FormInputDate from 'components/form/FormInputDate';
 
 /* Context Imports */
 import AuthContext from 'contexts/AuthContext';
@@ -30,7 +31,7 @@ import Layout from 'components/layout/Layout';
 /* Page Imports */
 import NotFound404 from 'pages/Error/NotFound404';
 
-/* Icon */
+/* Icon Imports */
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 
 function ListingUpsert() {
@@ -41,9 +42,10 @@ function ListingUpsert() {
     const initData = {
         title: '', description: '', propertyType: '', roomType: '',
         rentalFees: 0, address: '', postalCode: '', furnishment: '',
+        nearbyDesc: '', availableOn: '',
         numBedrooms: 0, numBathrooms: 0, numTenants: 0,
         propertyImageURLs: [], tenantType: '', amenities: [],
-        facilities: [], postType: 'ROOM_RENTAL'
+        facilities: [], postType: ''
     };
     const err = {};
 
@@ -164,53 +166,6 @@ function ListingUpsert() {
         }
     };
 
-    const create = async () => {
-        try {
-            // Upload Images to Firebase Storage
-            const uploadedImageURLs = await uploadFilesUUID(
-                firebaseStorageRefs.propertyImages, selectedImages);
-
-            // Upload Files to Firebase Storage
-            const uploadedFileURLs = await uploadFiles(
-                firebaseStorageRefs.propertyDocs, selectedDocs);
-
-            // Update the Data Object with the Uploaded Image URLs
-            const updatedData = {
-                ...data,
-                postType: paramUser === 'tenant'
-                    ? 'ROOMMATE_FINDING'
-                    : paramUser === 'renter' && 'ROOM_RENTAL',
-                propertyImageURLs: uploadedImageURLs,
-                propertyDocURLs: uploadedFileURLs,
-                propertyAmenityIDs: selectedAmenities,
-                propertyFacilityIDs: selectedFacilities
-            };
-
-            await Axios.post(`/api/${paramUser}/${auth?.id}/property/create`,
-                updatedData,
-                { headers: { 'Content-Type': 'application/json' } }
-            )
-                .then(res => {
-                    if (res.status === 201) {
-                        setData(res.data);
-                    }
-                    setLoading(false);
-                })
-                .catch(err => {
-                    if (err.response.status === 404) {
-                        setError(err.response.data);
-                    }
-                    else if (err.response.status === 500) {
-                        setError(err.response.data);
-                    }
-                    setLoading(false);
-                });
-        }
-        catch (error) {
-            console.error("Error creating property:", error);
-        }
-    };
-
     const get = (propertyId) => {
         setLoading(true);
         Axios.get(`/api/property/${propertyId}`)
@@ -239,6 +194,56 @@ function ListingUpsert() {
                 }
                 setLoading(false);
             })
+    };
+
+    const create = async () => {
+        try {
+            // Upload Images to Firebase Storage
+            const uploadedImageURLs = await uploadFilesUUID(
+                firebaseStorageRefs.propertyImages, selectedImages);
+
+            // Upload Files to Firebase Storage
+            const uploadedFileURLs = await uploadFiles(
+                firebaseStorageRefs.propertyDocs, selectedDocs);
+
+            // Update the Data Object with the Uploaded Image URLs
+            const updatedData = {
+                ...data,
+                postType: paramUser === 'tenant'
+                    ? 'ROOMMATE_FINDING'
+                    : paramUser === 'renter' && 'ROOM_RENTAL',
+                propertyImageURLs: uploadedImageURLs,
+                propertyDocURLs: uploadedFileURLs,
+                propertyAmenityIDs: selectedAmenities,
+                propertyFacilityIDs: selectedFacilities,
+                postType: paramUser === 'renter'
+                    ? 'ROOM_RENTAL'
+                    : paramUser === 'tenant' && 'ROOMMATE_FINDING'
+            };
+
+            await Axios.post(`/api/${paramUser}/${auth?.id}/property/create`,
+                updatedData,
+                { headers: { 'Content-Type': 'application/json' } }
+            )
+                .then(res => {
+                    if (res.status === 201) {
+                        setData(res.data);
+                    }
+                    setLoading(false);
+                })
+                .catch(err => {
+                    if (err.response.status === 404) {
+                        setError(err.response.data);
+                    }
+                    else if (err.response.status === 500) {
+                        setError(err.response.data);
+                    }
+                    setLoading(false);
+                });
+        }
+        catch (error) {
+            console.error("Error creating property:", error);
+        }
     };
 
     const update = async () => {
@@ -270,32 +275,31 @@ function ListingUpsert() {
             // Update the Data Object with the Uploaded Image URLs
             const updatedData = {
                 ...data,
-                propertyImageURLs: uploadedImageURLs,
+                propertyImageURLs: { ...data.propertyImageURLs, uploadedImageURLs },
                 propertyDocURLs: uploadedFileURLs,
                 propertyAmenityIDs: selectedAmenities,
                 propertyFacilityIDs: selectedFacilities
             };
 
-            // await Axios.put(`/api/${paramUser}/${auth?.id}/property/update/${propertyId}`,
-            //     updatedData,
-            //     { headers: { 'Content-Type': 'application/json' } }
-            // )
-            //     .then(res => {
-            //         if (res.status === 201) {
-            //             setData(res.data);
-            //         }
-            //         setLoading(false);
-            //     })
-            //     .catch(err => {
-            //         if (err.response.status === 404) {
-            //             setError(err.response.data);
-            //         }
-            //         else if (err.response.status === 500) {
-            //             setError(err.response.data);
-            //         }
-            //         setLoading(false);
-            //     });
-            console.log(updatedData)
+            await Axios.put(`/api/${paramUser}/${auth?.id}/property/update/${propertyId}`,
+                updatedData,
+                { headers: { 'Content-Type': 'application/json' } }
+            )
+                .then(res => {
+                    if (res.status === 201) {
+                        setData(res.data);
+                    }
+                    setLoading(false);
+                })
+                .catch(err => {
+                    if (err.response.status === 404) {
+                        setError(err.response.data);
+                    }
+                    else if (err.response.status === 500) {
+                        setError(err.response.data);
+                    }
+                    setLoading(false);
+                });
         }
         catch (error) {
             console.error("Error updating property:", error);
@@ -328,6 +332,8 @@ function ListingUpsert() {
     }, [paramUpsert]);
 
     useEffect(() => {
+        if (!rendered) return;
+
         Axios.get('api/amenity/')
             .then(res => {
                 if (res.status === 200) {
@@ -339,9 +345,11 @@ function ListingUpsert() {
                     setError(err.response.data);
                 }
             })
-    }, []);
+    }, [rendered]);
 
     useEffect(() => {
+        if (!rendered) return;
+
         Axios.get('api/facility/')
             .then(res => {
                 if (res.status === 200) {
@@ -353,7 +361,11 @@ function ListingUpsert() {
                     setError(err.response.data);
                 }
             })
-    }, []);
+    }, [rendered]);
+
+    useEffect(() => {
+        if (rendered && !auth) navigate('/');
+    }, [rendered, auth]);
 
     if (!allowedPaths.includes(paramUpsert)) {
         return <NotFound404 />
@@ -419,6 +431,12 @@ function ListingUpsert() {
                                 <FormError nbsp>{error?.rentalFees}</FormError>
                             </div>
 
+                            <div className="col-span-1 md:col-span-6">
+                                <FormInputDate
+                                    label='Available On'
+                                    onChange={(e) => setData({ ...data, availableOn: e.target.value })} />
+                                <FormError nbsp></FormError>
+                            </div>
 
                             <div className="col-span-1 md:col-span-12">
                                 <FormInputText
@@ -431,7 +449,7 @@ function ListingUpsert() {
                             </div>
 
 
-                            <div className="col-span-1 md:col-span-12">
+                            <div className="col-span-1 md:col-span-4">
                                 <FormInputText
                                     label='Enter Postal Code'
                                     value={data['postalCode']}
@@ -442,6 +460,18 @@ function ListingUpsert() {
                                 <FormError nbsp>{error?.postalCode}</FormError>
                             </div>
 
+                            <div className="col-span-1 md:col-span-12">
+                                <label htmlFor="nearby">Nearby Description</label>
+                                <div className="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200">
+                                    <textarea
+                                        // id="comment"
+                                        rows="6"
+                                        className="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none"
+                                        value={data['nearbyDesc']}
+                                        onChange={(e) => setData({ ...data, nearbyDesc: e.target.value })}
+                                    />
+                                </div>
+                            </div>
 
                             <div className="col-span-1 md:col-span-12">
                                 <FormRadioOption
@@ -543,8 +573,8 @@ function ListingUpsert() {
                                 {toggleAmenity && (
                                     <div className="rounded-lg p-4 border-gray-200 border border-solid">
                                         {amenities.map((amenity, index) => (
-                                            <div className="flex gap-x-3 items-center">
-                                                <label key={index} className="block font-medium text-gray-900">
+                                            <div key={index} className="flex gap-x-3 items-center">
+                                                <label className="block font-medium text-gray-900">
                                                     <input
                                                         type='checkbox'
                                                         className='m-3 cursor-pointer h-4 w-4 rounded border-gray-300 txt-primary focus:ring-primary'
@@ -583,7 +613,7 @@ function ListingUpsert() {
                                 {toggleFacility && (
                                     <div className="rounded-lg p-4 border-gray-200 border border-solid">
                                         {facilities.map((facility, index) => (
-                                            <div className="flex gap-x-3 items-center">
+                                            <div key={index} className="flex gap-x-3 items-center">
                                                 <label key={index} className="block font-medium text-gray-900">
                                                     <input
                                                         type='checkbox'
@@ -613,7 +643,7 @@ function ListingUpsert() {
                             </div>
                             <div className="col-span-1 md:col-span-12 mt-1">
                                 <ButtonFilled
-                                    onClick={() => navigate('/renter/properties')}>
+                                    onClick={() => navigate(`/${paramUser}/properties`)}>
                                     Cancel
                                 </ButtonFilled>
                             </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 /* Icon Imports */
@@ -12,7 +12,7 @@ import Carousel from 'components/carousel/Carousel';
 /* Function Imports */
 import formatPrettyDate from 'functions/formatPrettyDate';
 
-const CardProperties = ({ data, deleteProperty }) => {
+const CardProperties = ({ data, deleteProperty, userType, actionOptions }) => {
 
     /* useNavigate */
     const navigate = useNavigate();
@@ -30,30 +30,33 @@ const CardProperties = ({ data, deleteProperty }) => {
                         <p className="text-3xl font-semibold">
                             {data?.title}
                         </p>
-                        <div className="menu relative z-10 flex gap-x-2">
-                            <div className="w-9">
-                                <button
-                                    type="button"
-                                    className="w-full shadow p-2 rounded-md bg-white hover:cursor-pointer hover:txt-primary"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        navigate(`/renter/listing/update?id=${data?.id}`)
-                                    }}>
-                                    <PencilIcon />
-                                </button>
+                        {
+                            actionOptions &&
+                            <div className="menu relative z-30 flex gap-x-2">
+                                <div className="w-9">
+                                    <button
+                                        type="button"
+                                        className="w-full shadow p-2 rounded-md bg-white hover:cursor-pointer hover:txt-primary"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigate(`/${userType}/listing/update?id=${data?.id}`)
+                                        }}>
+                                        <PencilIcon />
+                                    </button>
+                                </div>
+                                <div className="w-9">
+                                    <button
+                                        type="button"
+                                        className="w-full shadow p-2 rounded-md bg-white hover:cursor-pointer hover:text-red-600"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            deleteProperty(data?.id);
+                                        }}>
+                                        <TrashIcon />
+                                    </button>
+                                </div>
                             </div>
-                            <div className="w-9">
-                                <button
-                                    type="button"
-                                    className="w-full shadow p-2 rounded-md bg-white hover:cursor-pointer hover:text-red-600"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        deleteProperty(data?.id);
-                                    }}>
-                                    <TrashIcon />
-                                </button>
-                            </div>
-                        </div>
+                        }
                     </div>
                     <div>
                         <p className="mt-2 text-sm text-gray-800 line-clamp-2 leading-6">
