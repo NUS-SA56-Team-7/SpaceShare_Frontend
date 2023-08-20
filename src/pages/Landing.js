@@ -23,13 +23,14 @@ function Landing() {
     const [rendered, setRendered] = useState(false);
     const [rentalProperties, setRentalProperties] = useState([]);
     const [roommateFindings, setRoommateFindings] = useState([]);
+    const [recommended, setRecommended] = useState([]);
     const [favorites, setFavorites] = useState([]);
     const [error, setError] = useState();
     const [loading, setLoading] = useState(false);
 
     /* useContext */
     const { auth } = useContext(AuthContext);
-    const { searchKeyword, setSearchKeyword } = useContext(SearchContext);
+    const { searchKeyword, setSearchKeyword, setPostType } = useContext(SearchContext);
 
     /* Functions */
     const search = () => {
@@ -66,6 +67,23 @@ function Landing() {
             .then(res => {
                 if (res.status === 200) {
                     setRoommateFindings(res.data.content);
+                }
+                setLoading(false);
+            })
+            .catch(err => {
+                if (err?.response?.status === 404) {
+                    setError(err.response.data);
+                }
+                else if (err?.response?.status === 500) {
+                    setError(err.response.data);
+                }
+                setLoading(false);
+            })
+
+        Axios.get(`/api/tenant/${auth?.id}/recommended`)
+            .then(res => {
+                if (res.status === 200) {
+                    setRecommended(res.data);
                 }
                 setLoading(false);
             })
@@ -117,17 +135,15 @@ function Landing() {
                         <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>
                             Latest Rental Properties
                         </h2>
-                        <a
-                            href="#"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                navigate('/favorite');
-                            }}
-                            className="text-md font-semibold leading-6 txt-primary hover:txt-primary-hover"
-                        >
+                        <div
+                            className="text-md font-semibold leading-6 txt-primary hover:txt-primary-hover hover:cursor-pointer"
+                            onClick={() => {
+                                setPostType('ROOM_RENTAL');
+                                navigate('/search');
+                            }}>
                             View All
                             <span aria-hidden="true"></span>
-                        </a>
+                        </div>
                     </div>
                     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full'>
                         {rentalProperties.map((property, index) => (
@@ -146,17 +162,15 @@ function Landing() {
                         <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>
                             Latest Roommate Findings
                         </h2>
-                        <a
-                            href="#"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                navigate('/favorite');
-                            }}
-                            className="text-md font-semibold leading-6 txt-primary hover:txt-primary-hover"
-                        >
+                        <div
+                            className="text-md font-semibold leading-6 txt-primary hover:txt-primary-hover hover:cursor-pointer"
+                            onClick={() => {
+                                setPostType('ROOMMATE_FINDING');
+                                navigate('/search');
+                            }}>
                             View All
                             <span aria-hidden="true"></span>
-                        </a>
+                        </div>
                     </div>
                     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full'>
                         {roommateFindings.map((property, index) => (
@@ -179,7 +193,14 @@ function Landing() {
                             </h2>
                         </div>
                         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full'>
-                            <Card></Card>
+                            {recommended.map((property, index) => (
+                                <Card
+                                    key={index}
+                                    data={property}
+                                    isFavorite={favorites.indexOf(property?.id) !== -1}
+                                    userType={auth?.userType}>
+                                </Card>
+                            ))}
                         </div>
                     </section>
                 }

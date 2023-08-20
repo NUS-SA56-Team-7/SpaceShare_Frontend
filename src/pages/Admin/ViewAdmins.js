@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { useState, useEffect } from 'react';
 
@@ -23,6 +23,8 @@ import Axios from 'utils/Axios';
 /* Function Imports */
 import validateEmail from 'functions/validateEmail';
 import validatePassword from 'functions/validatePassword';
+import { useNavigate } from 'react-router';
+import AuthContext from 'contexts/AuthContext';
 
 function ViewAdmins() {
     const session = {
@@ -48,10 +50,28 @@ function ViewAdmins() {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
     const [selectedId, setId] = useState(null);
+    const [rendered, setRendered] = useState(false);
+
+    const { auth } = useContext(AuthContext);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        setRendered(true);
+    }, []);
+
+    useEffect(() => {
+        if (!rendered) return;
+
+        if (!auth) navigate('/admin/login');
+        else if (auth?.userType !== 'admin') {
+            navigate('/403');
+        }
+    }, [rendered, auth]);
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [rendered]);
 
     const fetchData = () => {
         Axios.get('/api/admin')
@@ -119,9 +139,9 @@ function ViewAdmins() {
 
     /* Form send Data Functions */
     const createData = () => {
-        if(checkData()) {
+        if (checkData()) {
             Axios.post('/api/admin/create', formData, {
-                headers: {'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' }
             })
                 .then(response => {
                     if (response.status === 201) {
@@ -142,9 +162,9 @@ function ViewAdmins() {
     };
 
     const sendUpdate = () => {
-        if(updatePassword()) {
+        if (updatePassword()) {
             Axios.put(`/api/admin/update_password/${selectedId}`, formData, {
-                headers: {'Content_Type': 'application/json' }
+                headers: { 'Content_Type': 'application/json' }
             })
                 .then(response => {
                     if (response.status === 200) {
@@ -165,7 +185,7 @@ function ViewAdmins() {
     };
 
     const sendDelete = () => {
-        if(selectedId) {
+        if (selectedId) {
             Axios.delete(`/api/admin/delete/${selectedId}`)
                 .then(response => {
                     console.log("Deleted Data successfully");
@@ -250,67 +270,67 @@ function ViewAdmins() {
                 </div>
             </div>
 
-                {/* Reject Modal */}
-                <ConfirmModal
-                    action="delete"
-                    open={deleteModalOpen}
-                    onClose={() => setDeleteModalOpen(false)}
-                    title="Confirm Delete"
-                    confirmText="Delete"
-                    onConfirm={sendDelete}
+            {/* Reject Modal */}
+            <ConfirmModal
+                action="delete"
+                open={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                title="Confirm Delete"
+                confirmText="Delete"
+                onConfirm={sendDelete}
+            />
+
+            <UpSertModal
+                title="Update Password"
+                open={updateModalOpen}
+                onClose={() => setUpdateModalOpen(false)}
+                onSubmit={sendUpdate}
+            >
+                <FormInputPassword
+                    label='Enter New Password'
+                    value={formData['password']}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onKeyPress={(e) => e.key === 'Enter' && createData()}
                 />
+                <FormError nbsp>{'password' in error && error['password']}</FormError>
+                <FormInputPassword
+                    label='Confirm New Password'
+                    value={formData['cfmPassword']}
+                    onChange={(e) => setFormData({ ...formData, cfmPassword: e.target.value })}
+                    onKeyPress={(e) => e.key === 'Enter' && createData()}
+                />
+                <FormError nbsp>{'cfmPassword' in error && error['cfmPassword']}</FormError>
+            </UpSertModal>
 
-                <UpSertModal
-                    title="Update Password"
-                    open={updateModalOpen}
-                    onClose={() => setUpdateModalOpen(false)}
-                    onSubmit={sendUpdate}
-                >
-                    <FormInputPassword
-                        label='Enter New Password'
-                        value={formData['password']}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        onKeyPress={(e) => e.key === 'Enter' && createData()}
-                    />
-                    <FormError nbsp>{'password' in error && error['password']}</FormError>
-                    <FormInputPassword
-                        label='Confirm New Password'
-                        value={formData['cfmPassword']}
-                        onChange={(e) => setFormData({ ...formData, cfmPassword: e.target.value })}
-                        onKeyPress={(e) => e.key === 'Enter' && createData()}
-                    />
-                    <FormError nbsp>{'cfmPassword' in error && error['cfmPassword']}</FormError>
-                </UpSertModal>
-
-                <UpSertModal
-                    title="Create Admin"
-                    open={createModalOpen}
-                    onClose={() => setCreateModalOpen(false)}
-                    onSubmit={createData}
-                >
-                    <FormInputText
-                        label='Enter Username'
-                        autoFocus
-                        value={formData['email'] ? formData['email'] : ''}
-                        onChange={(e) => setFormData({ ...formData, email: (e.target.value).toLowerCase() })}
-                        onKeyPress={(e) => e.key === 'Enter' && createData()}
-                    />
-                    <FormError nbsp>{'email' in error && error['email']}</FormError>
-                    <FormInputPassword
-                        label='Enter Password'
-                        value={formData['password']}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        onKeyPress={(e) => e.key === 'Enter' && createData()}
-                    />
-                    <FormError nbsp>{'password' in error && error['password']}</FormError>
-                    <FormInputPassword
-                        label='Confirm Password'
-                        value={formData['cfmPassword']}
-                        onChange={(e) => setFormData({ ...formData, cfmPassword: e.target.value })}
-                        onKeyPress={(e) => e.key === 'Enter' && createData()}
-                    />
-                    <FormError nbsp>{'cfmPassword' in error && error['cfmPassword']}</FormError>
-                </UpSertModal>
+            <UpSertModal
+                title="Create Admin"
+                open={createModalOpen}
+                onClose={() => setCreateModalOpen(false)}
+                onSubmit={createData}
+            >
+                <FormInputText
+                    label='Enter Username'
+                    autoFocus
+                    value={formData['email'] ? formData['email'] : ''}
+                    onChange={(e) => setFormData({ ...formData, email: (e.target.value).toLowerCase() })}
+                    onKeyPress={(e) => e.key === 'Enter' && createData()}
+                />
+                <FormError nbsp>{'email' in error && error['email']}</FormError>
+                <FormInputPassword
+                    label='Enter Password'
+                    value={formData['password']}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onKeyPress={(e) => e.key === 'Enter' && createData()}
+                />
+                <FormError nbsp>{'password' in error && error['password']}</FormError>
+                <FormInputPassword
+                    label='Confirm Password'
+                    value={formData['cfmPassword']}
+                    onChange={(e) => setFormData({ ...formData, cfmPassword: e.target.value })}
+                    onKeyPress={(e) => e.key === 'Enter' && createData()}
+                />
+                <FormError nbsp>{'cfmPassword' in error && error['cfmPassword']}</FormError>
+            </UpSertModal>
 
         </AdminLayout>
     );

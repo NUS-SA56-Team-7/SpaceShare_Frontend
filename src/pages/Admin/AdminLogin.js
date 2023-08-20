@@ -146,11 +146,12 @@ function AdminLogin() {
                                     onKeyDown={(e) => e.key === 'Enter' && login()}
                                 />
                                 <FormError nbsp>{'password' in error && error['password']}</FormError>
-                                <div className='mt-4'></div>
-                                <ButtonFilled
-                                    onClick={() => login()}>
-                                    Login
-                                </ButtonFilled>
+                                <div className='mt-4 mb-3'>
+                                    <ButtonFilled
+                                        onClick={() => login()}>
+                                        Login
+                                    </ButtonFilled>
+                                </div>
                             </div>
                         </div>
                     </div>

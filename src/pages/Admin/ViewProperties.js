@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { useState, useEffect } from 'react';
 
@@ -14,6 +14,8 @@ import ConfirmModal from 'components/Admin/Modal/ConfirmModal';
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
 import Axios from 'utils/Axios';
+import AuthContext from 'contexts/AuthContext';
+import { useNavigate } from 'react-router';
 
 function ViewProperties() {
     const session = {
@@ -42,10 +44,10 @@ function ViewProperties() {
             selector: 'actions',
             cell: (row) => (
                 <div className="w-full flex flex-col gap-1 py-2 min-w-[100px]">
-                    { row.approveStatus === 'PENDING' ? (
+                    {row.approveStatus === 'PENDING' ? (
                         <>
                             <ButtonOutlined
-                            onClick={() => approveData(row.id)}
+                                onClick={() => approveData(row.id)}
                             >
                                 <CheckIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-green-700" aria-hidden="true" />
                                 <span className="text-green-700">Approve</span>
@@ -69,7 +71,7 @@ function ViewProperties() {
                     ) : (
                         <>
                             <ButtonOutlined
-                            onClick={() => approveData(row.id)}
+                                onClick={() => approveData(row.id)}
                             >
                                 <CheckIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-green-700" aria-hidden="true" />
                                 <span className="text-green-700">Approve</span>
@@ -114,10 +116,28 @@ function ViewProperties() {
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [rendered, setRendered] = useState(false);
+
+    const { auth } = useContext(AuthContext);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        setRendered(true);
+    }, []);
+
+    useEffect(() => {
+        if (!rendered) return;
+
+        if (!auth) navigate('/admin/login');
+        else if (auth?.userType !== 'admin') {
+            navigate('/403');
+        }
+    }, [rendered, auth]);
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [rendered]);
 
     const fetchData = () => {
         Axios.get('api/admin/property')
@@ -144,7 +164,7 @@ function ViewProperties() {
     };
 
     const sendApprove = () => {
-        if(selectedId) {
+        if (selectedId) {
             Axios.put(`/api/property/${selectedId}/approve`)
                 .then(response => {
                     console.log("Approved Data successfully");
@@ -163,7 +183,7 @@ function ViewProperties() {
     };
 
     const sendDecline = () => {
-        if(selectedId) {
+        if (selectedId) {
             Axios.put(`/api/property/${selectedId}/decline`)
                 .then(response => {
                     console.log("Declined Data successfully");

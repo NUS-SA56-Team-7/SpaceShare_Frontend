@@ -12,7 +12,7 @@ function Unauthorized403() {
     return (
         <Layout>
             <div className="text-center min-h-[calc((100vh-201px)-12rem)]">
-                <p className="text-2xl font-semibold text-red-600">404</p>
+                <p className="text-2xl font-semibold text-red-600">403</p>
                 <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">
                     Unauthorized
                 </h1>

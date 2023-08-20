@@ -109,7 +109,7 @@ function Register() {
 
     const register = () => {
         if (checkData()) {
-            Axios.post(`/api/${paramUser}/register`, data, {
+            Axios.post(`/api/auth/${paramUser}/register`, data, {
                 headers: { 'Content-Type': 'application/json' }
             })
                 .then(res => {

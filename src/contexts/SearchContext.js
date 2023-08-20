@@ -8,10 +8,12 @@ export default SearchContext;
 export const SearchContextProvider = (props) => {
 
     /* useState */
-    const [searchKeyword, setSearchKeyword] = useState();
+    const [postType, setPostType] = useState('');
+    const [searchKeyword, setSearchKeyword] = useState('');
 
     /* Context Values */
     const value = {
+        postType, setPostType,
         searchKeyword, setSearchKeyword,
     };
 

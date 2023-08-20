@@ -13,8 +13,6 @@ import Heading from 'components/ui/Heading';
 import Badge from 'components/ui/Badge';
 import ButtonFilled from 'components/ui/ButtonFilled';
 import ButtonOutlined from 'components/ui/ButtonOutlined';
-import CardFavorite from 'components/ui/CardFavorite';
-import CardAppointment from 'components/ui/CardAppointment';
 import FormInputText from 'components/form/FormInputText';
 import FormInputDate from 'components/form/FormInputDate';
 import FormError from 'components/form/FormError';
@@ -45,7 +43,7 @@ function Profile() {
     const [error, setError] = useState();
 
     /* useContext */
-    const { auth, setAuth } = useContext(AuthContext);
+    const { auth } = useContext(AuthContext);
 
     /* useParams */
     const { user: paramUser, id: paramId } = useParams();
@@ -118,27 +116,6 @@ function Profile() {
             });
     };
 
-    const properties = [
-        {
-            title: 'Modern Condo in Pioneer',
-            propertyImgUrl: 'https://images.pexels.com/photos/280222/pexels-photo-280222.jpeg?auto=compress&cs=tinysrgb&w=800',
-            description: 'Beautiful 2-bedroom condo in the heart of Orchard Road. Fully furnished with modern amenities. Close to shopping malls and public transport.',
-            location: 'Pioneer',
-        },
-        {
-            title: 'Spacious HDB Flat in Clementi',
-            propertyImgUrl: 'https://images.pexels.com/photos/280222/pexels-photo-280222.jpeg?auto=compress&cs=tinysrgb&w=800',
-            description: 'Bright and airy 4-room HDB flat in Clementi. Well-maintained and conveniently located near MRT station and amenities.',
-            location: 'Clementi',
-        },
-        {
-            title: 'Cosy Studio Apartment in Boonlay',
-            propertyImgUrl: 'https://images.pexels.com/photos/280222/pexels-photo-280222.jpeg?auto=compress&cs=tinysrgb&w=800',
-            description: 'Charming studio apartment in Boonlay. Ideal for working professionals or students. Close to medical facilities and shopping malls.',
-            location: 'Boonlay',
-        }
-    ];
-
     if (error === '404' && rendered) {
         return <NotFound404 />
     }
@@ -167,24 +144,38 @@ function Profile() {
                                 </li>
                                 <li className="py-2">
                                     <p className="text-3xl font-normal text-gray-800 line-clamp-1">
-                                        {auth?.firstName} {auth?.lastName}
+                                        {
+                                            type === 'self'
+                                                ? `${auth?.firstName} ${auth?.lastName}`
+                                                : type === 'other' && `${data?.firstName} ${data?.lastName}`
+                                        }
                                     </p>
                                 </li>
                                 <li className="py-2">
                                     <div className="flex flex-col p-6 justify-between rounded-lg bg-white border border-gray-300">
-                                        <div>
-                                            <p className="text-sm font-semibold mb-1 text-gray-900">
-                                                User Type:
-                                                <span className="ml-4 text-sm font-medium leading-6 text-gray-600">
-                                                    {auth?.userType === 'renter' ? 'Renter' : auth?.userType === 'tenant' && 'Tenant'}
-                                                </span>
-                                            </p>
-                                        </div>
+                                        {
+                                            type === 'self' &&
+                                            <div>
+                                                <p className="text-sm font-semibold mb-1 text-gray-900">
+                                                    User Type:
+                                                    <span className="ml-4 text-sm font-medium leading-6 text-gray-600">
+                                                        {
+                                                            auth?.userType === 'renter'
+                                                                ? 'Renter' : auth?.userType === 'tenant' && 'Tenant'
+                                                        }
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        }
                                         <div className='mt-2'>
                                             <p className="text-sm font-semibold mb-1 text-gray-900">
                                                 Joined On:
                                                 <span className="ml-4 text-sm font-medium leading-6 text-gray-600">
-                                                    {auth?.createdAt && formatPrettyDate(auth?.createdAt)}
+                                                    {
+                                                        type === 'self'
+                                                            ? auth?.createdAt && formatPrettyDate(auth?.createdAt)
+                                                            : type === 'other' && data?.createdAt && formatPrettyDate(data?.createdAt)
+                                                    }
                                                 </span>
                                             </p>
                                         </div>
@@ -193,17 +184,29 @@ function Profile() {
                                                 Account Status:
                                             </p>
                                             {
-                                                auth?.status === 'ACTIVE'
-                                                    ? (
-                                                        <Badge status="success">
-                                                            Active
-                                                        </Badge>
-                                                    )
-                                                    : auth?.status === 'INACTIVE' && (
-                                                        <Badge status="danger">
-                                                            Inactive
-                                                        </Badge>
-                                                    )
+                                                type === 'self'
+                                                    ? auth?.status === 'ACTIVE'
+                                                        ? (
+                                                            <Badge status="success">
+                                                                Active
+                                                            </Badge>
+                                                        )
+                                                        : auth?.status === 'INACTIVE' && (
+                                                            <Badge status="danger">
+                                                                Inactive
+                                                            </Badge>
+                                                        )
+                                                    : data?.status === 'ACTIVE'
+                                                        ? (
+                                                            <Badge status="success">
+                                                                Active
+                                                            </Badge>
+                                                        )
+                                                        : data?.status === 'INACTIVE' && (
+                                                            <Badge status="danger">
+                                                                Inactive
+                                                            </Badge>
+                                                        )
                                             }
                                         </div>
                                     </div>

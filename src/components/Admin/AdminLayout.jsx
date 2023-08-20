@@ -21,7 +21,7 @@ function AdminLayout({ session, children }) {
     /* Functions */
     const logout = () => {
         sessionStorage.removeItem('auth');
-        // setAuth(null);
+        navigate('/admin/login');
     };
 
     return (

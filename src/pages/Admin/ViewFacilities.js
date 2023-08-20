@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { useState, useEffect } from 'react';
 
@@ -18,6 +18,8 @@ import ConfirmModal from 'components/Admin/Modal/ConfirmModal';
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
 import Axios from 'utils/Axios';
+import { useNavigate } from 'react-router';
+import AuthContext from 'contexts/AuthContext';
 
 function ViewFacilities() {
     const session = {
@@ -44,10 +46,28 @@ function ViewFacilities() {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
     const [selectedId, setId] = useState(null);
+    const [rendered, setRendered] = useState(false);
+
+    const { auth } = useContext(AuthContext);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        setRendered(true);
+    }, []);
+
+    useEffect(() => {
+        if (!rendered) return;
+
+        if (!auth) navigate('/admin/login');
+        else if (auth?.userType !== 'admin') {
+            navigate('/403');
+        }
+    }, [rendered, auth]);
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [rendered]);
 
     const fetchData = () => {
         Axios.get('/api/facility')
@@ -82,9 +102,9 @@ function ViewFacilities() {
 
     /* Form send Data Functions */
     const createData = () => {
-        if(checkData()) {
+        if (checkData()) {
             Axios.post('/api/facility/create', formData, {
-                headers: {'Content-Type': 'application/json'} 
+                headers: { 'Content-Type': 'application/json' }
             })
                 .then(response => {
                     if (response.status === 201) {
@@ -107,9 +127,9 @@ function ViewFacilities() {
     };
 
     const sendUpdate = () => {
-        if(checkData()) {
-            Axios.put(`/api/facility/update/${selectedId}` , formData, {
-                headers: {'Content_Type' : 'application/json'}
+        if (checkData()) {
+            Axios.put(`/api/facility/update/${selectedId}`, formData, {
+                headers: { 'Content_Type': 'application/json' }
             })
                 .then(response => {
                     if (response.status === 200) {
@@ -130,7 +150,7 @@ function ViewFacilities() {
     };
 
     const sendDelete = () => {
-        if(selectedId) {
+        if (selectedId) {
             Axios.delete(`/api/facility/delete/${selectedId}`)
                 .then(response => {
                     console.log("Deleted Data successfully");

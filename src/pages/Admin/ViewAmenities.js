@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { useState, useEffect } from 'react';
 
@@ -18,6 +18,8 @@ import ConfirmModal from 'components/Admin/Modal/ConfirmModal';
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
 import Axios from 'utils/Axios';
+import AuthContext from 'contexts/AuthContext';
+import { useNavigate } from 'react-router';
 
 function ViewAmenities() {
     const session = {
@@ -44,10 +46,28 @@ function ViewAmenities() {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
     const [selectedId, setId] = useState(null);
+    const [rendered, setRendered] = useState(false);
+
+    const { auth } = useContext(AuthContext);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        setRendered(true);
+    }, []);
+
+    useEffect(() => {
+        if (!rendered) return;
+
+        if (!auth) navigate('/admin/login');
+        else if (auth?.userType !== 'admin') {
+            navigate('/403');
+        }
+    }, [rendered, auth]);
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [rendered]);
 
     const fetchData = () => {
         Axios.get('/api/amenity')
@@ -82,9 +102,9 @@ function ViewAmenities() {
 
     /* Form send Data Functions */
     const createData = () => {
-        if(checkData()) {
+        if (checkData()) {
             Axios.post('/api/amenity/create', formData, {
-                headers: {'Content-Type': 'application/json'} 
+                headers: { 'Content-Type': 'application/json' }
             })
                 .then(response => {
                     if (response.status === 201) {
@@ -105,9 +125,9 @@ function ViewAmenities() {
     };
 
     const sendUpdate = () => {
-        if(checkData()) {
-            Axios.put(`/api/amenity/update/${selectedId}` , formData, {
-                headers: {'Content_Type' : 'application/json'}
+        if (checkData()) {
+            Axios.put(`/api/amenity/update/${selectedId}`, formData, {
+                headers: { 'Content_Type': 'application/json' }
             })
                 .then(response => {
                     if (response.status === 200) {
@@ -128,7 +148,7 @@ function ViewAmenities() {
     };
 
     const sendDelete = () => {
-        if(selectedId) {
+        if (selectedId) {
             Axios.delete(`/api/amenity/delete/${selectedId}`)
                 .then(response => {
                     console.log("Deleted Data successfully");
@@ -194,7 +214,7 @@ function ViewAmenities() {
                     <div className="p-8 bg-white shadow-lg rounded-lg ring-1 ring-gray-900/5">
                         {/* Card Content */}
                         <div className="w-full">
-                            
+
                             {/* Data Table */}
                             {loading ? (
                                 <p>Loading......</p>

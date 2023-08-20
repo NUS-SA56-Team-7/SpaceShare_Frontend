@@ -11,6 +11,7 @@ import Carousel from 'components/carousel/Carousel';
 
 /* Function Imports */
 import formatPrettyDate from 'functions/formatPrettyDate';
+import UserIconWithTag from './UserIconWithTag';
 
 const CardProperties = ({ data, deleteProperty, userType, actionOptions }) => {
 
@@ -72,17 +73,57 @@ const CardProperties = ({ data, deleteProperty, userType, actionOptions }) => {
                         <p className="my-4 text-base tracking-tight text-gray-800">
                             Available On:
                             <span className="ml-2 font-semibold">
-                                {data?.updatedAt && formatPrettyDate(data.updatedAt)}
+                                {data?.availableOn && formatPrettyDate(data.availableOn)}
                             </span>
                         </p>
                     </div>
                     <div className="flex gap-x-2">
-                        <Badge status="success">
-                            Condo
-                        </Badge>
-                        <Badge status="danger">
-                            New
-                        </Badge>
+                        {
+                            data?.approveStatus === 'PENDING' &&
+                            <Badge status="warning">
+                                Pending
+                            </Badge>
+                        }
+                        {
+                            data?.approveStatus === 'APPROVED' &&
+                            <Badge status="success">
+                                Approved
+                            </Badge>
+                        }
+                        {
+                            data?.approveStatus === 'DECLINED' &&
+                            <Badge status="danger">
+                                Declined
+                            </Badge>
+                        }
+                        {
+                            data?.postType === 'ROOM_RENTAL' &&
+                            <Badge status="primary">
+                                Room Rental
+                            </Badge>
+                        }
+                        {
+                            data?.postType === 'ROOMMATE_FINDING' &&
+                            <Badge status="primary">
+                                Roommate
+                            </Badge>
+                        }
+                    </div>
+                    <div className='mt-auto'>
+                        <UserIconWithTag
+                            userId={data?.postType === 'ROOM_RENTAL'
+                                ? data?.renter?.id
+                                : data?.postType === 'ROOMMATE_FINDING' && data?.tenant?.id}
+                            userType={data?.postType === 'ROOM_RENTAL'
+                                ? 'renter'
+                                : data?.postType === 'ROOMMATE_FINDING' && 'tenant'}
+                            userPhotoUrl={data?.postType === 'ROOM_RENTAL'
+                                ? data?.renter?.photoUrl
+                                : data?.postType === 'ROOMMATE_FINDING' && data?.tenant?.photoUrl}
+                            username={data?.postType === 'ROOM_RENTAL'
+                                ? `${data?.renter?.firstName ? data?.renter.firstName : 'Unknown'} ${data?.renter?.lastName ? data?.renter.lastName : 'User'}`
+                                : data?.postType === 'ROOMMATE_FINDING' && `${data?.tenant?.firstName ? data?.tenant.firstName : 'Unknown'} ${data?.tenant?.lastName ? data?.tenant.lastName : 'User'}`}>
+                        </UserIconWithTag>
                     </div>
                     <div>
                         <p className="my-4 text-sm tracking-tight text-gray-800">

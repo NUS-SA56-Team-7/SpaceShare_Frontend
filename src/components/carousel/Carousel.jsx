@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
+
+/* Component Imports */
 import CarouselItem from './CarouselItem';
+
+/* Asset Imports */
+import defaultImage from 'assets/images/default.jpeg';
 
 const Carousel = ({ items }) => {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -25,13 +30,20 @@ const Carousel = ({ items }) => {
     return (
         <div className="relative w-full mb-10">
             <div className="relative h-56 md:h-96 overflow-hidden rounded-lg">
-                {items.map((item, index) => (
-                    <CarouselItem
-                        key={index}
-                        item={item}
-                        active={index === activeIndex}
-                    />
-                ))}
+                {
+                    items.length === 0
+                        ?
+                        <img
+                            src={defaultImage}
+                            className="w-full items-center justify-center"
+                            alt='default' />
+                        : items.map((item, index) => (
+                            <CarouselItem
+                                key={index}
+                                item={item}
+                                active={index === activeIndex}
+                            />
+                        ))}
             </div>
 
             {/* Slider Indicators */}

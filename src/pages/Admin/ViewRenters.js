@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { useState, useEffect } from 'react';
 
@@ -14,6 +14,8 @@ import ConfirmModal from 'components/Admin/Modal/ConfirmModal';
 // DataTable Import
 import DataTableComponent from 'components/Admin/DataTableComponent';
 import Axios from 'utils/Axios';
+import { useNavigate } from 'react-router';
+import AuthContext from 'contexts/AuthContext';
 
 function ViewRenters() {
     const session = {
@@ -82,10 +84,28 @@ function ViewRenters() {
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState([]);
+    const [rendered, setRendered] = useState(false);
+
+    const { auth } = useContext(AuthContext);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        setRendered(true);
+    }, []);
+
+    useEffect(() => {
+        if (!rendered) return;
+
+        if (!auth) navigate('/admin/login');
+        else if (auth?.userType !== 'admin') {
+            navigate('/403');
+        }
+    }, [rendered, auth]);
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [rendered]);
 
     const fetchData = () => {
         Axios.get('/api/renter')
@@ -110,7 +130,7 @@ function ViewRenters() {
     };
 
     const sendDelete = () => {
-        if(selectedId) {
+        if (selectedId) {
             Axios.delete(`/api/renter/delete/${selectedId}`)
                 .then(response => {
                     console.log("Deleted Data successfully");

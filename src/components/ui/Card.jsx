@@ -15,6 +15,9 @@ import Axios from 'utils/Axios';
 /* Function Imports */
 import formatPrettyDate from 'functions/formatPrettyDate';
 
+/* Asset Imports */
+import defaultImage from 'assets/images/default.jpeg';
+
 function Card(props) {
 
     /* useNavigate */
@@ -93,7 +96,9 @@ function Card(props) {
                     <div className="flex justify-center relative rounded-lg overflow-hidden h-52">
                         <div className="transition-transform duration-500 transform ease-in-out hover:scale-110 w-full
                             d-flex align-items-center justify-content-center">
-                            <img src={props.data?.propertyImages[0]?.imageUrl}
+                            <img src={props.data?.propertyImages.length !== 0
+                                ? props.data?.propertyImages[0]?.imageUrl
+                                : defaultImage}
                                 alt={props.data?.title}
                                 className='w-full h-full object-content object-cover' />
                         </div>
@@ -116,10 +121,18 @@ function Card(props) {
                                     Declined
                                 </Badge>
                             }
-                            <Badge status="primary">
-                                New
-                            </Badge>
-
+                            {
+                                props.data?.postType === 'ROOM_RENTAL' &&
+                                <Badge status="primary">
+                                    Room Rental
+                                </Badge>
+                            }
+                            {
+                                props.data?.postType === 'ROOMMATE_FINDING' &&
+                                <Badge status="primary">
+                                    Roommate
+                                </Badge>
+                            }
                         </span>
                         {
                             props?.userType !== 'renter' &&
@@ -140,7 +153,7 @@ function Card(props) {
 
                     <div className='grid grid-cols-1 gap-4 mt-4'>
                         <p className='text-s'>
-                            {`Available on: ${formatPrettyDate(props?.data?.availableOn && props?.data?.availableOn)}`}
+                            {`Available on: ${props?.data?.availableOn && formatPrettyDate(props?.data.availableOn)}`}
                         </p>
                     </div>
                     <div className='grid grid-cols-2 gap-4 mt-4'>
@@ -160,8 +173,8 @@ function Card(props) {
                                 ? props.data?.renter?.photoUrl
                                 : props.data?.postType === 'ROOMMATE_FINDING' && props.data?.tenant?.photoUrl}
                             username={props.data?.postType === 'ROOM_RENTAL'
-                                ? `${props.data?.renter?.firstName} ${props.data?.renter?.lastName}`
-                                : props.data?.postType === 'ROOMMATE_FINDING' && `${props.data?.tenant?.firstName} ${props.data?.tenant?.lastName}`}>
+                                ? `${props.data?.renter?.firstName ? props.data?.renter.firstName : 'Unknown'} ${props.data?.renter?.lastName ? props.data?.renter.lastName : 'User'}`
+                                : props.data?.postType === 'ROOMMATE_FINDING' && `${props.data?.tenant?.firstName ? props.data?.tenant.firstName : 'Unknown'} ${props.data?.tenant?.lastName ? props.data?.tenant.lastName : 'User'}`}>
                         </UserIconWithTag>
                     </div>
                 </div>

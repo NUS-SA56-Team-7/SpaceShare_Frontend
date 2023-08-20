@@ -9,7 +9,7 @@ const CarouselItem = ({ item, active }) => {
             className={carouselItemClasses}
             data-carousel-item>
             <img
-                src={item.imageUrl}
+                src={item?.imageUrl}
                 className="w-full items-center justify-center"
                 alt={item.id} />
         </div>

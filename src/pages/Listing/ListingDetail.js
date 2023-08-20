@@ -9,7 +9,6 @@ import Layout from 'components/layout/Layout';
 import Carousel from 'components/carousel/Carousel';
 import DetailList from 'components/ui/DetailList';
 import Heading from 'components/ui/Heading';
-import DetailFeatures from 'components/ui/DetailFeatures';
 import UserIconWithTag from 'components/ui/UserIconWithTag';
 import ButtonOutlined from 'components/ui/ButtonOutlined';
 import ButtonFilled from 'components/ui/ButtonFilled';
@@ -140,6 +139,10 @@ function ListingDetail() {
             })
     };
 
+    const reportScam = () => {
+        alert('You have successfully reported this property post');
+    };
+
     /* useEffect */
     useEffect(() => {
         setRendered(true);
@@ -244,13 +247,6 @@ function ListingDetail() {
             })
     }, [rendered]);
 
-    const propertyAmenities = [
-        'Shower',
-        'Cloth-Hanger',
-        'Wifi Access',
-        'Air-conditioning',
-    ]
-
     if (loading) {
         return <Loader />
     }
@@ -272,7 +268,7 @@ function ListingDetail() {
                                 [
                                     { name: 'Address', description: data['address'] },
                                     { name: 'Postal Code', description: data['postalCode'] },
-                                    { name: 'Nearby Locations', description: data['nearbyLocations'] },
+                                    { name: 'Nearby Locations', description: data['nearbyDesc'] },
                                     { name: 'Furnishment', description: data['furnishment'] === 'FURNISHED' ? 'Furnished' : data['furnishment'] === 'UNFURNISHED' ? 'Unfurnished' : 'Partial Furnished' },
                                 ].map((feature) => (
                                     <div key={feature.name} className="border-t border-gray-200 pt-4">
@@ -284,7 +280,7 @@ function ListingDetail() {
                         </dl>
 
                         <div className='pt-8 mt-8 border-t border-gray-200'>
-                            <DetailList title={'Property Details'} />
+                            <DetailList title='Property Details' data={data} />
                         </div>
                     </div>
 
@@ -305,16 +301,22 @@ function ListingDetail() {
                                         </div>
                                         <div>
                                             <div className="mt-10 flex items-center gap-x-4">
-                                                <h4 className="flex-none text-sm font-semibold leading-6 txt-primary">Core facilities/ Amenities</h4>
+                                                <h4 className="flex-none text-sm font-semibold leading-6 txt-primary">Facilities/ Amenities</h4>
                                                 <div className="h-px flex-auto bg-gray-100" />
                                             </div>
                                             <ul
                                                 role="list"
                                                 className="mt-8 grid grid-cols-1 gap-4 text-sm leading-6 text-gray-600 sm:grid-cols-2 sm:gap-6">
-                                                {propertyAmenities.map((amenity) => (
-                                                    <li key={amenity} className="flex gap-x-3">
+                                                {data['propertyAmenities'] && data['propertyAmenities'].slice(0, 2).map((amenity) => (
+                                                    <li key={amenity.amenity.id} className="flex gap-x-3">
                                                         <CheckIcon className="h-6 w-5 flex-none txt-primary" aria-hidden="true" />
-                                                        {amenity}
+                                                        {amenity.amenity.amenityName}
+                                                    </li>
+                                                ))}
+                                                {data['propertyFacilities'] && data['propertyFacilities'].slice(0, 2).map((facility) => (
+                                                    <li key={facility.facility.id} className="flex gap-x-3">
+                                                        <CheckIcon className="h-6 w-5 flex-none txt-primary" aria-hidden="true" />
+                                                        {facility.facility.facilityName}
                                                     </li>
                                                 ))}
                                             </ul>
@@ -323,44 +325,67 @@ function ListingDetail() {
 
                                     {
                                         auth?.userType === 'tenant' &&
-                                        <li className="flex flex-col md:flex-row py-6 justify-around">
-                                            <span className="flex-1">
-                                                <ButtonOutlined onClick={addToFavorite}>
-                                                    {isFavorite
-                                                        ? (
-                                                            <div className="flex items-center">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="rgb(220, 38, 38)" className="-ml-0.5 mr-1.5 h-5 w-5">
-                                                                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                                                                </svg>
-                                                                <span className="text-red-600">
-                                                                    Saved
-                                                                </span>
-                                                            </div>
-                                                        )
-                                                        : (
-                                                            <div className="flex items-center">
-                                                                <HeartIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
-                                                                Save
-                                                            </div>
-                                                        )}
-                                                </ButtonOutlined>
-                                            </span>
+                                        <>
+                                            <li className="flex flex-col md:flex-row py-6 justify-around">
+                                                <span className="flex-1">
+                                                    <ButtonOutlined onClick={addToFavorite}>
+                                                        {isFavorite
+                                                            ? (
+                                                                <div className="flex items-center">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="rgb(220, 38, 38)" className="-ml-0.5 mr-1.5 h-5 w-5">
+                                                                        <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                                                                    </svg>
+                                                                    <span className="text-red-600">
+                                                                        Saved
+                                                                    </span>
+                                                                </div>
+                                                            )
+                                                            : (
+                                                                <div className="flex items-center">
+                                                                    <HeartIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+                                                                    Save
+                                                                </div>
+                                                            )}
+                                                    </ButtonOutlined>
+                                                </span>
 
-                                            <span className="ml-0 mt-3 flex-1 md:ml-3 md:mt-0">
-                                                <ButtonOutlined action="">
-                                                    <CalendarIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
-                                                    Appointment
-                                                </ButtonOutlined>
-                                            </span>
-                                        </li>
+                                                <span className="ml-0 mt-3 flex-1 md:ml-3 md:mt-0">
+                                                    <ButtonOutlined action="">
+                                                        <CalendarIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                        Appointment
+                                                    </ButtonOutlined>
+                                                </span>
+                                            </li>
+                                            <li className="flex flex-col md:flex-row py-6 justify-around">
+                                                <span className="ml-0 mt-3 flex-1 md:ml-3 md:mt-0">
+                                                    <ButtonOutlined
+                                                        onClick={() => reportScam()}>
+                                                        Report Scam
+                                                    </ButtonOutlined>
+                                                </span>
+                                            </li>
+                                        </>
                                     }
 
                                     <li className="flex flex-col pt-2 pb-6">
                                         <UserIconWithTag
-                                            userPhotoUrl={data?.renter?.photoUrl}
-                                            username={`${data?.renter?.firstName} ${data?.renter?.lastName}`}
-                                        />
-                                        <ButtonFilled onClick={() => { window.open('https://api.whatsapp.com/send?phone=6581749880', '_blank') }}>
+                                            userId={data?.postType === 'ROOM_RENTAL'
+                                                ? data?.renter?.id
+                                                : data?.postType === 'ROOMMATE_FINDING' && data?.tenant?.id}
+                                            userType={data?.postType === 'ROOM_RENTAL'
+                                                ? 'renter'
+                                                : data?.postType === 'ROOMMATE_FINDING' && 'tenant'}
+                                            userPhotoUrl={data?.postType === 'ROOM_RENTAL'
+                                                ? data?.renter?.photoUrl
+                                                : data?.postType === 'ROOMMATE_FINDING' && data?.tenant?.photoUrl}
+                                            username={data?.postType === 'ROOM_RENTAL'
+                                                ? `${data?.renter?.firstName} ${data?.renter?.lastName}`
+                                                : data?.postType === 'ROOMMATE_FINDING' && `${data?.tenant?.firstName} ${data?.tenant?.lastName}`} />
+                                        <ButtonFilled onClick={() => {
+                                            window.open(`https://api.whatsapp.com/send?phone=65${data?.postType === 'ROOM_RENTAL'
+                                                ? data?.renter?.phone
+                                                : data?.postType === 'ROOMMATE_FINDING' && data?.tenant?.phone}`, '_blank')
+                                        }}>
                                             Contact
                                         </ButtonFilled>
                                     </li>

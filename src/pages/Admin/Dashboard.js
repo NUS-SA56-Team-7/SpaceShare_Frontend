@@ -11,6 +11,8 @@ import Axios from 'utils/Axios';
 /* Report Generate Modal Import */
 import ReportGenerateModal from 'components/Admin/Modal/ReportGenerateModal';
 import { DocumentChartBarIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router';
+import AuthContext from 'contexts/AuthContext';
 
 function Dashboard() {
     const session = {
@@ -27,9 +29,28 @@ function Dashboard() {
     const [roomRentalByRoomType, setRoomRentalByRoomType] = useState(null);
     const [roommateFindingByRoomType, setRoommateFindingByRoomType] = useState(null);
 
+    const [rendered, setRendered] = useState(false);
+
+    const { auth } = useContext(AuthContext);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        setRendered(true);
+    }, []);
+
+    useEffect(() => {
+        if (!rendered) return;
+
+        if (!auth) navigate('/admin/login');
+        else if (auth?.userType !== 'admin') {
+            navigate('/403');
+        }
+    }, [rendered, auth]);
+
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [rendered]);
 
     const fetchData = () => {
         Axios.get('/api/property/property-type-reports')

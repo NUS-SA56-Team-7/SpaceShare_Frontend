@@ -15,7 +15,6 @@ import { MinusIcon, PlusIcon, CheckIcon } from '@heroicons/react/20/solid';
 import Axios from 'utils/Axios';
 
 /* Component Imports */
-import Layout from 'components/layout/Layout';
 import Heading from 'components/ui/Heading';
 import SearchForm from 'components/ui/SearchForm';
 import Carousel from 'components/carousel/Carousel';
@@ -38,7 +37,7 @@ const ListingSearch = () => {
     const [currentPage, setCurrentPage] = useState(0);
 
     /* useContext */
-    const { searchKeyword, setSearchKeyword } = useContext(SearchContext);
+    const { searchKeyword, setSearchKeyword, postType } = useContext(SearchContext);
 
     /* useNavigate */
     const navigate = useNavigate();
@@ -47,23 +46,23 @@ const ListingSearch = () => {
     const location = useLocation();
 
     /* Functions */
-    const updateQueryParams = () => {
-        const url = new URL(window.location);
-        url.searchParams.set('key', 'a');
-        window.history.pushState(null, '', url.toString());
-    };
+    const search = (postType, page, keyword) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    const search = () => {
-        updateQueryParams();
-    };
+        let searchAPI = '';
+        if (keyword === '') {
+            searchAPI = `/api/property/search?postType=${postType}&page=${page}`
+        }
+        else {
+            searchAPI = `/api/property/search?postType=${postType}&page=${page}&keyword=${keyword}`
+        }
 
-    const paginate = (page) => {
-        Axios.get(`/api/property/search?page=${page}`)
+        Axios.get(searchAPI)
             .then(res => {
                 if (res.status === 200) {
                     setProperties(res.data.content);
                     setTotalPages(res.data.totalPages);
-                    setCurrentPage(page);
                 }
                 setLoading(false);
             })
@@ -88,7 +87,7 @@ const ListingSearch = () => {
         if (!rendered) return;
 
         setLoading(true);
-        paginate(0);
+        search(postType, 0, searchKeyword);
     }, [rendered]);
 
     const handleSearch = (event) => {
@@ -97,13 +96,6 @@ const ListingSearch = () => {
 
     const handleFilterChange = (event) => {
         setFilterOption(event.target.value);
-    };
-
-    // Function to handle search action, you can implement your search logic here
-    const performSearch = () => {
-        // Implement your search logic here using the 'searchQuery' and 'filterOption'
-        console.log('Searching for:', searchQuery);
-        console.log('Filter option:', filterOption);
     };
 
     const sortOptions = [
@@ -173,7 +165,7 @@ const ListingSearch = () => {
                             <SearchForm
                                 searchKeyword={searchKeyword}
                                 setSearchKeyword={setSearchKeyword}
-                                search={search} />
+                                search={() => search(postType, 0, searchKeyword)} />
                         </div>
                         <div className="col-span-1 mt-4 md:col-span-5 md:mt-0 flex gap-x-2 flex-grow">
                             <Dropdown title="Property Type">
@@ -294,7 +286,7 @@ const ListingSearch = () => {
                                     text-gray-900 ring-1 ring-inset ring-gray-300
                                     focus:z-20 focus:outline-offset-0 hover:cursor-pointer hover:bg-gray-50
                                     ${currentPage === index && 'bg-primary text-white ring-primary hover:bg-primary'}`}
-                                                onClick={() => paginate(index)}>
+                                                onClick={() => search(postType, index, searchKeyword)}>
                                                 {index + 1}
                                             </div>
                                         </div>

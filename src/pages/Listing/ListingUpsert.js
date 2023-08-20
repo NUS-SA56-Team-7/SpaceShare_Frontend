@@ -142,6 +142,9 @@ function ListingUpsert() {
         if (data['roomType'] === 'WHOLE_UNIT' && data['numTenants'] === 0) {
             err['numTenants'] = 'Number of Tenants must be greater than 0'
         }
+        if (!data['availableOn']) {
+            err['availableOn'] = 'Please select Availability Date'
+        }
         if (selectedImages.length + existingImages.length === 0) {
             err['propertyImages'] = 'Please provide at least one Property Image'
         }
@@ -217,9 +220,6 @@ function ListingUpsert() {
                 propertyDocURLs: uploadedFileURLs,
                 propertyAmenityIDs: selectedAmenities,
                 propertyFacilityIDs: selectedFacilities,
-                postType: paramUser === 'renter'
-                    ? 'ROOM_RENTAL'
-                    : paramUser === 'tenant' && 'ROOMMATE_FINDING'
             };
 
             await Axios.post(`/api/${paramUser}/${auth?.id}/property/create`,
@@ -229,6 +229,7 @@ function ListingUpsert() {
                 .then(res => {
                     if (res.status === 201) {
                         setData(res.data);
+                        navigate(`/${paramUser}/properties`)
                     }
                     setLoading(false);
                 })
@@ -266,8 +267,12 @@ function ListingUpsert() {
         //     })
         try {
             // Upload Images to Firebase Storage
-            const uploadedImageURLs = await uploadFilesUUID(
-                firebaseStorageRefs.propertyImages, selectedImages);
+            let uploadedImageURLs = [];
+            console.log(selectedImages);
+            if (selectedImages.length !== 0) {
+                uploadedImageURLs = await uploadFilesUUID(
+                    firebaseStorageRefs.propertyImages, selectedImages);
+            }
 
             // Upload Files to Firebase Storage
             const uploadedFileURLs = await uploadFiles(
@@ -276,11 +281,16 @@ function ListingUpsert() {
             // Update the Data Object with the Uploaded Image URLs
             const updatedData = {
                 ...data,
-                propertyImageURLs: { ...data.propertyImageURLs, uploadedImageURLs },
+                postType: paramUser === 'tenant'
+                    ? 'ROOMMATE_FINDING'
+                    : paramUser === 'renter' && 'ROOM_RENTAL',
+                propertyImageURLs: uploadedImageURLs,
                 propertyDocURLs: uploadedFileURLs,
                 propertyAmenityIDs: selectedAmenities,
                 propertyFacilityIDs: selectedFacilities
             };
+
+            console.log('Update')
 
             await Axios.put(`/api/${paramUser}/${auth?.id}/property/update/${propertyId}`,
                 updatedData,
@@ -309,6 +319,7 @@ function ListingUpsert() {
 
     const submit = () => {
         if (checkData()) {
+
             if (paramUpsert === 'create') {
                 create();
             }
@@ -435,8 +446,9 @@ function ListingUpsert() {
                             <div className="col-span-1 md:col-span-6">
                                 <FormInputDate
                                     label='Available On'
+                                    value={data['availableOn']}
                                     onChange={(e) => setData({ ...data, availableOn: e.target.value })} />
-                                <FormError nbsp></FormError>
+                                <FormError nbsp>{error?.availableOn}</FormError>
                             </div>
 
                             <div className="col-span-1 md:col-span-12">
@@ -467,10 +479,9 @@ function ListingUpsert() {
                                 </label>
                                 <div className="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200">
                                     <textarea
-                                        // id="comment"
                                         rows="6"
                                         className="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none"
-                                        value={data['nearbyDesc']}
+                                        value={data?.nearbyDesc}
                                         onChange={(e) => setData({ ...data, nearbyDesc: e.target.value })}
                                     />
                                 </div>
@@ -583,6 +594,7 @@ function ListingUpsert() {
                                                         className='m-3 cursor-pointer h-4 w-4 rounded border-gray-300 txt-primary focus:ring-primary'
                                                         name={amenity.amenityName}
                                                         value={amenity.id}
+                                                        checked={selectedAmenities.includes(amenity.id)}
                                                         onChange={() => selectedAmenities.includes(amenity.id)
                                                             ? setSelectedAmenities(
                                                                 selectedAmenities.filter(item => item !== amenity.id))
@@ -623,6 +635,7 @@ function ListingUpsert() {
                                                         className='m-3 cursor-pointer h-4 w-4 rounded border-gray-300 txt-primary focus:ring-primary'
                                                         name={facility.facilityName}
                                                         value={facility.id}
+                                                        checked={selectedFacilities.includes(facility.id)}
                                                         onChange={() => selectedFacilities.includes(facility.id)
                                                             ? setSelectedFacilities(
                                                                 selectedFacilities.filter(item => item !== facility.id))
