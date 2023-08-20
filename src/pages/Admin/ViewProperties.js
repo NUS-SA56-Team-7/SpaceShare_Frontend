@@ -78,12 +78,6 @@ function ViewProperties() {
                             </ButtonOutlined>
                         </>
                     )}
-                    <ButtonOutlined
-                        onClick={() => deleteData(row.id)}
-                    >
-                        <TrashIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-500" aria-hidden="true" />
-                        <span className="text-red-500">Delete</span>
-                    </ButtonOutlined>
                 </div>
             )
         }
@@ -154,7 +148,6 @@ function ViewProperties() {
     // Modal Methods
     const [approveModalOpen, setApproveModalOpen] = useState(false);
     const [declineModalOpen, setDeclineModalOpen] = useState(false);
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
     const [selectedId, setId] = useState(null);
 
@@ -194,26 +187,6 @@ function ViewProperties() {
                     console.error('Error fetching data:', error);
                 });
         }
-    }
-
-    const deleteData = (id) => {
-        setDeleteModalOpen(true);
-        setId(id);
-    };
-
-    const sendDelete = () => {
-        // if(selectedId) {
-        //     Axios.put(`/api/property/delete/${selectedId}`)
-        //         .then(response => {
-        //             console.log("Deleted Data successfully");
-        //             setDeleteModalOpen(false);
-        //             fetchData();
-        //         })
-        //         .catch(error => {
-        //             console.error('Error fetching data:', error);
-        //         });
-        // }
-        console.log(selectedId);
     }
 
     return (
@@ -262,16 +235,6 @@ function ViewProperties() {
                 title="Confirm Decline"
                 confirmText="Decline"
                 onConfirm={sendDecline}
-            />
-
-            {/* Delete Modal */}
-            <ConfirmModal
-                action="delete"
-                open={deleteModalOpen}
-                onClose={() => setDeleteModalOpen(false)}
-                title="Confirm Delete"
-                confirmText="Delete"
-                onConfirm={sendDelete}
             />
 
         </AdminLayout>

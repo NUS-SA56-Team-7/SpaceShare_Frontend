@@ -71,12 +71,16 @@ function ViewRenters() {
             selector: 'actions',
             cell: (row) => (
                 <div className="w-full flex flex-col gap-1 py-2 min-w-[100px]">
-                    <ButtonOutlined
-                        onClick={() => deleteData(row.id)}
-                    >
-                        <TrashIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-500" aria-hidden="true" />
-                        <span className="text-red-500">Delete</span>
-                    </ButtonOutlined>
+                        { row.status === 'ACTIVE' ? (
+                            <>
+                                <ButtonOutlined
+                                    onClick={() => deleteData(row.id)}
+                                >
+                                    <TrashIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-500" aria-hidden="true" />
+                                    <span className="text-red-500">Delete</span>
+                                </ButtonOutlined>
+                            </>
+                        ) : ''}
                 </div>
             )
         }
